@@ -1,10 +1,9 @@
 {
   "expo": {
-    "name": "follow-app",
+    "name": "Follow",
     "slug": "follow-app",
     "version": "1.0.0",
-
-    "scheme": "follow-app",
+    "scheme": "follow",
     "web": {
       "bundler": "metro",
       "output": "static",
@@ -21,28 +20,36 @@
     ],
     "experiments": {
       "typedRoutes": true,
-
       "tsconfigPaths": true
     },
-
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-
     "userInterfaceStyle": "light",
-
     "splash": {
       "image": "./assets/splash.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": ["**/*"],
+    "assetBundlePatterns": [
+      "**/*"
+    ],
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "cc.hyoban.follow"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
+      },
+      "package": "cc.hyoban.follow"
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "0de3f5f4-f24c-491f-a2a2-3d303f84f790"
       }
     }
   }
