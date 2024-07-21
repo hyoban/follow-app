@@ -5,11 +5,7 @@ import { TabBarIcon } from '../../components/TabBarIcon'
 
 export default function TabLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: 'black',
-      }}
-    >
+    <Tabs>
       <Tabs.Screen
         name="index"
         options={{
