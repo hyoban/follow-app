@@ -21,6 +21,7 @@ export default function app({ config }: ConfigContext): ExpoConfig {
           launchMode: 'most-recent',
         },
       ],
+      'expo-secure-store',
     ],
     experiments: {
       typedRoutes: true,

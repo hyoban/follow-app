@@ -3,6 +3,7 @@ import { useFonts } from 'expo-font'
 import { SplashScreen, Stack } from 'expo-router'
 import { useEffect } from 'react'
 import { useColorScheme } from 'react-native'
+import Toast from 'react-native-toast-message'
 import { TamaguiProvider } from 'tamagui'
 
 import config from '../tamagui.config'
@@ -10,7 +11,7 @@ import config from '../tamagui.config'
 SplashScreen.preventAutoHideAsync()
 
 export const unstable_settings = {
-  // Ensure that reloading on `/modal` keeps a back button present.
+  // Ensure that reloading on `/settings` keeps a back button present.
   initialRouteName: '(tabs)',
 }
 
@@ -36,8 +37,9 @@ export default function RootLayout() {
       <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="settings" options={{ presentation: 'modal', title: 'User' }} />
         </Stack>
+        <Toast position="bottom" bottomOffset={90} />
       </ThemeProvider>
     </TamaguiProvider>
   )
