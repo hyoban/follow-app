@@ -1,9 +1,9 @@
-import { createAnimations } from '@tamagui/animations-react-native';
-import { createInterFont } from '@tamagui/font-inter';
-import { createMedia } from '@tamagui/react-native-media-driver';
-import { shorthands } from '@tamagui/shorthands';
-import { themes, tokens } from '@tamagui/themes';
-import { createTamagui, styled, SizableText, H1, YStack, Button as ButtonTamagui } from 'tamagui';
+import { createAnimations } from '@tamagui/animations-react-native'
+import { createInterFont } from '@tamagui/font-inter'
+import { createMedia } from '@tamagui/react-native-media-driver'
+import { shorthands } from '@tamagui/shorthands'
+import { themes, tokens } from '@tamagui/themes'
+import { Button as ButtonTamagui, createTamagui, H1, SizableText, styled, YStack } from 'tamagui'
 
 const animations = createAnimations({
   bouncy: {
@@ -23,32 +23,32 @@ const animations = createAnimations({
     stiffness: 250,
     type: 'spring',
   },
-});
+})
 
-const headingFont = createInterFont();
+const headingFont = createInterFont()
 
-const bodyFont = createInterFont();
+const bodyFont = createInterFont()
 
 export const Container = styled(YStack, {
   flex: 1,
   padding: 24,
-});
+})
 
 export const Main = styled(YStack, {
   flex: 1,
   justifyContent: 'space-between',
   maxWidth: 960,
-});
+})
 
 export const Title = styled(H1, {
   color: '#000',
   size: '$12',
-});
+})
 
 export const Subtitle = styled(SizableText, {
   color: '#38434D',
   size: '$9',
-});
+})
 
 export const Button = styled(ButtonTamagui, {
   backgroundColor: '#6366F1',
@@ -74,7 +74,7 @@ export const Button = styled(ButtonTamagui, {
   color: '#FFFFFF',
   fontWeight: '600', // Is not passed down to the text. Probably a bug in Tamagui: https://github.com/tamagui/tamagui/issues/1156#issuecomment-1802594930
   fontSize: 16,
-});
+})
 
 const config = createTamagui({
   light: {
@@ -110,15 +110,16 @@ const config = createTamagui({
     hoverNone: { hover: 'none' },
     pointerCoarse: { pointer: 'coarse' },
   }),
-});
+})
 
-type AppConfig = typeof config;
+type AppConfig = typeof config
 
 // Enable auto-completion of props shorthand (ex: jc="center") for Tamagui templates.
 // Docs: https://tamagui.dev/docs/core/configuration
 
 declare module 'tamagui' {
+  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface TamaguiCustomConfig extends AppConfig {}
 }
 
-export default config;
+export default config

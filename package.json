@@ -1,17 +1,20 @@
 {
   "name": "follow-app",
   "version": "1.0.0",
+  "private": true,
+  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903",
   "main": "expo-router/entry",
   "scripts": {
-    "start": "expo start --dev-client",
-    "ios": "expo run:ios",
     "android": "expo run:android",
     "build:dev": "eas build --profile development",
     "build:preview": "eas build --profile preview",
     "build:prod": "eas build --profile production",
+    "ios": "expo run:ios",
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
     "prebuild": "expo prebuild",
-    "lint": "eslint \"**/*.{js,jsx,ts,tsx}\" && prettier -c \"**/*.{js,jsx,ts,tsx,json}\"",
-    "format": "eslint \"**/*.{js,jsx,ts,tsx}\" --fix && prettier \"**/*.{js,jsx,ts,tsx,json}\" --write",
+    "prepare": "simple-git-hooks",
+    "start": "expo start --dev-client",
     "web": "expo start --web"
   },
   "dependencies": {
@@ -45,16 +48,17 @@
     "@babel/core": "^7.20.0",
     "@tamagui/babel-plugin": "1.74.8",
     "@types/react": "~18.2.45",
-    "@typescript-eslint/eslint-plugin": "^7.7.0",
-    "@typescript-eslint/parser": "^7.7.0",
-    "eslint": "^8.57.0",
-    "eslint-config-universe": "^12.0.1",
-    "prettier": "^3.2.5",
+    "eslint": "^9.7.0",
+    "eslint-config-hyoban": "3.0.0-beta.30",
+    "lint-staged": "^15.2.7",
+    "simple-git-hooks": "^2.11.1",
     "typescript": "~5.3.3"
   },
-  "eslintConfig": {
-    "extends": "universe/native",
-    "root": true
+  "simple-git-hooks": {
+    "pre-commit": "npx lint-staged"
+  },
+  "lint-staged": {
+    "*": "eslint --fix"
   },
   "expo": {
     "install": {
@@ -62,7 +66,5 @@
         "react-native-safe-area-context"
       ]
     }
-  },
-  "private": true,
-  "packageManager": "pnpm@9.5.0+sha512.140036830124618d624a2187b50d04289d5a087f326c9edfc0ccd733d76c4f52c3a313d4fc148794a2a9d81553016004e6742e8cf850670268a7387fc220c903"
+  }
 }

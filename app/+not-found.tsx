@@ -1,7 +1,7 @@
-import { Link, Stack } from 'expo-router';
-import { YStack } from 'tamagui';
+import { Link, Stack } from 'expo-router'
+import { YStack } from 'tamagui'
 
-import { Container, Main, Subtitle, Title } from '../tamagui.config';
+import { Container, Main, Subtitle, Title } from '../tamagui.config'
 
 export default function NotFoundScreen() {
   return (
@@ -16,5 +16,5 @@ export default function NotFoundScreen() {
         </YStack>
       </Main>
     </Container>
-  );
+  )
 }
