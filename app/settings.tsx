@@ -1,12 +1,15 @@
+import { Image } from 'expo-image'
 import * as Linking from 'expo-linking'
 import * as SecureStore from 'expo-secure-store'
 import { StatusBar } from 'expo-status-bar'
 import * as WebBrowser from 'expo-web-browser'
 import * as React from 'react'
-import { Platform } from 'react-native'
+import { Button, Platform } from 'react-native'
 import Toast from 'react-native-toast-message'
 import useSWR from 'swr'
-import { Button, Image, Text, XStack, YStack } from 'tamagui'
+
+import { Flex } from '~/components/flex'
+import { Text } from '~/components/text'
 
 const SECURE_AUTH_TOKEN_KEY = 'secure-auth-token'
 
@@ -68,45 +71,42 @@ export default function UserInfo() {
 
   return (
     <>
-      <YStack flex={1} padding={20}>
+      <Flex direction="column" flex={1} p={20}>
         {session ? (
-          <YStack gap={20}>
-            <XStack
+          <Flex direction="column" gap={20}>
+            <Flex
               gap={24}
-              alignItems="center"
+              align="center"
             >
               <Image
-                source={{
-                  uri: session.user.image,
-                  height: 100,
-                  width: 100,
+                style={{
+                  width: 96,
+                  height: 96,
+                  borderRadius: 48,
                 }}
-                borderRadius={50}
+                source={session.user.image}
               />
-              <YStack gap={8}>
-                <Text color="$color12" fontSize="$8" fontWeight="600">
+              <Flex direction="column" gap={8}>
+                <Text weight="700" size={5}>
                   {session.user.name}
                 </Text>
-                <Text color="$color12" fontSize="$5">
+                <Text>
                   {session.user.email}
                 </Text>
-              </YStack>
-            </XStack>
+              </Flex>
+            </Flex>
             <Button
+              title="Logout"
               onPress={async () => {
                 await SecureStore.deleteItemAsync(SECURE_AUTH_TOKEN_KEY)
                 mutate()
               }}
-            >
-              Logout
-            </Button>
-          </YStack>
+            />
+          </Flex>
         ) : (
-          <Button onPress={handlePressButtonAsync}>
-            Login
-          </Button>
+          <Button title="Login" onPress={handlePressButtonAsync} />
         )}
-      </YStack>
+      </Flex>
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </>
   )

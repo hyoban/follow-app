@@ -1,20 +1,19 @@
 import { Link, Stack } from 'expo-router'
-import { YStack } from 'tamagui'
-
-import { Container, Main, Subtitle, Title } from '../tamagui.config'
+import { View } from 'react-native'
 
 export default function NotFoundScreen() {
   return (
-    <Container>
-      <Stack.Screen options={{ title: 'Oops!' }} />
-      <Main>
-        <YStack>
-          <Title>This screen doesn't exist.</Title>
-          <Link href="/">
-            <Subtitle>Go to home screen!</Subtitle>
-          </Link>
-        </YStack>
-      </Main>
-    </Container>
+    <View
+      style={{
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      }}
+    >
+      <Stack>
+        <Stack.Screen name="not-found" options={{ title: 'Not Found' }} />
+      </Stack>
+      <Link href="/">Go back home</Link>
+    </View>
   )
 }
