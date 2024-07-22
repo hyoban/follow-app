@@ -1,30 +1,30 @@
 import { gray, grayDark } from '@radix-ui/colors'
 
-export const size = {
+export const spacing = {
   1: 4,
   2: 8,
   3: 12,
   4: 16,
   5: 24,
   6: 32,
-  7: 48,
-  8: 64,
-  9: 96,
+  7: 40,
+  8: 48,
+  9: 64,
 } as const
-export type Size = keyof typeof size
+export type Spacing = keyof typeof spacing
 
 export const lightTheme = {
   colors: {
     ...gray,
   },
-  size,
+  spacing,
 } as const
 
 export const darkTheme = {
   colors: {
     ...grayDark,
   },
-  size,
+  spacing,
 } as const
 
 // define other themes
