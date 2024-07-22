@@ -1,8 +1,8 @@
 import { Link, Tabs } from 'expo-router'
+import { Pressable } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import { HeaderButton } from '~/components/HeaderButton'
-import { TabBarIcon } from '~/components/TabBarIcon'
+import { Iconify } from '~/components'
 
 export default function TabLayout() {
   const { styles } = useStyles(stylesheet)
@@ -12,10 +12,18 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Tab One',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <Iconify icon="mingcute:table-2-line" color={color} />,
           headerRight: () => (
             <Link href="/settings" asChild>
-              <HeaderButton />
+              <Pressable>
+                {({ pressed }) => (
+                  <Iconify
+                    icon="mingcute:settings-3-line"
+                    style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
+                  />
+                )}
+              </Pressable>
+
             </Link>
           ),
           headerTitleStyle: styles.title,
@@ -27,7 +35,7 @@ export default function TabLayout() {
         name="two"
         options={{
           title: 'Tab Two',
-          tabBarIcon: ({ color }) => <TabBarIcon name="code" color={color} />,
+          tabBarIcon: ({ color }) => <Iconify icon="mingcute:table-2-line" color={color} />,
           headerTitleStyle: styles.title,
           tabBarStyle: styles.tabBar,
           headerStyle: styles.header,

@@ -22,6 +22,7 @@ export type Radius = (typeof radius)[number]
 export const lightTheme = {
   colors: {
     ...gray,
+    pure: '#000',
   },
   spacing,
 } as const
@@ -29,6 +30,7 @@ export const lightTheme = {
 export const darkTheme = {
   colors: {
     ...grayDark,
+    pure: '#fff',
   },
   spacing,
 } as const
