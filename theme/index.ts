@@ -13,6 +13,12 @@ export const spacing = {
 } as const
 export type Spacing = keyof typeof spacing
 
+export const scaling = [0.9, 0.95, 1, 1.05, 1.1] as const
+export type Scaling = (typeof scaling)[number]
+
+export const radius = ['none', 'small', 'medium', 'large', 'full'] as const
+export type Radius = (typeof radius)[number]
+
 export const lightTheme = {
   colors: {
     ...gray,
@@ -26,5 +32,3 @@ export const darkTheme = {
   },
   spacing,
 } as const
-
-// define other themes

@@ -5,7 +5,6 @@ import { StatusBar } from 'expo-status-bar'
 import * as WebBrowser from 'expo-web-browser'
 import * as React from 'react'
 import { Button, Platform } from 'react-native'
-import Toast from 'react-native-toast-message'
 import useSWR from 'swr'
 
 import { Flex } from '~/components/flex'
@@ -60,7 +59,6 @@ async function handlePressButtonAsync() {
       if (Platform.OS !== 'web') {
         SecureStore.setItemAsync(SECURE_AUTH_TOKEN_KEY, queryParams.token)
       }
-      Toast.show({ text1: 'You have successfully logged in.' })
     }
   })
   await WebBrowser.openBrowserAsync('https://dev.follow.is/login')
