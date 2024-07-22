@@ -8,7 +8,7 @@ export function TabBarIcon(props: {
   return <FontAwesome size={28} style={styles.tabBarIcon} {...props} />
 }
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   tabBarIcon: {
     marginBottom: -3,
   },

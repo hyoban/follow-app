@@ -118,7 +118,6 @@ type AppConfig = typeof config
 // Docs: https://tamagui.dev/docs/core/configuration
 
 declare module 'tamagui' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-object-type
   interface TamaguiCustomConfig extends AppConfig {}
 }
 

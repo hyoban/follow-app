@@ -22,7 +22,7 @@ export const HeaderButton = forwardRef<typeof Pressable, { onPress?: () => void 
   ),
 )
 
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   headerRight: {
     marginRight: 15,
   },
