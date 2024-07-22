@@ -100,3 +100,15 @@ export function Flex({
     />
   )
 }
+
+export function Row(props: Omit<FlexProps, 'direction'>) {
+  return <Flex direction="row" {...props} />
+}
+
+export function Column(props: Omit<FlexProps, 'direction'>) {
+  return <Flex direction="column" {...props} />
+}
+
+export function Container(props: FlexProps) {
+  return <Flex flex={1} {...props} />
+}

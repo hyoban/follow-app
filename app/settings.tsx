@@ -7,8 +7,7 @@ import * as React from 'react'
 import { Button, Platform } from 'react-native'
 import useSWR from 'swr'
 
-import { Flex } from '~/components/flex'
-import { Text } from '~/components/text'
+import { Column, Row, Text } from '~/components'
 
 const SECURE_AUTH_TOKEN_KEY = 'secure-auth-token'
 
@@ -69,10 +68,10 @@ export default function UserInfo() {
 
   return (
     <>
-      <Flex direction="column" flex={1} p={20}>
+      <Column flex={1} p={20}>
         {session ? (
-          <Flex direction="column" gap={20}>
-            <Flex
+          <Column gap={20}>
+            <Row
               gap={24}
               align="center"
             >
@@ -84,15 +83,15 @@ export default function UserInfo() {
                 }}
                 source={session.user.image}
               />
-              <Flex direction="column" gap={8}>
+              <Column gap={8}>
                 <Text weight="700" size={5}>
                   {session.user.name}
                 </Text>
                 <Text>
                   {session.user.email}
                 </Text>
-              </Flex>
-            </Flex>
+              </Column>
+            </Row>
             <Button
               title="Logout"
               onPress={async () => {
@@ -100,11 +99,11 @@ export default function UserInfo() {
                 mutate()
               }}
             />
-          </Flex>
+          </Column>
         ) : (
           <Button title="Login" onPress={handlePressButtonAsync} />
         )}
-      </Flex>
+      </Column>
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </>
   )
