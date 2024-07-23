@@ -4,10 +4,10 @@ import * as SecureStore from 'expo-secure-store'
 import { StatusBar } from 'expo-status-bar'
 import * as WebBrowser from 'expo-web-browser'
 import * as React from 'react'
-import { Button, Platform, Pressable } from 'react-native'
+import { Platform } from 'react-native'
 import useSWR from 'swr'
 
-import { Column, Row, Text } from '~/components'
+import { Button, Column, Row, Text } from '~/components'
 
 const SECURE_AUTH_TOKEN_KEY = 'secure-auth-token'
 
@@ -92,26 +92,26 @@ export default function UserInfo() {
                 </Text>
               </Column>
             </Row>
-            <Pressable
-              style={
-                ({ pressed }) => ({
-                  alignItems: 'center',
-                  backgroundColor: 'red',
-                  padding: 12,
-                  borderRadius: 8,
-                  opacity: pressed ? 0.5 : 1,
-                })
-              }
+            <Button
+              color="red"
               onPress={async () => {
                 await SecureStore.deleteItemAsync(SECURE_AUTH_TOKEN_KEY)
                 mutate()
               }}
             >
-              <Text>Logout</Text>
-            </Pressable>
+              <Text color="red">Logout</Text>
+            </Button>
           </Column>
         ) : (
-          <Button title="Login" onPress={handlePressButtonAsync} />
+          <Button
+            style={{
+              width: '100%',
+              alignItems: 'center',
+            }}
+            onPress={handlePressButtonAsync}
+          >
+            <Text>Login</Text>
+          </Button>
         )}
       </Column>
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />

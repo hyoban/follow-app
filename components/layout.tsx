@@ -32,9 +32,9 @@ export type Height = {
   maxH?: DimensionValue
 }
 
-export type Color = {
+export type BackgroundColor = {
   bg?: 'app' | 'subtle' | 'component' | string & {}
   text?: string
 }
 
-export type CommonProps = Padding & Margin & Width & Height & Color
+export type CommonProps = Padding & Margin & Width & Height & BackgroundColor
