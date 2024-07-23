@@ -1,33 +1,35 @@
+import type { DimensionValue } from 'react-native'
+
 export type Padding = {
-  p?: number
-  px?: number
-  py?: number
-  pt?: number
-  pr?: number
-  pb?: number
-  pl?: number
+  p?: DimensionValue
+  px?: DimensionValue
+  py?: DimensionValue
+  pt?: DimensionValue
+  pr?: DimensionValue
+  pb?: DimensionValue
+  pl?: DimensionValue
 }
 
 export type Margin = {
-  m?: number
-  mx?: number
-  my?: number
-  mt?: number
-  mr?: number
-  mb?: number
-  ml?: number
+  m?: DimensionValue
+  mx?: DimensionValue
+  my?: DimensionValue
+  mt?: DimensionValue
+  mr?: DimensionValue
+  mb?: DimensionValue
+  ml?: DimensionValue
 }
 
 export type Width = {
-  w?: number
-  minW?: number
-  maxW?: number
+  w?: DimensionValue
+  minW?: DimensionValue
+  maxW?: DimensionValue
 }
 
 export type Height = {
-  h?: number
-  minH?: number
-  maxH?: number
+  h?: DimensionValue
+  minH?: DimensionValue
+  maxH?: DimensionValue
 }
 
 export type Color = {
