@@ -1,18 +1,275 @@
-import {
-  gray,
-  grayDark,
-  green,
-  greenDark,
-  red,
-  redDark,
-  yellow,
-  yellowDark,
-} from '@radix-ui/colors'
+import * as allColors from '@radix-ui/colors'
 
-export const colors = [
+const {
+  amber,
+  amberA,
+  amberDark,
+  amberDarkA,
+  blackA,
+  blue,
+  blueA,
+  blueDark,
+  blueDarkA,
+  bronze,
+  bronzeA,
+  bronzeDark,
+  bronzeDarkA,
+  brown,
+  brownA,
+  brownDark,
+  brownDarkA,
+  crimson,
+  crimsonA,
+  crimsonDark,
+  crimsonDarkA,
+  cyan,
+  cyanA,
+  cyanDark,
+  cyanDarkA,
+  gold,
+  goldA,
+  goldDark,
+  goldDarkA,
+  grass,
+  grassA,
+  grassDark,
+  grassDarkA,
+  gray,
+  grayA,
+  grayDark,
+  grayDarkA,
+  green,
+  greenA,
+  greenDark,
+  greenDarkA,
+  indigo,
+  indigoA,
+  indigoDark,
+  indigoDarkA,
+  iris,
+  irisA,
+  irisDark,
+  irisDarkA,
+  jade,
+  jadeA,
+  jadeDark,
+  jadeDarkA,
+  lime,
+  limeA,
+  limeDark,
+  limeDarkA,
+  mauve,
+  mauveA,
+  mauveDark,
+  mauveDarkA,
+  mint,
+  mintA,
+  mintDark,
+  mintDarkA,
+  olive,
+  oliveA,
+  oliveDark,
+  oliveDarkA,
+  orange,
+  orangeA,
+  orangeDark,
+  orangeDarkA,
+  pink,
+  pinkA,
+  pinkDark,
+  pinkDarkA,
+  plum,
+  plumA,
+  plumDark,
+  plumDarkA,
+  purple,
+  purpleA,
+  purpleDark,
+  purpleDarkA,
+  red,
+  redA,
+  redDark,
+  redDarkA,
+  ruby,
+  rubyA,
+  rubyDark,
+  rubyDarkA,
+  sage,
+  sageA,
+  sageDark,
+  sageDarkA,
+  sand,
+  sandA,
+  sandDark,
+  sandDarkA,
+  sky,
+  skyA,
+  skyDark,
+  skyDarkA,
+  slate,
+  slateA,
+  slateDark,
+  slateDarkA,
+  teal,
+  tealA,
+  tealDark,
+  tealDarkA,
+  tomato,
+  tomatoA,
+  tomatoDark,
+  tomatoDarkA,
+  violet,
+  violetA,
+  violetDark,
+  violetDarkA,
+  whiteA,
+  yellow,
+  yellowA,
+  yellowDark,
+  yellowDarkA,
+} = allColors
+
+// @keep-sorted
+export const accentColors = [
+  'amber',
+  'blue',
+  'bronze',
+  'brown',
+  'crimson',
+  'cyan',
+  'gold',
+  'grass',
   'gray',
   'green',
+  'indigo',
+  'iris',
+  'jade',
+  'lime',
+  'mint',
+  'orange',
+  'pink',
+  'plum',
+  'purple',
   'red',
+  'ruby',
+  'sky',
+  'teal',
+  'tomato',
+  'violet',
+  'yellow',
+] as const
+type AccentColor = (typeof accentColors)[number]
+
+type Accent = {
+  accent1: string
+  accent2: string
+  accent3: string
+  accent4: string
+  accent5: string
+  accent6: string
+  accent7: string
+  accent8: string
+  accent9: string
+  accent10: string
+  accent11: string
+  accent12: string
+}
+
+type AccentA = {
+  accentA1: string
+  accentA2: string
+  accentA3: string
+  accentA4: string
+  accentA5: string
+  accentA6: string
+  accentA7: string
+  accentA8: string
+  accentA9: string
+  accentA10: string
+  accentA11: string
+  accentA12: string
+}
+
+export function getAccentColor(
+  accentColor: AccentColor = 'orange',
+) {
+  if (!accentColors.includes(accentColor)) {
+    throw new Error(`Invalid accent color: ${accentColor}`)
+  }
+
+  const accent = Object.fromEntries(
+    Object.entries(allColors[accentColor]).map(([key, value]) => [key.replace(accentColor, 'accent'), value]),
+  ) as Accent
+
+  const accentA = Object.fromEntries(
+    Object.entries(allColors[`${accentColor}A`]).map(([key, value]) => [key.replace(`${accentColor}A`, 'accentA'), value]),
+  ) as AccentA
+
+  const accentDark = Object.fromEntries(
+    Object.entries(allColors[`${accentColor}Dark`]).map(([key, value]) => [key.replace(accentColor, 'accent'), value]),
+  ) as Accent
+
+  const accentDarkA = Object.fromEntries(
+    Object.entries(allColors[`${accentColor}DarkA`]).map(([key, value]) => [key.replace(`${accentColor}A`, 'accentA'), value]),
+  ) as AccentA
+
+  return { accent, accentA, accentDark, accentDarkA }
+}
+
+const {
+  accent,
+  accentA,
+  accentDark,
+  accentDarkA,
+} = getAccentColor()
+
+// @keep-sorted
+// eslint-disable-next-line unused-imports/no-unused-vars
+const grayColors = [
+  'auto',
+  'gray',
+  'mauve',
+  'olive',
+  'sage',
+  'sand',
+  'slate',
+] as const
+// eslint-disable-next-line unused-imports/no-unused-vars
+type GrayColor = (typeof grayColors)[number]
+
+// 31 colors
+// @keep-sorted
+export const colors = [
+  'amber',
+  'blue',
+  'bronze',
+  'brown',
+  'crimson',
+  'cyan',
+  'gold',
+  'grass',
+  'gray',
+  'green',
+  'indigo',
+  'iris',
+  'jade',
+  'lime',
+  'mauve',
+  'mint',
+  'olive',
+  'orange',
+  'pink',
+  'plum',
+  'purple',
+  'red',
+  'ruby',
+  'sage',
+  'sand',
+  'sky',
+  'slate',
+  'teal',
+  'tomato',
+  'violet',
   'yellow',
 ] as const
 export type Color = (typeof colors)[number]
@@ -50,11 +307,72 @@ export type Radius = keyof typeof radius
 
 export const lightTheme = {
   colors: {
+    ...accent,
+    ...accentA,
+    ...whiteA,
+    ...blackA,
+    ...amber,
+    ...blue,
+    ...bronze,
+    ...brown,
+    ...crimson,
+    ...cyan,
+    ...gold,
+    ...grass,
     ...gray,
-    ...red,
-    ...yellow,
     ...green,
-    pure: '#000',
+    ...indigo,
+    ...iris,
+    ...jade,
+    ...lime,
+    ...mauve,
+    ...mint,
+    ...olive,
+    ...orange,
+    ...pink,
+    ...plum,
+    ...purple,
+    ...red,
+    ...ruby,
+    ...sage,
+    ...sand,
+    ...sky,
+    ...slate,
+    ...teal,
+    ...tomato,
+    ...violet,
+    ...yellow,
+    ...amberA,
+    ...blueA,
+    ...bronzeA,
+    ...brownA,
+    ...crimsonA,
+    ...cyanA,
+    ...goldA,
+    ...grassA,
+    ...grayA,
+    ...greenA,
+    ...indigoA,
+    ...irisA,
+    ...jadeA,
+    ...limeA,
+    ...mauveA,
+    ...mintA,
+    ...oliveA,
+    ...orangeA,
+    ...pinkA,
+    ...plumA,
+    ...purpleA,
+    ...redA,
+    ...rubyA,
+    ...sageA,
+    ...sandA,
+    ...skyA,
+    ...slateA,
+    ...tealA,
+    ...tomatoA,
+    ...violetA,
+    ...yellowA,
   },
   spacing,
   radius,
@@ -62,11 +380,72 @@ export const lightTheme = {
 
 export const darkTheme = {
   colors: {
+    ...accentDark,
+    ...accentDarkA,
+    ...whiteA,
+    ...blackA,
+    ...amberDark,
+    ...blueDark,
+    ...bronzeDark,
+    ...brownDark,
+    ...crimsonDark,
+    ...cyanDark,
+    ...goldDark,
+    ...grassDark,
     ...grayDark,
-    ...redDark,
-    ...yellowDark,
     ...greenDark,
-    pure: '#fff',
+    ...indigoDark,
+    ...irisDark,
+    ...jadeDark,
+    ...limeDark,
+    ...mauveDark,
+    ...mintDark,
+    ...oliveDark,
+    ...orangeDark,
+    ...pinkDark,
+    ...plumDark,
+    ...purpleDark,
+    ...redDark,
+    ...rubyDark,
+    ...sageDark,
+    ...sandDark,
+    ...skyDark,
+    ...slateDark,
+    ...tealDark,
+    ...tomatoDark,
+    ...violetDark,
+    ...yellowDark,
+    ...amberDarkA,
+    ...blueDarkA,
+    ...bronzeDarkA,
+    ...brownDarkA,
+    ...crimsonDarkA,
+    ...cyanDarkA,
+    ...goldDarkA,
+    ...grassDarkA,
+    ...grayDarkA,
+    ...greenDarkA,
+    ...indigoDarkA,
+    ...irisDarkA,
+    ...jadeDarkA,
+    ...limeDarkA,
+    ...mauveDarkA,
+    ...mintDarkA,
+    ...oliveDarkA,
+    ...orangeDarkA,
+    ...pinkDarkA,
+    ...plumDarkA,
+    ...purpleDarkA,
+    ...redDarkA,
+    ...rubyDarkA,
+    ...sageDarkA,
+    ...sandDarkA,
+    ...skyDarkA,
+    ...slateDarkA,
+    ...tealDarkA,
+    ...tomatoDarkA,
+    ...violetDarkA,
+    ...yellowDarkA,
   },
   spacing,
   radius,

@@ -5,9 +5,9 @@ import { createStyleSheet, useStyles } from 'react-native-unistyles'
 import { Iconify } from '~/components'
 
 export default function TabLayout() {
-  const { styles } = useStyles(stylesheet)
+  const { styles, theme } = useStyles(stylesheet)
   return (
-    <Tabs>
+    <Tabs screenOptions={{ tabBarActiveTintColor: theme.colors.accent9 }}>
       <Tabs.Screen
         name="index"
         options={{
@@ -23,7 +23,6 @@ export default function TabLayout() {
                   />
                 )}
               </Pressable>
-
             </Link>
           ),
           headerTitleStyle: styles.title,
