@@ -2,7 +2,7 @@ import type { TextProps as NativeTextProps, TextStyle } from 'react-native'
 import { Text as NativeText } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
-import type { Color, ColorKey, Spacing } from '~/theme'
+import type { Color, Spacing, ThemeColorKey } from '~/theme'
 
 export type TextProps = NativeTextProps & {
   size?: Spacing
@@ -26,8 +26,8 @@ export function Text({
         fontFamily: 'SN Pro',
         color: theme.colors[
           contrast === 'high'
-            ? `${color ?? 'gray'}12` as ColorKey
-            : `${color ?? 'gray'}11` as ColorKey
+            ? `${color ?? 'gray'}12` as ThemeColorKey
+            : `${color ?? 'gray'}11` as ThemeColorKey
         ],
         fontSize: theme.spacing[size],
         fontWeight: weight,

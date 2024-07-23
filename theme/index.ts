@@ -1,4 +1,13 @@
-import { gray, grayDark, green, greenDark, red, redDark, yellow, yellowDark } from '@radix-ui/colors'
+import {
+  gray,
+  grayDark,
+  green,
+  greenDark,
+  red,
+  redDark,
+  yellow,
+  yellowDark,
+} from '@radix-ui/colors'
 
 export const colors = [
   'gray',
@@ -21,7 +30,13 @@ export const spacing = {
 } as const
 export type Spacing = keyof typeof spacing
 
-export const scaling = [0.9, 0.95, 1, 1.05, 1.1] as const
+export const scaling = [
+  0.9,
+  0.95,
+  1,
+  1.05,
+  1.1,
+] as const
 export type Scaling = (typeof scaling)[number]
 
 export const radius = {
@@ -57,4 +72,11 @@ export const darkTheme = {
   radius,
 } as const
 
-export type ColorKey = keyof typeof lightTheme.colors
+type Expect<T extends true> = T
+type Equal<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false
+type _ExpectLightAndDarkThemesHaveSameKeys = Expect<Equal<
+  keyof typeof lightTheme.colors,
+  keyof typeof darkTheme.colors
+>>
+
+export type ThemeColorKey = keyof typeof lightTheme.colors

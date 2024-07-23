@@ -3,7 +3,7 @@ import type { PressableProps, ViewStyle } from 'react-native'
 import { Pressable } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
-import type { Color, ColorKey } from '~/theme'
+import type { Color, ThemeColorKey } from '~/theme'
 
 type ButtonProps = Omit<PressableProps, 'style'> & {
   style?: ViewStyle
@@ -22,8 +22,8 @@ export function Button({
       style={({ pressed }) => ({
         padding: theme.spacing[3],
         backgroundColor: pressed
-          ? theme.colors[`${color ?? 'gray'}5` as ColorKey]
-          : theme.colors[`${color ?? 'gray'}3` as ColorKey],
+          ? theme.colors[`${color ?? 'gray'}5` as ThemeColorKey]
+          : theme.colors[`${color ?? 'gray'}3` as ThemeColorKey],
         borderRadius: theme.radius.medium,
         ...style,
       })}
