@@ -1,35 +1,53 @@
-import * as React from 'react'
-import type { PressableProps, ViewStyle } from 'react-native'
+import type { PressableProps } from 'react-native'
 import { Pressable } from 'react-native'
-import { useStyles } from 'react-native-unistyles'
+import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import type { Color, ThemeColorKey } from '~/theme'
+import type { Color, Radius, ThemeColorKey } from '~/theme'
 
-type ButtonProps = Omit<PressableProps, 'style'> & {
-  style?: ViewStyle
+type VariantProps = {
   color?: Color
+  radius?: Radius
+  fullWidth?: boolean
 }
+
+type ButtonProps = Omit<PressableProps, 'style'> & VariantProps
 
 export function Button({
   children,
-  style,
   color,
+  radius,
+  fullWidth,
   ...rest
 }: ButtonProps) {
-  const { theme } = useStyles()
+  const { styles } = useStyles(styleSheet)
   return (
     <Pressable
-      style={({ pressed }) => ({
-        padding: theme.spacing[3],
-        backgroundColor: pressed
-          ? theme.colors[`${color ?? 'gray'}5` as ThemeColorKey]
-          : theme.colors[`${color ?? 'gray'}3` as ThemeColorKey],
-        borderRadius: theme.radius.medium,
-        ...style,
-      })}
+      style={({ pressed }) => (styles.button(pressed, { color, radius, fullWidth }))}
       {...rest}
     >
       {children}
     </Pressable>
   )
 }
+
+const styleSheet = createStyleSheet(theme => ({
+  button(pressed: boolean, variant?: VariantProps) {
+    const { color, radius, fullWidth } = variant ?? {}
+
+    return {
+      padding: theme.spacing[3],
+      borderRadius: theme.radius[radius ?? 'medium'],
+      backgroundColor: pressed
+        ? theme.colors[`${color ?? 'gray'}5` as ThemeColorKey]
+        : theme.colors[`${color ?? 'gray'}3` as ThemeColorKey],
+      ...(
+        fullWidth
+          ? {
+              width: '100%',
+              alignItems: 'center',
+            }
+          : {}
+      ),
+    }
+  },
+}))

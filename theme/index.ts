@@ -286,6 +286,7 @@ export const spacing = {
   9: 64,
 } as const
 export type Spacing = keyof typeof spacing
+export type Size = Spacing
 
 export const scaling = [
   0.9,

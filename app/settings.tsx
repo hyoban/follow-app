@@ -103,13 +103,7 @@ export default function UserInfo() {
             </Button>
           </Column>
         ) : (
-          <Button
-            style={{
-              width: '100%',
-              alignItems: 'center',
-            }}
-            onPress={handlePressButtonAsync}
-          >
+          <Button fullWidth onPress={handlePressButtonAsync}>
             <Text>Login</Text>
           </Button>
         )}
