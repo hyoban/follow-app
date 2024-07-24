@@ -49,7 +49,7 @@ export default function RootLayout() {
         name="settings"
         options={{
           presentation: 'modal',
-          title: 'User',
+          title: 'Settings',
           headerStyle: {
             backgroundColor: theme.colors.gray2,
           },
