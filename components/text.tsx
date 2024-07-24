@@ -47,7 +47,6 @@ const styleSheet = createStyleSheet(theme => ({
       ],
       fontSize: theme.spacing[size ?? 4],
       fontWeight: weight,
-
     }
   },
 }))

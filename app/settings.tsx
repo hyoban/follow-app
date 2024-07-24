@@ -93,6 +93,7 @@ export default function UserInfo() {
               </Column>
             </Row>
             <Button
+              fullWidth
               color="red"
               onPress={async () => {
                 await SecureStore.deleteItemAsync(SECURE_AUTH_TOKEN_KEY)
