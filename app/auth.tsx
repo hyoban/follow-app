@@ -1,6 +1,6 @@
 import { router } from 'expo-router'
 
 export default function Auth() {
-  router.navigate('/')
+  router.navigate('/settings')
   return null
 }
