@@ -1,8 +1,8 @@
-import { Link, Tabs } from 'expo-router'
-import { Pressable } from 'react-native'
+import { Tabs } from 'expo-router'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { Iconify } from '~/components'
+import { SettingsLink } from '~/components/settings-link'
 import type { ThemeColorKey } from '~/theme'
 
 const views = [
@@ -11,18 +11,6 @@ const views = [
     title: 'Articles',
     icon: (color: string) => <Iconify icon="mingcute:paper-fill" color={color} />,
     color: 'orange',
-    headerRight: () => (
-      <Link href="/settings" asChild>
-        <Pressable>
-          {({ pressed }) => (
-            <Iconify
-              icon="mingcute:settings-3-line"
-              style={{ marginRight: 15, opacity: pressed ? 0.5 : 1 }}
-            />
-          )}
-        </Pressable>
-      </Link>
-    ),
   },
   {
     name: 'social',
@@ -59,7 +47,11 @@ const views = [
 export default function TabLayout() {
   const { styles, theme } = useStyles(stylesheet)
   return (
-    <Tabs>
+    <Tabs
+      screenOptions={{
+        headerRight: () => <SettingsLink />,
+      }}
+    >
       {views.map(view => (
         <Tabs.Screen
           key={view.name}
@@ -70,7 +62,6 @@ export default function TabLayout() {
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],
             tabBarShowLabel: false,
             tabBarStyle: styles.tabBar,
-            headerRight: view.headerRight,
             headerTitleStyle: styles.title,
             headerStyle: styles.header,
           }}
