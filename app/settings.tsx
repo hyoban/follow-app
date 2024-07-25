@@ -21,6 +21,12 @@ async function handlePressButtonAsync() {
       getSession(token)
         .then((session) => {
           saveSessionToUserTable(session)
+            .catch(() => {
+              console.error('Failed to save session')
+            })
+        })
+        .catch(() => {
+          console.error('Failed to get session')
         })
     }
   })
