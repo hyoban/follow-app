@@ -16,7 +16,7 @@ export default function Home() {
   const { theme } = useStyles()
   return (
     <>
-      <Stack.Screen options={{ title: 'Tab One' }} />
+      <Stack.Screen />
       <Container p={20} direction="column" gap={10} bg={theme.colors.accent5}>
         {accentColorGroups.map((accentColors, i) => (
           <Row key={i} gap={10} bg={theme.colors.accent5}>
