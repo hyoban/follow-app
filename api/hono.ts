@@ -455,10 +455,11 @@ type MediaModel = {
     type: "photo" | "video";
     preview_image_url?: string;
 };
-type EnclosuresModel = {
+type AttachmentsModel = {
     url: string;
-    length?: number;
-    type?: string;
+    duration_in_seconds?: number;
+    mime_type?: string;
+    size_in_bytes?: number;
     title?: string;
 };
 declare const entries: drizzle_orm_pg_core.PgTableWithColumns<{
@@ -719,8 +720,8 @@ declare const entries: drizzle_orm_pg_core.PgTableWithColumns<{
             }, object, object>;
             generated: undefined;
         }, {}, {}>;
-        enclosures: drizzle_orm_pg_core.PgColumn<{
-            name: "enclosures";
+        attachments: drizzle_orm_pg_core.PgColumn<{
+            name: "attachments";
             tableName: "entries";
             dataType: "array";
             columnType: "PgArray";
@@ -733,7 +734,7 @@ declare const entries: drizzle_orm_pg_core.PgTableWithColumns<{
             hasRuntimeDefault: false;
             enumValues: undefined;
             baseColumn: drizzle_orm.Column<{
-                name: "enclosures";
+                name: "attachments";
                 tableName: "entries";
                 dataType: "json";
                 columnType: "PgJsonb";
@@ -772,27 +773,30 @@ declare const entriesOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
     } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null>, "many">>;
     categories: z.ZodNullable<z.ZodArray<z.ZodString, "many">>;
-    enclosures: z.ZodNullable<z.ZodArray<z.ZodType<string | number | boolean | {
+    attachments: z.ZodNullable<z.ZodArray<z.ZodType<string | number | boolean | {
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
     } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null, z.ZodTypeDef, string | number | boolean | {
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
     } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null>, "many">>;
-}, "media" | "enclosures">, {
-    enclosures: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodObject<{
+}, "media" | "attachments">, {
+    attachments: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodObject<{
         url: z.ZodString;
-        length: z.ZodOptional<z.ZodNumber>;
-        type: z.ZodOptional<z.ZodString>;
+        duration_in_seconds: z.ZodOptional<z.ZodNumber>;
+        mime_type: z.ZodOptional<z.ZodString>;
+        size_in_bytes: z.ZodOptional<z.ZodNumber>;
         title: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         url: string;
-        length?: number | undefined;
-        type?: string | undefined;
         title?: string | undefined;
+        duration_in_seconds?: number | undefined;
+        mime_type?: string | undefined;
+        size_in_bytes?: number | undefined;
     }, {
         url: string;
-        length?: number | undefined;
-        type?: string | undefined;
         title?: string | undefined;
+        duration_in_seconds?: number | undefined;
+        mime_type?: string | undefined;
+        size_in_bytes?: number | undefined;
     }>, "many">>>;
     media: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodObject<{
         url: z.ZodString;
@@ -826,11 +830,12 @@ declare const entriesOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
         url: string;
         preview_image_url?: string | undefined;
     }[] | null | undefined;
-    enclosures?: {
+    attachments?: {
         url: string;
-        length?: number | undefined;
-        type?: string | undefined;
         title?: string | undefined;
+        duration_in_seconds?: number | undefined;
+        mime_type?: string | undefined;
+        size_in_bytes?: number | undefined;
     }[] | null | undefined;
 }, {
     description: string | null;
@@ -851,11 +856,12 @@ declare const entriesOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
         url: string;
         preview_image_url?: string | undefined;
     }[] | null | undefined;
-    enclosures?: {
+    attachments?: {
         url: string;
-        length?: number | undefined;
-        type?: string | undefined;
         title?: string | undefined;
+        duration_in_seconds?: number | undefined;
+        mime_type?: string | undefined;
+        size_in_bytes?: number | undefined;
     }[] | null | undefined;
 }>;
 declare const entriesRelations: drizzle_orm.Relations<"entries", {
@@ -865,7 +871,7 @@ declare const entriesRelations: drizzle_orm.Relations<"entries", {
     entryReadHistories: drizzle_orm.One<"entryReadHistories", true>;
 }>;
 type EntriesModel = InferInsertModel<typeof entries> & {
-    enclosures?: EnclosuresModel[] | null;
+    attachments?: AttachmentsModel[] | null;
     media?: MediaModel[] | null;
 };
 declare const entryReadHistories: drizzle_orm_pg_core.PgTableWithColumns<{
@@ -2410,12 +2416,12 @@ declare const _routes: hono_hono_base.HonoBase<hono_types.BlankEnv, {
             output: {
                 data: {
                     data: number[];
+                    count: number;
                     meta: {
                         count: number;
                         prevTS: number;
                         prevCount: number;
                     };
-                    count: number;
                 };
                 code: 0;
             };
@@ -2819,6 +2825,19 @@ declare const _routes: hono_hono_base.HonoBase<hono_types.BlankEnv, {
             status: 200;
         };
     };
+    "/reads/total-count": {
+        $get: {
+            input: {};
+            output: {
+                data: {
+                    count: number;
+                };
+                code: 0;
+            };
+            outputFormat: "json";
+            status: 200;
+        };
+    };
 } & {
     "/collections": {
         $get: {
@@ -3035,11 +3054,12 @@ declare const _routes: hono_hono_base.HonoBase<hono_types.BlankEnv, {
                             url: string;
                             preview_image_url?: string | undefined;
                         }[] | null | undefined;
-                        enclosures?: {
+                        attachments?: {
                             url: string;
-                            length?: number | undefined;
-                            type?: string | undefined;
                             title?: string | undefined;
+                            duration_in_seconds?: number | undefined;
+                            mime_type?: string | undefined;
+                            size_in_bytes?: number | undefined;
                         }[] | null | undefined;
                     }[] | undefined;
                     docs?: string | undefined;
@@ -3179,11 +3199,12 @@ declare const _routes: hono_hono_base.HonoBase<hono_types.BlankEnv, {
                             url: string;
                             preview_image_url?: string | undefined;
                         }[] | null | undefined;
-                        enclosures?: {
+                        attachments?: {
                             url: string;
-                            length?: number | undefined;
-                            type?: string | undefined;
                             title?: string | undefined;
+                            duration_in_seconds?: number | undefined;
+                            mime_type?: string | undefined;
+                            size_in_bytes?: number | undefined;
                         }[] | null | undefined;
                     };
                     feeds: {
@@ -3245,11 +3266,12 @@ declare const _routes: hono_hono_base.HonoBase<hono_types.BlankEnv, {
                             url: string;
                             preview_image_url?: string | undefined;
                         }[] | null | undefined;
-                        enclosures?: {
+                        attachments?: {
                             url: string;
-                            length?: number | undefined;
-                            type?: string | undefined;
                             title?: string | undefined;
+                            duration_in_seconds?: number | undefined;
+                            mime_type?: string | undefined;
+                            size_in_bytes?: number | undefined;
                         }[] | null | undefined;
                     };
                     feeds: {
@@ -3324,11 +3346,12 @@ declare const _routes: hono_hono_base.HonoBase<hono_types.BlankEnv, {
                         url: string;
                         preview_image_url?: string | undefined;
                     }[] | null | undefined;
-                    enclosures?: {
+                    attachments?: {
                         url: string;
-                        length?: number | undefined;
-                        type?: string | undefined;
                         title?: string | undefined;
+                        duration_in_seconds?: number | undefined;
+                        mime_type?: string | undefined;
+                        size_in_bytes?: number | undefined;
                     }[] | null | undefined;
                 }[];
                 code: 0;
@@ -3422,4 +3445,4 @@ declare const _routes: hono_hono_base.HonoBase<hono_types.BlankEnv, {
 }, "/">;
 type AppType = typeof _routes;
 
-export { type ActionsModel, type AppType, type EnclosuresModel, type EntriesModel, type EntryReadHistoriesModel, type FeedModel, type MediaModel, type SettingsModel, accounts, actions, actionsItemOpenAPISchema, actionsOpenAPISchema, actionsRelations, collections, collectionsOpenAPISchema, collectionsRelations, entries, entriesOpenAPISchema, entriesRelations, entryReadHistories, entryReadHistoriesOpenAPISchema, entryReadHistoriesRelations, feedPowerTokens, feedPowerTokensOpenAPISchema, feedPowerTokensRelations, feeds, feedsInputSchema, feedsOpenAPISchema, feedsRelations, invitations, languageSchema, sessions, subscriptions, subscriptionsOpenAPISchema, subscriptionsRelations, timeline, timelineOpenAPISchema, timelineRelations, transactionType, transactions, transactionsOpenAPISchema, transactionsRelations, users, usersOpenApiSchema, usersRelations, verificationTokens, wallets, walletsOpenAPISchema, walletsRelations };
+export { type ActionsModel, type AppType, type AttachmentsModel, type EntriesModel, type EntryReadHistoriesModel, type FeedModel, type MediaModel, type SettingsModel, accounts, actions, actionsItemOpenAPISchema, actionsOpenAPISchema, actionsRelations, collections, collectionsOpenAPISchema, collectionsRelations, entries, entriesOpenAPISchema, entriesRelations, entryReadHistories, entryReadHistoriesOpenAPISchema, entryReadHistoriesRelations, feedPowerTokens, feedPowerTokensOpenAPISchema, feedPowerTokensRelations, feeds, feedsInputSchema, feedsOpenAPISchema, feedsRelations, invitations, languageSchema, sessions, subscriptions, subscriptionsOpenAPISchema, subscriptionsRelations, timeline, timelineOpenAPISchema, timelineRelations, transactionType, transactions, transactionsOpenAPISchema, transactionsRelations, users, usersOpenApiSchema, usersRelations, verificationTokens, wallets, walletsOpenAPISchema, walletsRelations };
