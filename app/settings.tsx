@@ -24,7 +24,7 @@ const accentColorGroups = Array.from(
 function ThemeSwitcher() {
   const { theme } = useStyles()
   return accentColorGroups.map((accentColors, i) => (
-    <Row key={i} gap={10} bg={theme.colors.accent5}>
+    <Row key={i} gap={10} bg={theme.colors.accent5} style={{ display: 'none' }}>
       {accentColors.map(accentColor => (
         <Button
           key={accentColor}
