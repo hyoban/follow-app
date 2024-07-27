@@ -46,7 +46,7 @@ function FeedFolder({
       asChild
     >
       <Pressable>
-        <Row gap={10} h={40} align="center">
+        <Row gap={10} h={45} align="center">
           <AnimatedPressable
             style={animatedStyle}
             onPress={() => {
@@ -79,7 +79,7 @@ function FeedItem({
       asChild
     >
       <Pressable>
-        <Row gap={10} h={40} align="center">
+        <Row gap={10} h={45} align="center">
           {feed.image ? (
             <Image
               source={{ uri: feed.image }}
