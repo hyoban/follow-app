@@ -1,7 +1,7 @@
 import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
-import { Stack } from 'expo-router'
+import { Link, Stack } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { useMemo, useState } from 'react'
 import { Pressable } from 'react-native'
@@ -38,25 +38,30 @@ function FeedFolder({
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
   return (
-    <>
-      <Row gap={10} h={40}>
-        <AnimatedPressable
-          style={animatedStyle}
-          onPress={() => {
-            setIsExpanded(!isExpanded)
-            rotate.value = withSpring(
-              isExpanded ? '0deg' : '90deg',
-              { duration: 500, dampingRatio: 1 },
-            )
-          }}
-        >
-          <Iconify icon="mingcute:right-fill" />
-        </AnimatedPressable>
-        <Text style={{ flex: 1 }}>{category}</Text>
-        <Text>{unread}</Text>
-      </Row>
-      <Row h={1} bg="component" w="100%" />
-    </>
+    <Link
+      href={`/feed/group/${category}`}
+      asChild
+    >
+      <Pressable>
+        <Row gap={10} h={40} align="center">
+          <AnimatedPressable
+            style={animatedStyle}
+            onPress={() => {
+              setIsExpanded(!isExpanded)
+              rotate.value = withSpring(
+                isExpanded ? '0deg' : '90deg',
+                { duration: 500, dampingRatio: 1 },
+              )
+            }}
+          >
+            <Iconify icon="mingcute:right-fill" />
+          </AnimatedPressable>
+          <Text style={{ flex: 1 }}>{category}</Text>
+          <Text>{unread}</Text>
+        </Row>
+        <Row h={1} bg="component" w="100%" />
+      </Pressable>
+    </Link>
   )
 }
 
@@ -67,21 +72,26 @@ function FeedItem({
 }) {
   const { theme } = useStyles()
   return (
-    <>
-      <Row gap={10} h={40}>
-        {feed.image ? (
-          <Image
-            source={{ uri: feed.image }}
-            style={{ width: 24, height: 24, borderRadius: 1000 }}
-          />
-        ) : (
-          <Iconify icon="mdi:rss" color={theme.colors.gray10} />
-        )}
-        <Text style={{ flex: 1 }}>{feed.title}</Text>
-        <Text>{feed.unread}</Text>
-      </Row>
-      <Row h={1} bg="component" w="100%" />
-    </>
+    <Link
+      href={`/feed/group/${feed.id}`}
+      asChild
+    >
+      <Pressable>
+        <Row gap={10} h={40} align="center">
+          {feed.image ? (
+            <Image
+              source={{ uri: feed.image }}
+              style={{ width: 24, height: 24, borderRadius: 1000 }}
+            />
+          ) : (
+            <Iconify icon="mdi:rss" color={theme.colors.gray10} />
+          )}
+          <Text style={{ flex: 1 }}>{feed.title}</Text>
+          <Text>{feed.unread}</Text>
+        </Row>
+        <Row h={1} bg="component" w="100%" />
+      </Pressable>
+    </Link>
   )
 }
 
@@ -141,7 +151,8 @@ const exitingAnimation = new Keyframe({
 }).duration(10000)
 
 function FeedLayout() {
-  const { data } = useLiveQuery(db.query.feeds.findMany({ where: eq(feeds.view, 0) }))
+  const query = useMemo(() => db.query.feeds.findMany({ where: eq(feeds.view, 0) }), [])
+  const { data } = useLiveQuery(query)
   const feedsGrouped = useMemo(() => groupBy(data, 'category'), [data])
   const listData = useMemo(
     () => Array.from(

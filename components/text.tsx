@@ -2,10 +2,10 @@ import type { TextProps as NativeTextProps, TextStyle } from 'react-native'
 import { Text as NativeText } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import type { Color, Size, ThemeColorKey } from '~/theme'
+import type { Color, ThemeColorKey } from '~/theme'
 
 type VariantProps = {
-  size?: Size
+  size?: number | undefined
   contrast?: 'high' | 'low'
   weight?: TextStyle['fontWeight']
   color?: Color
@@ -36,7 +36,7 @@ export function Text({
 const styleSheet = createStyleSheet(theme => ({
   text(variant?: VariantProps) {
     const {
-      size = 4,
+      size = 16,
       contrast = 'high',
       weight = 'regular',
       color,
@@ -49,7 +49,7 @@ const styleSheet = createStyleSheet(theme => ({
           ? `${color ?? 'gray'}12` as ThemeColorKey
           : `${color ?? 'gray'}11` as ThemeColorKey
       ],
-      fontSize: theme.spacing[size ?? 4],
+      fontSize: size,
       fontWeight: weight,
     }
   },

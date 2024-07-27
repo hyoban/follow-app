@@ -4,7 +4,6 @@ import { Image } from 'expo-image'
 import * as Linking from 'expo-linking'
 import { StatusBar } from 'expo-status-bar'
 import * as WebBrowser from 'expo-web-browser'
-import * as React from 'react'
 import { Platform } from 'react-native'
 import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 
@@ -97,7 +96,7 @@ export default function UserInfo() {
                 source={user.image}
               />
               <Column gap={8}>
-                <Text weight="700" size={5}>
+                <Text weight="700">
                   {user.name}
                 </Text>
                 <Text>

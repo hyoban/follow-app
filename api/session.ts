@@ -38,6 +38,18 @@ export async function getSession(authToken: string): Promise<Session> {
   return await response.json()
 }
 
+export async function getCsrfToken(
+  authToken: string,
+) {
+  const response = await fetch('https://api.dev.follow.is/auth/csrf', {
+    headers: {
+      cookie: `authjs.session-token=${authToken}`,
+    },
+    credentials: 'omit',
+  })
+  return (await response.json() as { csrfToken: string }).csrfToken
+}
+
 export async function saveSessionToUserTable(
   session: Session,
 ) {

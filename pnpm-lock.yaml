@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
+  drizzle-orm@0.32.1:
+    hash: 4mez2g6xznzx3qege7givc2tka
+    path: patches/drizzle-orm@0.32.1.patch
   hono@4.5.1:
     hash: q3aeuaptngkxz7mmr7ddabp5zu
     path: patches/hono@4.5.1.patch
@@ -25,9 +28,12 @@ importers:
       '@react-navigation/native':
         specifier: ^6.1.7
         version: 6.1.18(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+      date-fns:
+        specifier: ^3.6.0
+        version: 3.6.0
       drizzle-orm:
         specifier: ^0.32.1
-        version: 0.32.1(@types/react@18.2.79)(expo-sqlite@14.0.5(expo@51.0.21(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))))(react@18.2.0)
+        version: 0.32.1(patch_hash=4mez2g6xznzx3qege7givc2tka)(@types/react@18.2.79)(expo-sqlite@14.0.5(expo@51.0.21(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))))(react@18.2.0)
       expo:
         specifier: ^51.0.21
         version: 51.0.21(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))
@@ -2444,6 +2450,9 @@ packages:
   data-view-byte-offset@1.0.0:
     resolution: {integrity: sha512-t/Ygsytq+R995EJ5PZlD4Cu56sWa8InXySaViRzw9apusqsOO2bQP+SbYzAhR0pFKoB+43lYy8rWban9JSuXnA==}
     engines: {node: '>= 0.4'}
+
+  date-fns@3.6.0:
+    resolution: {integrity: sha512-fRHTG8g/Gif+kSh50gaGEdToemgfj74aRX3swtiouboip5JDLAyDE9F11nHMIcvOaXeOC6D7SpNhi7uFyB7Uww==}
 
   dayjs@1.11.12:
     resolution: {integrity: sha512-Rt2g+nTbLlDWZTwwrIXjy9MeiZmSDI375FvZs72ngxx8PDC6YXOeR3q5LAuPzjZQxhiWdRKac7RKV+YyQYfYIg==}
@@ -8983,6 +8992,8 @@ snapshots:
       es-errors: 1.3.0
       is-data-view: 1.0.1
 
+  date-fns@3.6.0: {}
+
   dayjs@1.11.12: {}
 
   debug@2.6.9:
@@ -9103,7 +9114,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  drizzle-orm@0.32.1(@types/react@18.2.79)(expo-sqlite@14.0.5(expo@51.0.21(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))))(react@18.2.0):
+  drizzle-orm@0.32.1(patch_hash=4mez2g6xznzx3qege7givc2tka)(@types/react@18.2.79)(expo-sqlite@14.0.5(expo@51.0.21(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))))(react@18.2.0):
     optionalDependencies:
       '@types/react': 18.2.79
       expo-sqlite: 14.0.5(expo@51.0.21(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))

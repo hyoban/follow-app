@@ -40,3 +40,51 @@ export const feeds = sqliteTable('feeds', {
 })
 
 export type Feed = typeof feeds.$inferSelect
+
+export type MediaModel = {
+  url: string
+  type: 'photo' | 'video'
+  preview_image_url?: string
+}
+
+export type AttachmentsModel = {
+  url: string
+  duration_in_seconds?: number
+  mime_type?: string
+  size_in_bytes?: number
+  title?: string
+}
+
+export const entries = sqliteTable(
+  'entries',
+  {
+    id: text('id').primaryKey(),
+    feedId: text('feed_id')
+      .notNull()
+      .references(() => feeds.id, {
+        onDelete: 'cascade',
+      }),
+
+    title: text('title'),
+    url: text('url'),
+    content: text('content'),
+    description: text('description'),
+    guid: text('guid').notNull(),
+    author: text('author'),
+    authorUrl: text('author_url'),
+    authorAvatar: text('author_avatar'),
+    // date
+    insertedAt: text('inserted_at').notNull(),
+    // date
+    publishedAt: text('published_at').notNull(),
+    media: text('media', { mode: 'json' })
+      .$type<MediaModel[]>(),
+    categories: text('categories', { mode: 'json' }).$type<string[]>(),
+    attachments: text('attachments', { mode: 'json' })
+      .$type<AttachmentsModel[]>(),
+
+    read: integer('read', { mode: 'boolean' }).notNull(),
+  },
+)
+
+export type Entry = typeof entries.$inferSelect

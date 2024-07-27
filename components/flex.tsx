@@ -14,11 +14,11 @@ export type FlexProps = ViewProps & CommonProps & {
 }
 
 export function Flex({
-  direction = 'column',
-  align = 'flex-start',
-  justify = 'flex-start',
-  wrap = 'nowrap',
-  gap = 0,
+  direction: flexDirection,
+  align: alignItems,
+  justify: justifyContent,
+  wrap: flexWrap,
+  gap,
   flex,
 
   p: padding,
@@ -55,10 +55,10 @@ export function Flex({
   return (
     <View
       style={{
-        flexDirection: direction,
-        alignItems: align,
-        justifyContent: justify,
-        flexWrap: wrap,
+        flexDirection,
+        alignItems,
+        justifyContent,
+        flexWrap,
         gap,
         flex,
 
@@ -102,7 +102,7 @@ export function Flex({
 }
 
 export function Row(props: Omit<FlexProps, 'direction'>) {
-  return <Flex direction="row" align="center" {...props} />
+  return <Flex direction="row" {...props} />
 }
 
 export function Column(props: Omit<FlexProps, 'direction'>) {
@@ -110,5 +110,5 @@ export function Column(props: Omit<FlexProps, 'direction'>) {
 }
 
 export function Container(props: FlexProps) {
-  return <Flex flex={1} {...props} />
+  return <Flex w="100%" h="100%" {...props} />
 }
