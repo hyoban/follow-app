@@ -118,6 +118,9 @@ importers:
       swr:
         specifier: ^2.2.5
         version: 2.2.5(react@18.2.0)
+      tldts:
+        specifier: ^6.1.35
+        version: 6.1.35
       zod:
         specifier: ^3.23.8
         version: 3.23.8
@@ -5511,6 +5514,13 @@ packages:
 
   tiny-queue@0.2.1:
     resolution: {integrity: sha512-EijGsv7kzd9I9g0ByCl6h42BWNGUZrlCSejfrb3AKeHC33SGbASu1VDf5O3rRiiUOhAC9CHdZxFPbZu0HmR70A==}
+
+  tldts-core@6.1.35:
+    resolution: {integrity: sha512-JAwaxYLdlXI00Ch86/YlSCTJwadCHkedtZ9BTVsUpI2pVAJdGP0byEF3V8jV4nRMyG29ApXQeDzm1z9uYq5DjA==}
+
+  tldts@6.1.35:
+    resolution: {integrity: sha512-hs38YswUGXTsFBeW/HkJ0F6zYV/wO9N5TxpWtAz4zei8ppwCRYCuDIpmcU4DoB2ni2kIWh/9WJH9Tw9xZizUvA==}
+    hasBin: true
 
   tmp@0.0.33:
     resolution: {integrity: sha512-jRCJlojKnZ3addtTOjdIqoRuPEKBvNXcGYqzO6zWZX8KfKEpnGY5jfggJQ3EjKuu8D4bJRr0y+cYJFmYbImXGw==}
@@ -12455,6 +12465,12 @@ snapshots:
   through@2.3.8: {}
 
   tiny-queue@0.2.1: {}
+
+  tldts-core@6.1.35: {}
+
+  tldts@6.1.35:
+    dependencies:
+      tldts-core: 6.1.35
 
   tmp@0.0.33:
     dependencies:

@@ -51,6 +51,7 @@
     "react-native-unistyles": "^2.9.0",
     "react-native-web": "~0.19.10",
     "swr": "^2.2.5",
+    "tldts": "^6.1.35",
     "zod": "^3.23.8"
   },
   "devDependencies": {

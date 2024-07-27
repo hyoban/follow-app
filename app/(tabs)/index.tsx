@@ -13,10 +13,10 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated'
-import { useStyles } from 'react-native-unistyles'
 
 import { layoutAtom } from '~/atom/layout'
 import { Container, Iconify, Row, Text } from '~/components'
+import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
 import { feeds } from '~/db/schema'
@@ -72,7 +72,6 @@ function FeedItem({
 }: {
   feed: Feed
 }) {
-  const { theme } = useStyles()
   return (
     <Link
       href={`/feed/group/${feed.id}`}
@@ -86,7 +85,7 @@ function FeedItem({
               style={{ width: 24, height: 24, borderRadius: 1000 }}
             />
           ) : (
-            <Iconify icon="mdi:rss" color={theme.colors.gray10} />
+            <SiteIcon source={feed.siteUrl} />
           )}
           <Text style={{ flex: 1 }}>{feed.title}</Text>
           <Text>{feed.unread}</Text>
