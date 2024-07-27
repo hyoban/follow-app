@@ -15,7 +15,6 @@ function EntryItem({ entry }: { entry: Entry }) {
         return operators.eq(fields.id, entry.feedId)
       },
     }),
-    [entry.feedId],
   )
   return (
     <>
@@ -65,14 +64,23 @@ function EntryItem({ entry }: { entry: Entry }) {
 
 export default function Page() {
   const { feedId } = useLocalSearchParams()
+  const feedIdList = !feedId ? [] : Array.isArray(feedId) ? feedId : [feedId]
 
   const { data: entryList } = useLiveQuery(
     db.query.entries.findMany({
       where(fields, operators) {
-        return operators.inArray(fields.feedId, Array.isArray(feedId) ? feedId : [feedId ?? ''])
+        return operators.inArray(fields.feedId, feedIdList)
       },
     }),
   )
+  // useEffect(() => {
+  //   createOrUpdateEntriesInDB({
+  //     feedIdList,
+  //   })
+  //     .then(console.log)
+  //     .catch(console.error)
+  // }, [])
+
   if (!feedId) {
     return null
   }
