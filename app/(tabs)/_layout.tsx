@@ -5,6 +5,7 @@ import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { createOrUpdateFeedsInDB } from '~/api/feed'
 import { Iconify } from '~/components'
+import { LayoutSwitch } from '~/components/layout-switch'
 import { SettingsLink } from '~/components/settings-link'
 import type { ThemeColorKey } from '~/theme'
 
@@ -79,7 +80,8 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerRight: () => <SettingsLink />,
+        headerLeft: () => <SettingsLink />,
+        headerRight: () => <LayoutSwitch />,
       }}
     >
       {views.map(view => (

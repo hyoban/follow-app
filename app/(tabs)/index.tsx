@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Stack } from 'expo-router'
+import { useAtomValue } from 'jotai'
 import { useMemo, useState } from 'react'
 import { Pressable } from 'react-native'
 import Animated, {
@@ -14,6 +15,7 @@ import Animated, {
 } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
 
+import { layoutAtom } from '~/atom/layout'
 import { Container, Iconify, Row, Text } from '~/components'
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
@@ -138,7 +140,7 @@ const exitingAnimation = new Keyframe({
   },
 }).duration(10000)
 
-export default function Home() {
+function FeedLayout() {
   const { data } = useLiveQuery(db.query.feeds.findMany({ where: eq(feeds.view, 0) }))
   const feedsGrouped = useMemo(() => groupBy(data, 'category'), [data])
   const listData = useMemo(
@@ -162,44 +164,51 @@ export default function Home() {
       return next
     })
   }
+  return (
+    <Animated.FlatList
+      style={{ width: '100%' }}
+      data={listData}
+      extraData={expandedSections}
+      renderItem={({ item }) => {
+        if (typeof item === 'string') {
+          return item === 'No Category Found'
+            ? null
+            : (
+                <FeedFolder
+                  category={item}
+                  unread={feedsGrouped[item].reduce((acc, sub) => acc + sub.unread, 0)}
+                  isExpanded={expandedSections.has(item)}
+                  setIsExpanded={() => handleToggle(item)}
+                />
+              )
+        }
+        const shouldShow = !item[0].category || expandedSections.has(item[0].category)
+        if (!shouldShow) {
+          return null
+        }
+        return (
+          <LayoutAnimationConfig skipEntering={!item[0].category}>
+            <Animated.View
+              entering={enteringAnimation}
+              exiting={exitingAnimation}
+            >
+              {item.map(i => (<FeedItem key={i.id} feed={i} />))}
+            </Animated.View>
+          </LayoutAnimationConfig>
+        )
+      }}
+    />
+  )
+}
+
+export default function Home() {
+  const layout = useAtomValue(layoutAtom)
 
   return (
     <>
       <Stack.Screen />
       <Container p={10} gap={10}>
-        <Animated.FlatList
-          style={{ width: '100%' }}
-          data={listData}
-          extraData={expandedSections}
-          renderItem={({ item }) => {
-            if (typeof item === 'string') {
-              return item === 'No Category Found'
-                ? null
-                : (
-                    <FeedFolder
-                      category={item}
-                      unread={feedsGrouped[item].reduce((acc, sub) => acc + sub.unread, 0)}
-                      isExpanded={expandedSections.has(item)}
-                      setIsExpanded={() => handleToggle(item)}
-                    />
-                  )
-            }
-            const shouldShow = !item[0].category || expandedSections.has(item[0].category)
-            if (!shouldShow) {
-              return null
-            }
-            return (
-              <LayoutAnimationConfig skipEntering={!item[0].category}>
-                <Animated.View
-                  entering={enteringAnimation}
-                  exiting={exitingAnimation}
-                >
-                  {item.map(i => (<FeedItem key={i.id} feed={i} />))}
-                </Animated.View>
-              </LayoutAnimationConfig>
-            )
-          }}
-        />
+        {layout === 'feed' && <FeedLayout />}
       </Container>
     </>
   )
