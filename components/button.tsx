@@ -8,6 +8,7 @@ type VariantProps = {
   color?: Color
   radius?: Radius
   fullWidth?: boolean
+  variant?: 'solid' | 'outlined' | 'ghost'
 }
 
 type ButtonProps = Omit<PressableProps, 'style'> & VariantProps
@@ -17,12 +18,18 @@ export function Button({
   color,
   radius,
   fullWidth,
+  variant,
   ...rest
 }: ButtonProps) {
   const { styles } = useStyles(styleSheet)
   return (
     <Pressable
-      style={({ pressed }) => (styles.button(pressed, { color, radius, fullWidth }))}
+      style={({ pressed }) => (
+        styles.button(
+          pressed,
+          { color, radius, fullWidth, variant },
+        )
+      )}
       {...rest}
     >
       {children}
@@ -31,8 +38,11 @@ export function Button({
 }
 
 const styleSheet = createStyleSheet(theme => ({
-  button(pressed: boolean, variant?: VariantProps) {
-    const { color, radius, fullWidth } = variant ?? {}
+  button(pressed: boolean, props?: VariantProps) {
+    const { color, radius, fullWidth, variant } = props ?? {}
+    if (variant === 'ghost') {
+      return {}
+    }
 
     return {
       padding: theme.spacing[3],

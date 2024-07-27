@@ -5,6 +5,7 @@ module.exports = function babel(api) {
     plugins: [
       'react-native-iconify/plugin',
       ['inline-import', { extensions: ['.sql'] }],
+      'react-native-reanimated/plugin',
     ],
   }
 }

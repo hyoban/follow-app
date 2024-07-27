@@ -11,19 +11,23 @@ type VariantProps = {
   color?: Color
 }
 
-export type TextProps = Omit<NativeTextProps, 'style'> & VariantProps
+export type TextProps = NativeTextProps & VariantProps
 
 export function Text({
   size,
   contrast,
   weight,
   color,
+  style,
   ...rest
 }: TextProps) {
   const { styles } = useStyles(styleSheet)
   return (
     <NativeText
-      style={styles.text({ size, contrast, weight, color })}
+      style={[
+        styles.text({ size, contrast, weight, color }),
+        style,
+      ]}
       {...rest}
     />
   )

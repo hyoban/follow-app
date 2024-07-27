@@ -7,7 +7,7 @@ import type { ThemeColorKey } from '~/theme'
 
 const views = [
   {
-    name: 'article',
+    name: 'index',
     title: 'Articles',
     icon: (color: string) => <Iconify icon="mingcute:paper-fill" color={color} />,
     color: 'orange',

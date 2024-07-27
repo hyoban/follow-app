@@ -14,7 +14,7 @@ export type FlexProps = ViewProps & CommonProps & {
 }
 
 export function Flex({
-  direction = 'row',
+  direction = 'column',
   align = 'flex-start',
   justify = 'flex-start',
   wrap = 'nowrap',
@@ -102,7 +102,7 @@ export function Flex({
 }
 
 export function Row(props: Omit<FlexProps, 'direction'>) {
-  return <Flex direction="row" {...props} />
+  return <Flex direction="row" align="center" {...props} />
 }
 
 export function Column(props: Omit<FlexProps, 'direction'>) {

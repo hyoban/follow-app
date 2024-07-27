@@ -6,11 +6,54 @@ import { StatusBar } from 'expo-status-bar'
 import * as WebBrowser from 'expo-web-browser'
 import * as React from 'react'
 import { Platform } from 'react-native'
+import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 
 import { getSession, saveSessionToUserTable } from '~/api/session'
 import { Button, Column, Row, Text } from '~/components'
 import { db } from '~/db'
 import { users } from '~/db/schema'
+import { accentColors, getAccentColor } from '~/theme'
+
+const accentColorGroups = Array.from(
+  { length: accentColors.length / 4 },
+  (_, i) => {
+    const start = i * 4
+    return accentColors.slice(start, start + 4)
+  },
+)
+
+function ThemeSwitcher() {
+  const { theme } = useStyles()
+  return accentColorGroups.map((accentColors, i) => (
+    <Row key={i} gap={10} bg={theme.colors.accent5}>
+      {accentColors.map(accentColor => (
+        <Button
+          key={accentColor}
+          color={accentColor}
+          onPress={() => {
+            const { accent, accentA, accentDark, accentDarkA }
+              = getAccentColor(accentColor)
+            UnistylesRuntime.updateTheme(
+              UnistylesRuntime.themeName,
+              oldTheme => ({
+                ...oldTheme,
+                colors: {
+                  ...oldTheme.colors,
+                  ...accent,
+                  ...accentA,
+                  ...accentDark,
+                  ...accentDarkA,
+                },
+              }),
+            )
+          }}
+        >
+          <Text color={accentColor}>{accentColor}</Text>
+        </Button>
+      ))}
+    </Row>
+  ))
+}
 
 async function handlePressButtonAsync() {
   Linking.addEventListener('url', ({ url }) => {
@@ -77,6 +120,7 @@ export default function UserInfo() {
             <Text>Login</Text>
           </Button>
         )}
+        <ThemeSwitcher />
       </Column>
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </>
