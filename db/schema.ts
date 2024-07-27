@@ -1,3 +1,4 @@
+import { relations } from 'drizzle-orm'
 import { integer, sqliteTable, text } from 'drizzle-orm/sqlite-core'
 
 export const users = sqliteTable('users', {
@@ -40,6 +41,10 @@ export const feeds = sqliteTable('feeds', {
 })
 
 export type Feed = typeof feeds.$inferSelect
+
+export const feedsRelations = relations(users, ({ many }) => ({
+  entries: many(entries),
+}))
 
 export type MediaModel = {
   url: string
@@ -88,3 +93,7 @@ export const entries = sqliteTable(
 )
 
 export type Entry = typeof entries.$inferSelect
+
+export const entriesRelations = relations(entries, ({ one }) => ({
+  feed: one(feeds, { fields: [entries.feedId], references: [feeds.id] }),
+}))

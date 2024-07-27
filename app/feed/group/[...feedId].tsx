@@ -3,7 +3,7 @@ import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
-import { FlatList } from 'react-native'
+import { FlatList, View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
 import { apiClient } from '~/api/client'
@@ -11,16 +11,11 @@ import { createOrUpdateEntriesInDB } from '~/api/entry'
 import { Column, Container, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
-import type { Entry } from '~/db/schema'
+import type { Entry, Feed } from '~/db/schema'
 
-function EntryItem({ entry }: { entry: Entry }) {
-  const { data } = useLiveQuery(
-    db.query.feeds.findFirst({
-      where(fields, operators) {
-        return operators.eq(fields.id, entry.feedId)
-      },
-    }),
-  )
+function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
+  const { theme } = useStyles()
+  const data = entry.feed
   return (
     <>
       <Row
@@ -28,6 +23,14 @@ function EntryItem({ entry }: { entry: Entry }) {
         py={12}
         gap={10}
       >
+        <View
+          style={{
+            width: 6,
+            height: 6,
+            borderRadius: 6 / 2,
+            backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
+          }}
+        />
         {
           data?.image
             ? (
@@ -37,7 +40,6 @@ function EntryItem({ entry }: { entry: Entry }) {
                 />
               ) : <SiteIcon source={data?.siteUrl} />
         }
-
         <Column gap={6} flex={1}>
           <Row>
             <Text style={{ flex: 1, flexWrap: 'wrap' }}>
@@ -83,6 +85,9 @@ export default function Page() {
     db.query.entries.findMany({
       where(fields, operators) {
         return operators.inArray(fields.feedId, feedIdList)
+      },
+      with: {
+        feed: true,
       },
     }),
   )

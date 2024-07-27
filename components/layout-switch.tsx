@@ -8,7 +8,7 @@ import { Iconify } from './icon'
 export function LayoutSwitch() {
   const [layout, setLayout] = useAtom(layoutAtom)
   return (
-    <Row mr={10}>
+    <Row mr={18}>
       {layout === 'feed' ? (
         <Iconify icon="mingcute:folder-2-fill" onPress={() => setLayout('entry')} />
       ) : (

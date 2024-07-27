@@ -186,7 +186,7 @@ function FeedLayout() {
   }
   return (
     <Animated.FlatList
-      style={{ width: '100%' }}
+      style={{ width: '100%', paddingHorizontal: 18 }}
       data={listData}
       extraData={expandedSections}
       renderItem={({ item }) => {
@@ -230,7 +230,7 @@ export default function Home() {
   return (
     <>
       <Stack.Screen />
-      <Container p={10} gap={10}>
+      <Container>
         {layout === 'feed' && <FeedLayout />}
       </Container>
     </>
