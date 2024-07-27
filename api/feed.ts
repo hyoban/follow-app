@@ -1,7 +1,7 @@
-import { eq } from 'drizzle-orm'
+import { eq, notInArray } from 'drizzle-orm'
 
 import { db } from '~/db'
-import { feeds } from '~/db/schema'
+import { entries, feeds } from '~/db/schema'
 
 import { apiClient } from './client'
 
@@ -18,18 +18,21 @@ export async function getFeeds() {
 
 export async function createOrUpdateFeedsInDB() {
   const feedsFromApi = await getFeeds()
-  for (const feed of feedsFromApi) {
-    const feedInDB = await db.query.feeds.findFirst({
-      where: eq(feeds.id, feed.feedId),
-    })
-    if (feedInDB) {
-      await db.update(feeds)
+  const existFeedIds = feedsFromApi.map(feed => feed.feedId)
+  await Promise.all([
+    ...feedsFromApi.map(async (feed) => {
+      const feedInDB = await db.query.feeds.findFirst({
+        where: eq(feeds.id, feed.feedId),
+      })
+      if (!feedInDB) {
+        return db.insert(feeds)
+          .values(feed)
+      }
+      return db.update(feeds)
         .set(feed)
         .where(eq(feeds.id, feed.feedId))
-    }
-    else {
-      await db.insert(feeds)
-        .values(feed)
-    }
-  }
+    }),
+    db.delete(feeds).where(notInArray(feeds.id, existFeedIds)),
+    db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
+  ])
 }
