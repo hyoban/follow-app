@@ -1,6 +1,8 @@
 import { Tabs } from 'expo-router'
+import { useEffect, useState } from 'react'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
+import { createOrUpdateFeedsInDB } from '~/api/feed'
 import { Iconify } from '~/components'
 import { SettingsLink } from '~/components/settings-link'
 import type { ThemeColorKey } from '~/theme'
@@ -45,6 +47,12 @@ const views = [
 ]
 
 export default function TabLayout() {
+  const [isFetching, setIsFetching] = useState(true)
+  useEffect(() => {
+    createOrUpdateFeedsInDB()
+      .then(() => setIsFetching(false))
+      .catch(() => setIsFetching(false))
+  }, [])
   const { styles, theme } = useStyles(stylesheet)
   return (
     <Tabs
@@ -57,7 +65,7 @@ export default function TabLayout() {
           key={view.name}
           name={view.name}
           options={{
-            title: view.title,
+            title: isFetching ? 'Loading...' : view.title,
             tabBarIcon: ({ color }) => view.icon(color),
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],
             tabBarShowLabel: false,

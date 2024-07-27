@@ -23,10 +23,13 @@ export async function createOrUpdateFeedsInDB() {
       where: eq(feeds.id, feed.feedId),
     })
     if (feedInDB) {
-      // Update the feed
+      await db.update(feeds)
+        .set(feed)
+        .where(eq(feeds.id, feed.feedId))
     }
     else {
-      await db.insert(feeds).values(feed)
+      await db.insert(feeds)
+        .values(feed)
     }
   }
 }
