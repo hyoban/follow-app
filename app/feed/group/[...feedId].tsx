@@ -2,9 +2,12 @@ import { formatDistance } from 'date-fns'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams } from 'expo-router'
+import { useEffect } from 'react'
 import { FlatList } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
+import { apiClient } from '~/api/client'
+import { createOrUpdateEntriesInDB } from '~/api/entry'
 import { Column, Container, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
@@ -82,13 +85,30 @@ export default function Page() {
       },
     }),
   )
-  // useEffect(() => {
-  //   createOrUpdateEntriesInDB({
-  //     feedIdList,
-  //   })
-  //     .then(console.log)
-  //     .catch(console.error)
-  // }, [])
+  useEffect(() => {
+    // @ts-expect-error
+    (apiClient.entries['check-new'].$get({
+      query: {
+        feedIdList: [...feedIdList, ...feedIdList],
+        insertedAfter: Date.now() - 1000 * 60 * 60 * 24,
+      },
+    }) as Promise<{ data: {
+      has_new: boolean
+      lastest_at?: string
+    } }>)
+      .then(({ data }) => {
+        const { lastest_at } = data
+        const lastestAt = lastest_at ? new Date(lastest_at) : new Date()
+        const newest = new Date(entryList.at(0)?.publishedAt ?? 0)
+        if (lastestAt > newest || entryList.length === 0) {
+          createOrUpdateEntriesInDB({
+            feedIdList,
+          })
+            .catch(console.error)
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   if (!feedId) {
     return null
