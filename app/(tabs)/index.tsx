@@ -1,6 +1,8 @@
+import { eq } from 'drizzle-orm'
+import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Stack } from 'expo-router'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Pressable } from 'react-native'
 import Animated, {
   Easing,
@@ -11,31 +13,25 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
-import useSwr from 'swr'
 
-import { apiClient } from '~/api/client'
 import { Container, Iconify, Row, Text } from '~/components'
+import { db } from '~/db'
+import type { Feed } from '~/db/schema'
+import { feeds } from '~/db/schema'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
-function SubscriptionFolder({
+function FeedFolder({
   category,
-  feedIds,
+  unread,
   isExpanded,
   setIsExpanded,
 }: {
   category: string
-  feedIds: string[]
+  unread: number
   isExpanded: boolean
   setIsExpanded: (isExpanded: boolean) => void
 }) {
-  const { data } = useSwr(
-    `reads`,
-    () => apiClient.reads.$get({ query: { view: '0' } }),
-  )
-  const reeds = feedIds.map(feedId => data?.data[feedId] ?? 0)
-    .reduce((acc, item) => acc + item, 0)
-
   const rotate = useSharedValue(isExpanded ? '90deg' : '0deg')
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
@@ -55,38 +51,32 @@ function SubscriptionFolder({
           <Iconify icon="mingcute:right-fill" />
         </AnimatedPressable>
         <Text style={{ flex: 1 }}>{category}</Text>
-        <Text>{reeds}</Text>
+        <Text>{unread}</Text>
       </Row>
       <Row h={1} bg="component" w="100%" />
     </>
   )
 }
 
-function SubscriptionItems({
-  subscription,
+function FeedItem({
+  feed,
 }: {
-  subscription: any
+  feed: Feed
 }) {
-  const { data } = useSwr(
-    `reads`,
-    () => apiClient.reads.$get({ query: { view: '0' } }),
-  )
   const { theme } = useStyles()
-  const read = data?.data[subscription.feedId]
-
   return (
     <>
       <Row gap={10} h={40}>
-        {subscription.feeds.image ? (
+        {feed.image ? (
           <Image
-            source={{ uri: subscription.feeds.image }}
+            source={{ uri: feed.image }}
             style={{ width: 24, height: 24, borderRadius: 1000 }}
           />
         ) : (
           <Iconify icon="mdi:rss" color={theme.colors.gray10} />
         )}
-        <Text style={{ flex: 1 }}>{subscription.feeds.title}</Text>
-        <Text>{read}</Text>
+        <Text style={{ flex: 1 }}>{feed.title}</Text>
+        <Text>{feed.unread}</Text>
       </Row>
       <Row h={1} bg="component" w="100%" />
     </>
@@ -104,9 +94,61 @@ function groupBy<T>(array: T[], key: string) {
   }, {} as Record<string, T[]>)
 }
 
+const enteringAnimation = new Keyframe({
+  0: {
+    opacity: 0,
+    transform: [{
+      translateY: -10,
+    }],
+  },
+  0.5: {
+    opacity: 0.5,
+    transform: [{
+      translateY: 5,
+    }],
+    easing: Easing.in(Easing.quad),
+  },
+  1: {
+    opacity: 1,
+    transform: [{
+      translateY: 0,
+    }],
+  },
+}).duration(10000)
+
+const exitingAnimation = new Keyframe({
+  0: {
+    opacity: 1,
+    transform: [{
+      translateY: 0,
+    }],
+  },
+  0.5: {
+    opacity: 0.5,
+    transform: [{
+      translateY: 5,
+    }],
+    easing: Easing.out(Easing.quad),
+  },
+  1: {
+    opacity: 0,
+    transform: [{
+      translateY: -10,
+    }],
+  },
+}).duration(10000)
+
 export default function Home() {
-  const { data } = useSwr('subscription', () => apiClient.subscriptions.$get({ query: { view: '0' } }))
-  const subscriptions = groupBy(data?.data ?? [], 'category')
+  const { data } = useLiveQuery(db.query.feeds.findMany({ where: eq(feeds.view, 0) }))
+  const feedsGrouped = useMemo(() => groupBy(data, 'category'), [data])
+  const listData = useMemo(
+    () => Array.from(
+      Object.entries(feedsGrouped),
+      ([title, data]) => [title, data],
+    ).flat(),
+    [feedsGrouped],
+  )
+
   const [expandedSections, setExpandedSections] = useState(new Set<string>())
   const handleToggle = (title: string) => {
     setExpandedSections((expandedSections) => {
@@ -127,63 +169,16 @@ export default function Home() {
       <Container p={10} gap={10}>
         <Animated.FlatList
           style={{ width: '100%' }}
-          data={Array.from(
-            Object.entries(subscriptions),
-            ([title, data]) => [title, data],
-          ).flat()}
+          data={listData}
           extraData={expandedSections}
           renderItem={({ item }) => {
-            const enteringAnimation = new Keyframe({
-              0: {
-                opacity: 0,
-                transform: [{
-                  translateY: -10,
-                }],
-              },
-              0.5: {
-                opacity: 0.5,
-                transform: [{
-                  translateY: 5,
-                }],
-                easing: Easing.in(Easing.quad),
-              },
-              1: {
-                opacity: 1,
-                transform: [{
-                  translateY: 0,
-                }],
-              },
-            }).duration(10000)
-
-            const exitingAnimation = new Keyframe({
-              0: {
-                opacity: 1,
-                transform: [{
-                  translateY: 0,
-                }],
-              },
-              0.5: {
-                opacity: 0.5,
-                transform: [{
-                  translateY: 5,
-                }],
-                easing: Easing.out(Easing.quad),
-              },
-              1: {
-                opacity: 0,
-                transform: [{
-                  translateY: -10,
-                }],
-              },
-            }).duration(10000)
-
             if (typeof item === 'string') {
               return item === 'No Category Found'
                 ? null
                 : (
-                    <SubscriptionFolder
+                    <FeedFolder
                       category={item}
-                      feedIds={subscriptions[item].map(subscription => subscription.feedId)}
+                      unread={feedsGrouped[item].reduce((acc, sub) => acc + sub.unread, 0)}
                       isExpanded={expandedSections.has(item)}
                       setIsExpanded={() => handleToggle(item)}
                     />
@@ -200,7 +195,7 @@ export default function Home() {
                   exiting={exitingAnimation}
                 >
                   {item.map((subscription: any) => (
-                    <SubscriptionItems key={subscription.feedId} subscription={subscription} />
+                    <FeedItem key={subscription.feedId} feed={subscription} />
                   ))}
                 </Animated.View>
               </LayoutAnimationConfig>
