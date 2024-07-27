@@ -1,9 +1,6 @@
 import { Tabs } from 'expo-router'
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { AppState } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import { createOrUpdateFeedsInDB } from '~/api/feed'
 import { Iconify } from '~/components'
 import { LayoutSwitch } from '~/components/layout-switch'
 import { SettingsLink } from '~/components/settings-link'
@@ -49,33 +46,6 @@ const views = [
 ]
 
 export default function TabLayout() {
-  const [isFetching, setIsFetching] = useState(false)
-  const updateFeeds = useCallback(() => {
-    setIsFetching(true)
-    createOrUpdateFeedsInDB()
-      .then(() => setIsFetching(false))
-      .catch(() => setIsFetching(false))
-  }, [])
-
-  const onceRef = useRef(false)
-  useEffect(() => {
-    if (!onceRef.current) {
-      onceRef.current = true
-      updateFeeds()
-    }
-  }, [updateFeeds])
-
-  useEffect(() => {
-    const sub = AppState.addEventListener('change', (state) => {
-      if (state === 'active') {
-        updateFeeds()
-      }
-    })
-    return () => {
-      sub.remove()
-    }
-  }, [updateFeeds])
-
   const { styles, theme } = useStyles(stylesheet)
   return (
     <Tabs
@@ -89,7 +59,7 @@ export default function TabLayout() {
           key={view.name}
           name={view.name}
           options={{
-            title: isFetching ? 'Loading...' : view.title,
+            title: view.title,
             tabBarIcon: ({ color }) => view.icon(color),
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],
             tabBarShowLabel: false,

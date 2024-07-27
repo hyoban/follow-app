@@ -2,7 +2,7 @@ import { formatDistance } from 'date-fns'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect } from 'react'
+import { useState } from 'react'
 import { FlatList } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
@@ -74,6 +74,7 @@ function EntryItem({ entry }: { entry: Entry }) {
 }
 
 export default function Page() {
+  const [isRefreshing, setIsRefreshing] = useState(false)
   const { theme } = useStyles()
   const { feedId } = useLocalSearchParams()
   const feedIdList = !feedId ? [] : Array.isArray(feedId) ? feedId : [feedId]
@@ -85,30 +86,6 @@ export default function Page() {
       },
     }),
   )
-  useEffect(() => {
-    // @ts-expect-error
-    (apiClient.entries['check-new'].$get({
-      query: {
-        feedIdList: [...feedIdList, ...feedIdList],
-        insertedAfter: Date.now() - 1000 * 60 * 60 * 24,
-      },
-    }) as Promise<{ data: {
-      has_new: boolean
-      lastest_at?: string
-    } }>)
-      .then(({ data }) => {
-        const { lastest_at } = data
-        const lastestAt = lastest_at ? new Date(lastest_at) : new Date()
-        const newest = new Date(entryList.at(0)?.publishedAt ?? 0)
-        if (lastestAt > newest || entryList.length === 0) {
-          createOrUpdateEntriesInDB({
-            feedIdList,
-          })
-            .catch(console.error)
-        }
-      })
-      .catch(console.error)
-  }, [])
 
   if (!feedId) {
     return null
@@ -132,6 +109,33 @@ export default function Page() {
         <FlatList
           data={entryList}
           renderItem={({ item }) => <EntryItem entry={item} />}
+          refreshing={isRefreshing}
+          onRefresh={async () => {
+            setIsRefreshing(true);
+            // @ts-expect-error
+            (apiClient.entries['check-new'].$get({
+              query: {
+                feedIdList: [...feedIdList, ...feedIdList],
+                insertedAfter: Date.now() - 1000 * 60 * 60 * 24,
+              },
+            }) as Promise<{ data: {
+              has_new: boolean
+              lastest_at?: string
+            } }>)
+              .then(({ data }) => {
+                const { lastest_at } = data
+                const lastestAt = lastest_at ? new Date(lastest_at) : new Date()
+                const newest = new Date(entryList.at(0)?.publishedAt ?? 0)
+                if (lastestAt > newest || entryList.length === 0) {
+                  createOrUpdateEntriesInDB({
+                    feedIdList,
+                  })
+                    .catch(console.error)
+                }
+              })
+              .catch(console.error)
+              .finally(() => setIsRefreshing(false))
+          }}
         />
       </Container>
     </>
