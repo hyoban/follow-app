@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { AppState } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { createOrUpdateFeedsInDB } from '~/api/feed'
@@ -47,12 +48,33 @@ const views = [
 ]
 
 export default function TabLayout() {
-  const [isFetching, setIsFetching] = useState(true)
-  useEffect(() => {
+  const [isFetching, setIsFetching] = useState(false)
+  const updateFeeds = useCallback(() => {
+    setIsFetching(true)
     createOrUpdateFeedsInDB()
       .then(() => setIsFetching(false))
       .catch(() => setIsFetching(false))
   }, [])
+
+  const onceRef = useRef(false)
+  useEffect(() => {
+    if (!onceRef.current) {
+      onceRef.current = true
+      updateFeeds()
+    }
+  }, [updateFeeds])
+
+  useEffect(() => {
+    const sub = AppState.addEventListener('change', (state) => {
+      if (state === 'active') {
+        updateFeeds()
+      }
+    })
+    return () => {
+      sub.remove()
+    }
+  }, [updateFeeds])
+
   const { styles, theme } = useStyles(stylesheet)
   return (
     <Tabs
