@@ -25,9 +25,9 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
       >
         <View
           style={{
-            width: 6,
-            height: 6,
-            borderRadius: 6 / 2,
+            width: 8,
+            height: 8,
+            borderRadius: 8 / 2,
             backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
           }}
         />
@@ -41,14 +41,9 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
               ) : <SiteIcon source={data?.siteUrl} />
         }
         <Column gap={6} flex={1}>
-          <Row>
-            <Text style={{ flex: 1, flexWrap: 'wrap' }}>
-              {entry.title}
-            </Text>
-          </Row>
           <Row gap={6}>
-            <Text size={12}>{data?.title}</Text>
-            <Text size={12}>
+            <Text size={10}>{data?.title}</Text>
+            <Text size={10}>
               {formatDistance(
                 new Date(entry.publishedAt),
                 new Date(),
@@ -56,6 +51,17 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
               )}
             </Text>
           </Row>
+          <Row>
+            <Text style={{ flex: 1, flexWrap: 'wrap' }} weight={600}>
+              {entry.title}
+            </Text>
+          </Row>
+          <Text
+            size={12}
+            numberOfLines={3}
+          >
+            {entry.description}
+          </Text>
         </Column>
         {entry.media
         && entry.media.find(media => media.type === 'photo')
