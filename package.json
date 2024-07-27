@@ -18,7 +18,6 @@
     "web": "expo start --web"
   },
   "dependencies": {
-    "@hono/auth-js": "^1.0.10",
     "@radix-ui/colors": "^3.0.0",
     "@react-navigation/native": "^6.1.7",
     "date-fns": "^3.6.0",
@@ -50,7 +49,6 @@
     "react-native-svg": "15.2.0",
     "react-native-unistyles": "^2.9.0",
     "react-native-web": "~0.19.10",
-    "swr": "^2.2.5",
     "tldts": "^6.1.35",
     "zod": "^3.23.8"
   },
