@@ -25,11 +25,13 @@ const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 function FeedFolder({
   category,
+  feedIdList,
   unread,
   isExpanded,
   setIsExpanded,
 }: {
   category: string
+  feedIdList: string[]
   unread: number
   isExpanded: boolean
   setIsExpanded: (isExpanded: boolean) => void
@@ -39,7 +41,7 @@ function FeedFolder({
 
   return (
     <Link
-      href={`/feed/group/${category}`}
+      href={`/feed/group/${feedIdList.join('/')}`}
       asChild
     >
       <Pressable>
@@ -151,8 +153,7 @@ const exitingAnimation = new Keyframe({
 }).duration(10000)
 
 function FeedLayout() {
-  const query = useMemo(() => db.query.feeds.findMany({ where: eq(feeds.view, 0) }), [])
-  const { data } = useLiveQuery(query)
+  const { data } = useLiveQuery(db.query.feeds.findMany({ where: eq(feeds.view, 0) }))
   const feedsGrouped = useMemo(() => groupBy(data, 'category'), [data])
   const listData = useMemo(
     () => Array.from(
@@ -187,6 +188,7 @@ function FeedLayout() {
             : (
                 <FeedFolder
                   category={item}
+                  feedIdList={feedsGrouped[item].map(i => i.id)}
                   unread={feedsGrouped[item].reduce((acc, sub) => acc + sub.unread, 0)}
                   isExpanded={expandedSections.has(item)}
                   setIsExpanded={() => handleToggle(item)}

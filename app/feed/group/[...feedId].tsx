@@ -1,18 +1,12 @@
 import { formatDistance } from 'date-fns'
-import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams } from 'expo-router'
-import { useMemo } from 'react'
 import { FlatList } from 'react-native'
 
 import { Column, Container, Row, Text } from '~/components'
 import { db } from '~/db'
 import type { Entry } from '~/db/schema'
-
-function isNumber(value: string) {
-  return /^\d+$/.test(value)
-}
 
 function EntryItem({ entry }: { entry: Entry }) {
   const { data } = useLiveQuery(
@@ -70,33 +64,18 @@ function EntryItem({ entry }: { entry: Entry }) {
 }
 
 export default function Page() {
-  const { slug } = useLocalSearchParams()
-  const slugString = String(slug)
-  const isCategory = !isNumber(slugString)
-  const { data } = useLiveQuery(
-    db.query.feeds.findMany({
-      where(fields) {
-        return eq(fields.category, slugString)
-      },
-    }),
-    [slugString],
-  )
-
-  const feedIds = useMemo(
-    () => isCategory
-      ? data.map(feed => feed.id)
-      : [slugString],
-    [data, isCategory, slugString],
-  )
+  const { feedId } = useLocalSearchParams()
 
   const { data: entryList } = useLiveQuery(
     db.query.entries.findMany({
       where(fields, operators) {
-        return operators.inArray(fields.feedId, feedIds)
+        return operators.inArray(fields.feedId, Array.isArray(feedId) ? feedId : [feedId ?? ''])
       },
     }),
-    [feedIds],
   )
+  if (!feedId) {
+    return null
+  }
 
   return (
     <>
