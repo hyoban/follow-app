@@ -194,9 +194,7 @@ export default function Home() {
                   entering={enteringAnimation}
                   exiting={exitingAnimation}
                 >
-                  {item.map((subscription: any) => (
-                    <FeedItem key={subscription.feedId} feed={subscription} />
-                  ))}
+                  {item.map(i => (<FeedItem key={i.id} feed={i} />))}
                 </Animated.View>
               </LayoutAnimationConfig>
             )
