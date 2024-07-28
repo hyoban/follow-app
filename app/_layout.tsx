@@ -6,7 +6,7 @@ import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { Stack } from 'expo-router'
 import { openDatabaseSync } from 'expo-sqlite/next'
 import { View } from 'react-native'
-import { useStyles } from 'react-native-unistyles'
+import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { Text } from '~/components'
 import { SettingsLink } from '~/components/settings-link'
@@ -22,12 +22,13 @@ export const unstable_settings = {
 }
 
 export default function RootLayout() {
+  const { styles } = useStyles(styleSheet)
+
+  useDrizzleStudio(expoDb)
+
   const title = useTabTitle()
 
-  const { theme } = useStyles()
-
   const { success, error } = useMigrations(db, migrations)
-  useDrizzleStudio(expoDb)
 
   if (error) {
     return (
@@ -56,16 +57,9 @@ export default function RootLayout() {
           headerLargeTitle: true,
           title,
           headerRight: () => <SettingsLink />,
-          headerStyle: {
-            backgroundColor: theme.colors.gray2,
-          },
-          headerTitleStyle: {
-            color: theme.colors.gray12,
-          },
-          headerLargeTitleStyle: {
-            fontFamily: 'SN Pro',
-            fontWeight: 'bold',
-          },
+          headerStyle: styles.header,
+          headerTitleStyle: styles.title,
+          headerLargeTitleStyle: styles.title,
         }}
       />
       <Stack.Screen
@@ -73,14 +67,21 @@ export default function RootLayout() {
         options={{
           presentation: 'modal',
           title: 'Settings',
-          headerStyle: {
-            backgroundColor: theme.colors.gray2,
-          },
-          headerTitleStyle: {
-            color: theme.colors.gray12,
-          },
+          headerStyle: styles.header,
+          headerTitleStyle: styles.title,
         }}
       />
     </Stack>
   )
 }
+
+const styleSheet = createStyleSheet(theme => ({
+  header: {
+    backgroundColor: theme.colors.gray2,
+  },
+  title: {
+    color: theme.colors.gray12,
+    fontFamily: 'SN Pro',
+    fontWeight: 'bold',
+  },
+}))
