@@ -2,6 +2,7 @@ import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
+import { Platform } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 import { WebView } from 'react-native-webview'
 
@@ -9,13 +10,28 @@ import { apiClient } from '~/api/client'
 import { db } from '~/db'
 import { entries } from '~/db/schema'
 
+const fontFaceList = [
+  'SNPro-Regular.otf',
+  'SNPro-RegularItalic.otf',
+].map(font => Platform.select({
+  ios: font,
+  android: `file:///android_asset/fonts/${font}`,
+}))
+  .map(font => `url(${font}) format('opentype')`)
+  .join(', ')
+
 // credit: https://github.com/kevquirk/simple.css/blob/main/simple.css
 const simpleCSS = `
+@font-face {
+  font-family: 'SN Pro';
+  src: ${fontFaceList};
+}
+
 /* Global variables. */
 :root,
 ::backdrop {
   /* Set sans-serif & mono fonts */
-  --sans-font: -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir,
+  --sans-font: "SN Pro", -apple-system, BlinkMacSystemFont, "Avenir Next", Avenir,
     "Nimbus Sans L", Roboto, "Noto Sans", "Segoe UI", Arial, Helvetica,
     "Helvetica Neue", sans-serif;
   --mono-font: Consolas, Menlo, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
@@ -772,7 +788,9 @@ export default function FeedDetail() {
       <WebView
         style={{ flex: 1 }}
         originWhitelist={['*']}
-        source={{ html: `
+        source={{
+          baseUrl: '',
+          html: `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -784,12 +802,12 @@ export default function FeedDetail() {
     </style>
 </head>
 <body>
-  <main>
-    ${data?.content ?? ''}
-  </main>
+  <h4>${data?.title ?? ''}</h4>
+  ${data?.content ?? ''}
 </body>
 </html>
-        ` }}
+        `,
+        }}
       />
     </>
   )
