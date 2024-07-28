@@ -62,6 +62,10 @@ export default function RootLayout() {
           headerTitleStyle: {
             color: theme.colors.gray12,
           },
+          headerLargeTitleStyle: {
+            fontFamily: 'SN Pro',
+            fontWeight: 'bold',
+          },
         }}
       />
       <Stack.Screen
