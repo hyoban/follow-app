@@ -1,14 +1,14 @@
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { Pressable } from 'react-native'
 
 import { db } from '~/db'
+import { useQuerySubscription } from '~/hooks/use-query-subscription'
 
 import { Iconify } from './icon'
 
 export function SettingsLink() {
-  const { data: user } = useLiveQuery(db.query.users.findFirst())
+  const { data: user } = useQuerySubscription(db.query.users.findFirst(), 'current-user')
   return (
     <Link href="/settings" asChild>
       <Pressable>

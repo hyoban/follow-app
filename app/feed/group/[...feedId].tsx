@@ -1,5 +1,4 @@
 import { formatDistance } from 'date-fns'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Link, Stack, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
@@ -12,6 +11,7 @@ import { Column, Container, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
+import { useQuerySubscription } from '~/hooks/use-query-subscription'
 import { useTabTitle } from '~/hooks/use-tab-title'
 
 function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
@@ -95,7 +95,7 @@ export default function Page() {
   const { feedId } = useLocalSearchParams()
   const feedIdList = !feedId ? [] : Array.isArray(feedId) ? feedId : [feedId]
 
-  const { data: entryList } = useLiveQuery(
+  const { data: entryList } = useQuerySubscription(
     db.query.entries.findMany({
       where(fields, operators) {
         return operators.inArray(fields.feedId, feedIdList)
@@ -104,6 +104,7 @@ export default function Page() {
         feed: true,
       },
     }),
+    ['entries', feedIdList],
   )
 
   if (!feedId) {
@@ -114,7 +115,7 @@ export default function Page() {
     <>
       <Stack.Screen
         options={{
-          headerTitle: entryList.at(0)?.feed.category ?? entryList.at(0)?.feed.title ?? 'Feed',
+          headerTitle: entryList?.at(0)?.feed.category ?? entryList?.at(0)?.feed.title ?? 'Feed',
           headerBackTitle: title,
           headerTitleStyle: {
             color: theme.colors.gray12,
@@ -144,8 +145,8 @@ export default function Page() {
               .then(({ data }) => {
                 const { lastest_at } = data
                 const lastestAt = lastest_at ? new Date(lastest_at) : new Date()
-                const newest = new Date(entryList.at(0)?.publishedAt ?? 0)
-                if (lastestAt > newest || entryList.length === 0) {
+                const newest = new Date(entryList?.at(0)?.publishedAt ?? 0)
+                if (lastestAt > newest || entryList?.length === 0) {
                   createOrUpdateEntriesInDB({
                     feedIdList,
                   })

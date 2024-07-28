@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import * as Linking from 'expo-linking'
 import { StatusBar } from 'expo-status-bar'
@@ -11,6 +10,7 @@ import { getSession, saveSessionToUserTable } from '~/api/session'
 import { Button, Column, Row, Text } from '~/components'
 import { db } from '~/db'
 import { users } from '~/db/schema'
+import { useQuerySubscription } from '~/hooks/use-query-subscription'
 import { accentColors, getAccentColor } from '~/theme'
 
 const accentColorGroups = Array.from(
@@ -76,7 +76,7 @@ async function handlePressButtonAsync() {
 }
 
 export default function UserInfo() {
-  const { data: user } = useLiveQuery(db.query.users.findFirst())
+  const { data: user } = useQuerySubscription(db.query.users.findFirst(), 'current-user')
 
   return (
     <>

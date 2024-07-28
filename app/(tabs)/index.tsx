@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
 import { Link, Stack } from 'expo-router'
 import { useAtomValue } from 'jotai'
@@ -21,6 +20,7 @@ import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
 import { feeds } from '~/db/schema'
+import { useQuerySubscription } from '~/hooks/use-query-subscription'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -161,8 +161,11 @@ function FeedLayout() {
       .catch(() => setIsFetching(false))
   }, [])
 
-  const { data } = useLiveQuery(db.query.feeds.findMany({ where: eq(feeds.view, 0) }))
-  const feedsGrouped = useMemo(() => groupBy(data, 'category'), [data])
+  const { data } = useQuerySubscription(
+    db.query.feeds.findMany({ where: eq(feeds.view, 0) }),
+    ['feeds', { view: 0 }],
+  )
+  const feedsGrouped = useMemo(() => groupBy(data ?? [], 'category'), [data])
   const listData = useMemo(
     () => Array.from(
       Object.entries(feedsGrouped),

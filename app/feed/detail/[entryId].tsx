@@ -1,5 +1,4 @@
 import { eq } from 'drizzle-orm'
-import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
 import type { DimensionValue } from 'react-native'
@@ -11,6 +10,7 @@ import { apiClient } from '~/api/client'
 import { Row, Text } from '~/components'
 import { db } from '~/db'
 import { entries } from '~/db/schema'
+import { useQuerySubscription } from '~/hooks/use-query-subscription'
 
 const fontFaceList = [
   'SNPro-Regular.otf',
@@ -751,30 +751,25 @@ export default function FeedDetail() {
   const [webviewHeight, setWebviewHeight] = useState<DimensionValue>()
   const { entryId } = useLocalSearchParams()
   const { theme } = useStyles()
-  const { data } = useLiveQuery(
+  const { data } = useQuerySubscription(
     db.query.entries.findFirst({
       where: eq(entries.id, entryId as string),
       with: {
         feed: true,
       },
     }),
+    [entryId],
   )
-  const [, rerender] = useState(0)
 
   useEffect(() => {
     if (data && !data.content) {
       apiClient.entries.$get({ query: { id: entryId as string } })
-        .then((res) => {
-          db.update(entries)
-            .set({
-              content: res.data?.entries.content,
-            })
-            .where(eq(entries.id, entryId as string))
-            .then(() => {
-              rerender(prev => prev + 1)
-            })
-            .catch(console.error)
-        })
+        .then(res => db.update(entries)
+          .set({
+            content: res.data?.entries.content,
+          })
+          .where(eq(entries.id, entryId as string)),
+        )
         .catch(console.error)
     }
   }, [data])
