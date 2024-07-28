@@ -56,6 +56,12 @@ export default function RootLayout() {
           headerLargeTitle: true,
           title,
           headerRight: () => <SettingsLink />,
+          headerStyle: {
+            backgroundColor: theme.colors.gray2,
+          },
+          headerTitleStyle: {
+            color: theme.colors.gray12,
+          },
         }}
       />
       <Stack.Screen
