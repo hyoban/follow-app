@@ -748,7 +748,14 @@ sub {
 export default function FeedDetail() {
   const { entryId } = useLocalSearchParams()
   const { theme } = useStyles()
-  const { data } = useLiveQuery(db.query.entries.findFirst({ where: eq(entries.id, entryId as string) }))
+  const { data } = useLiveQuery(
+    db.query.entries.findFirst({
+      where: eq(entries.id, entryId as string),
+      with: {
+        feed: true,
+      },
+    }),
+  )
   const [, rerender] = useState(0)
 
   useEffect(() => {
@@ -775,7 +782,7 @@ export default function FeedDetail() {
   return (
     <>
       <Stack.Screen options={{
-        headerTitle: data?.title ?? 'Feed',
+        headerTitle: data?.feed.title ?? '',
         headerBackTitleVisible: false,
         headerStyle: {
           backgroundColor: theme.colors.gray2,
