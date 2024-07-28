@@ -2,11 +2,13 @@ import { eq } from 'drizzle-orm'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect, useState } from 'react'
-import { Platform } from 'react-native'
+import type { DimensionValue } from 'react-native'
+import { Platform, SafeAreaView, ScrollView } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 import { WebView } from 'react-native-webview'
 
 import { apiClient } from '~/api/client'
+import { Row, Text } from '~/components'
 import { db } from '~/db'
 import { entries } from '~/db/schema'
 
@@ -38,7 +40,7 @@ const simpleCSS = `
   --standard-border-radius: 5px;
 
   /* Default (light) theme */
-  --bg: #fff;
+  --bg: #fcfcfc;
   --accent-bg: #f5f7ff;
   --text: #212121;
   --text-light: #585858;
@@ -57,7 +59,7 @@ const simpleCSS = `
   :root,
   ::backdrop {
     color-scheme: dark;
-    --bg: #212121;
+    --bg: #111111;
     --accent-bg: #2b2b2b;
     --text: #dcdcdc;
     --text-light: #ababab;
@@ -746,6 +748,7 @@ sub {
 `
 
 export default function FeedDetail() {
+  const [webviewHeight, setWebviewHeight] = useState<DimensionValue>('auto')
   const { entryId } = useLocalSearchParams()
   const { theme } = useStyles()
   const { data } = useLiveQuery(
@@ -792,12 +795,27 @@ export default function FeedDetail() {
         },
       }}
       />
-      <WebView
-        style={{ flex: 1 }}
-        originWhitelist={['*']}
-        source={{
-          baseUrl: '',
-          html: `
+      <SafeAreaView style={{ flex: 1, backgroundColor: theme.colors.gray1 }}>
+        <ScrollView
+          style={{ width: '100%' }}
+          contentContainerStyle={{ flexGrow: 1 }}
+        >
+          <Row p={20}>
+            <Text size={20} weight={600}>
+              {data?.title}
+            </Text>
+          </Row>
+          <WebView
+            scrollEnabled={false}
+            style={{ height: webviewHeight }}
+            originWhitelist={['*']}
+            injectedJavaScript="window.ReactNativeWebView.postMessage(document.body.scrollHeight)"
+            onMessage={(e) => {
+              setWebviewHeight(Number.parseInt(e.nativeEvent.data, 10))
+            }}
+            source={{
+              baseUrl: '',
+              html: `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -809,13 +827,14 @@ export default function FeedDetail() {
     </style>
 </head>
 <body>
-  <h4>${data?.title ?? ''}</h4>
   <div>${data?.content ?? ''}</div>
 </body>
 </html>
         `,
-        }}
-      />
+            }}
+          />
+        </ScrollView>
+      </SafeAreaView>
     </>
   )
 }
