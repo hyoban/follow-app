@@ -1,9 +1,9 @@
 import { formatDistance } from 'date-fns'
 import { useLiveQuery } from 'drizzle-orm/expo-sqlite'
 import { Image } from 'expo-image'
-import { Stack, useLocalSearchParams } from 'expo-router'
+import { Link, Stack, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
-import { FlatList, View } from 'react-native'
+import { FlatList, Pressable, View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
 import { apiClient } from '~/api/client'
@@ -19,60 +19,64 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
   const data = entry.feed
   return (
     <>
-      <Row
-        px={15}
-        py={12}
-        gap={10}
-      >
-        <View
-          style={{
-            width: 8,
-            height: 8,
-            borderRadius: 8 / 2,
-            backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
-          }}
-        />
-        {
-          data?.image
-            ? (
-                <Image
-                  source={{ uri: data?.image ?? '' }}
-                  style={{ width: 24, height: 24, borderRadius: 24 / 4 }}
-                />
-              ) : <SiteIcon source={data?.siteUrl} />
-        }
-        <Column gap={6} flex={1}>
-          <Row gap={6}>
-            <Text size={10}>{data?.title}</Text>
-            <Text size={10}>
-              {formatDistance(
-                new Date(entry.publishedAt),
-                new Date(),
-                { addSuffix: true },
-              )}
-            </Text>
-          </Row>
-          <Row>
-            <Text style={{ flex: 1, flexWrap: 'wrap' }} weight={600}>
-              {entry.title}
-            </Text>
-          </Row>
-          <Text
-            size={12}
-            numberOfLines={3}
+      <Link href={`/feed/detail/${entry.id}`} asChild>
+        <Pressable>
+          <Row
+            px={15}
+            py={12}
+            gap={10}
           >
-            {entry.description}
-          </Text>
-        </Column>
-        {entry.media
-        && entry.media.find(media => media.type === 'photo')
-        && (
-          <Image
-            source={{ uri: entry.media.find(media => media.type === 'photo')?.url }}
-            style={{ width: 50, height: 50 }}
-          />
-        )}
-      </Row>
+            <View
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 8 / 2,
+                backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
+              }}
+            />
+            {
+              data?.image
+                ? (
+                    <Image
+                      source={{ uri: data?.image ?? '' }}
+                      style={{ width: 24, height: 24, borderRadius: 24 / 4 }}
+                    />
+                  ) : <SiteIcon source={data?.siteUrl} />
+            }
+            <Column gap={6} flex={1}>
+              <Row gap={6}>
+                <Text size={10}>{data?.title}</Text>
+                <Text size={10}>
+                  {formatDistance(
+                    new Date(entry.publishedAt),
+                    new Date(),
+                    { addSuffix: true },
+                  )}
+                </Text>
+              </Row>
+              <Row>
+                <Text style={{ flex: 1, flexWrap: 'wrap' }} weight={600}>
+                  {entry.title}
+                </Text>
+              </Row>
+              <Text
+                size={12}
+                numberOfLines={3}
+              >
+                {entry.description}
+              </Text>
+            </Column>
+            {entry.media
+            && entry.media.find(media => media.type === 'photo')
+            && (
+              <Image
+                source={{ uri: entry.media.find(media => media.type === 'photo')?.url }}
+                style={{ width: 50, height: 50 }}
+              />
+            )}
+          </Row>
+        </Pressable>
+      </Link>
       <Row
         w="100%"
         h={1}

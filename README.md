@@ -11,4 +11,4 @@ This does not represent the final software functionality or appearance.
 
 ## What to do next?
 
-- [ ] feed entry detail page
+- [x] feed entry detail page
