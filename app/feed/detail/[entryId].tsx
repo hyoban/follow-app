@@ -784,7 +784,7 @@ export default function FeedDetail() {
     </style>
 </head>
 <body>
-  ${data?.content}
+  ${data?.content ?? ''}
 </body>
 </html>
         ` }}
