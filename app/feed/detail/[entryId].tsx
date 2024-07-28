@@ -751,7 +751,7 @@ export default function FeedDetail() {
         })
         .catch(console.error)
     }
-  }, [])
+  }, [data])
 
   if (!entryId || typeof entryId !== 'string')
     return null
