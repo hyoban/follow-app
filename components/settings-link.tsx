@@ -21,7 +21,6 @@ export function SettingsLink() {
                     width: 24,
                     height: 24,
                     borderRadius: 12,
-                    marginLeft: 18,
                     opacity: pressed ? 0.5 : 1,
                   }}
                 />
@@ -29,7 +28,7 @@ export function SettingsLink() {
             : (
                 <Iconify
                   icon="mingcute:user-4-fill"
-                  style={{ marginLeft: 18, opacity: pressed ? 0.5 : 1 }}
+                  style={{ opacity: pressed ? 0.5 : 1 }}
                 />
               )
         )}

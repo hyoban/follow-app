@@ -186,6 +186,7 @@ function FeedLayout() {
   }
   return (
     <Animated.FlatList
+      contentInsetAdjustmentBehavior="automatic"
       style={{ width: '100%', paddingHorizontal: 18 }}
       data={listData}
       extraData={expandedSections}

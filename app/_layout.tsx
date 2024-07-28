@@ -9,7 +9,9 @@ import { View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
 import { Text } from '~/components'
+import { SettingsLink } from '~/components/settings-link'
 import migrations from '~/drizzle/migrations'
+import { useTabTitle } from '~/hooks/use-tab-title'
 
 const expoDb = openDatabaseSync('db.db')
 const db = drizzle(expoDb)
@@ -20,9 +22,13 @@ export const unstable_settings = {
 }
 
 export default function RootLayout() {
+  const title = useTabTitle()
+
   const { theme } = useStyles()
+
   const { success, error } = useMigrations(db, migrations)
   useDrizzleStudio(expoDb)
+
   if (error) {
     return (
       <View>
@@ -44,7 +50,14 @@ export default function RootLayout() {
 
   return (
     <Stack>
-      <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen
+        name="(tabs)"
+        options={{
+          headerLargeTitle: true,
+          title,
+          headerRight: () => <SettingsLink />,
+        }}
+      />
       <Stack.Screen
         name="settings"
         options={{
