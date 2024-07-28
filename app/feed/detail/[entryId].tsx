@@ -748,7 +748,7 @@ sub {
 `
 
 export default function FeedDetail() {
-  const [webviewHeight, setWebviewHeight] = useState<DimensionValue>('auto')
+  const [webviewHeight, setWebviewHeight] = useState<DimensionValue>()
   const { entryId } = useLocalSearchParams()
   const { theme } = useStyles()
   const { data } = useLiveQuery(
