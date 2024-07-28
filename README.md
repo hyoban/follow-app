@@ -14,3 +14,4 @@ This does not represent the final software functionality or appearance.
 - [x] feed entry detail page
 - [ ] switch entry in entry detail page
 - [ ] mark as read after entry detail page
+- [ ] render content as native view
