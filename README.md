@@ -1,0 +1,14 @@
+# Follow APP
+
+This is an **wip unofficial** mobile app for the Next generation information browser [Follow](https://github.com/RSSNext/follow)。
+
+## What does it look like now?
+
+This does not represent the final software functionality or appearance.
+
+| ![Simulator Screenshot - iPhone 15 - 2024-07-28 at 16 58 57](https://github.com/user-attachments/assets/a6f7ce74-6864-4ae9-9e39-0a2aa8d076ab) | ![Simulator Screenshot - iPhone 15 - 2024-07-28 at 16 55 42](https://github.com/user-attachments/assets/fce0c345-ccb6-4a4a-8929-a7240995b8ff) | ![Simulator Screenshot - iPhone 15 - 2024-07-28 at 16 55 47](https://github.com/user-attachments/assets/f91828c4-d6e6-4bf9-bc9d-9e4ca4b8afd0) | ![Simulator Screenshot - iPhone 15 - 2024-07-28 at 16 56 02](https://github.com/user-attachments/assets/d8054a3b-c50f-4e5d-a853-51fac3b60bb8) | ![Simulator Screenshot - iPhone 15 - 2024-07-28 at 16 56 09](https://github.com/user-attachments/assets/15e901d3-fcc5-4f0e-8d3f-807dfa0c60d2) |
+| -- | -- | -- | -- | -- |
+
+## What to do next?
+
+- [ ] feed entry detail page
