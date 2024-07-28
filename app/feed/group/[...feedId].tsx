@@ -12,6 +12,7 @@ import { Column, Container, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
+import { useTabTitle } from '~/hooks/use-tab-title'
 
 function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
   const { theme } = useStyles()
@@ -82,7 +83,10 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
 }
 
 export default function Page() {
+  const title = useTabTitle()
+
   const [isRefreshing, setIsRefreshing] = useState(false)
+
   const { theme } = useStyles()
   const { feedId } = useLocalSearchParams()
   const feedIdList = !feedId ? [] : Array.isArray(feedId) ? feedId : [feedId]
@@ -106,8 +110,8 @@ export default function Page() {
     <>
       <Stack.Screen
         options={{
-          headerTitle: 'Feed',
-          headerBackTitle: 'Back',
+          headerTitle: entryList.at(0)?.feed.category ?? entryList.at(0)?.feed.title ?? 'Feed',
+          headerBackTitle: title,
           headerTitleStyle: {
             color: theme.colors.gray12,
           },
