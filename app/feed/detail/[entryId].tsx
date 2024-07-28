@@ -810,7 +810,7 @@ export default function FeedDetail() {
 </head>
 <body>
   <h4>${data?.title ?? ''}</h4>
-  ${data?.content ?? ''}
+  <div>${data?.content ?? ''}</div>
 </body>
 </html>
         `,
