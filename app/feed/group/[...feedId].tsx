@@ -1,15 +1,18 @@
 import { formatDistance } from 'date-fns'
+import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
 import { Link, Stack, useLocalSearchParams } from 'expo-router'
 import { useEffect } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
-import { createOrUpdateEntriesInDB } from '~/api/entry'
+import { apiClient } from '~/api/client'
+import { fetchAndUpdateEntriesInDB } from '~/api/entry'
 import { Column, Container, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
+import { entries } from '~/db/schema'
 import { useQuerySubscription } from '~/hooks/use-query-subscription'
 import { useTabTitle } from '~/hooks/use-tab-title'
 
@@ -108,7 +111,7 @@ export default function Page() {
 
   useEffect(() => {
     if (entryList && entryList.length === 0) {
-      createOrUpdateEntriesInDB({
+      fetchAndUpdateEntriesInDB({
         feedIdList,
       })
         .catch(console.error)
@@ -138,11 +141,23 @@ export default function Page() {
           data={entryList}
           renderItem={({ item }) => <EntryItem entry={item} />}
           onEndReached={() => {
-            createOrUpdateEntriesInDB({
+            fetchAndUpdateEntriesInDB({
               feedIdList,
               publishedAfter: entryList?.at(-1)?.publishedAt,
             })
               .catch(console.error)
+          }}
+          onViewableItemsChanged={async ({ viewableItems }) => {
+            await Promise.all(
+              viewableItems.map(async ({ item }) => {
+                const res = await apiClient.entries.$get({ query: { id: item.id } })
+                if (res.data?.read !== item.read) {
+                  await db.update(entries)
+                    .set({ read: res.data?.read ?? false })
+                    .where(eq(entries.id, item.id))
+                }
+              }),
+            )
           }}
         />
       </Container>
