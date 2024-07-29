@@ -2,7 +2,7 @@ import { formatDistance } from 'date-fns'
 import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
 import { Link, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
@@ -91,6 +91,7 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
 export default function Page() {
   const title = useTabTitle()
   const checkedEntryIdList = useRef(new Set<string>())
+  const [isRefreshing, setIsRefreshing] = useState(false)
 
   const { theme } = useStyles()
   const { feedId: feedIdList } = useLocalSearchParams<{ feedId: string[] }>()
@@ -141,6 +142,33 @@ export default function Page() {
         <FlatList
           data={entryList}
           renderItem={({ item }) => <EntryItem entry={item} />}
+          refreshing={isRefreshing}
+          onRefresh={async () => {
+            setIsRefreshing(true);
+
+            // @ts-expect-error
+            (apiClient.entries['check-new'].$get({
+              query: {
+                feedIdList: [...feedIdList, ...feedIdList],
+                insertedAfter: (new Date(entryList?.at(0)?.publishedAt ?? 0)).getMilliseconds(),
+              },
+            }) as Promise<{ data: {
+              has_new: boolean
+              lastest_at?: string
+            } }>)
+              .then(({ data }) => {
+                const { has_new } = data
+                if (has_new) {
+                  fetchAndUpdateEntriesInDB({
+                    feedIdList,
+                    publishedBefore: entryList?.at(0)?.publishedAt,
+                  })
+                    .catch(console.error)
+                }
+              })
+              .catch(console.error)
+              .finally(() => setIsRefreshing(false))
+          }}
           onEndReached={() => {
             fetchAndUpdateEntriesInDB({
               feedIdList,
