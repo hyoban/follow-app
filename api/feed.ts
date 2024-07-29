@@ -12,7 +12,7 @@ export async function getFeeds() {
   return subscriptions.data.map(subscription => ({
     ...subscription,
     ...subscription.feeds,
-    unread: reads.data[subscription.feedId],
+    unread: reads.data[subscription.feedId] ?? 0,
   }))
 }
 

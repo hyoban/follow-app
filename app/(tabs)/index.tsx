@@ -60,7 +60,9 @@ function FeedFolder({
             <Iconify icon="mingcute:right-fill" />
           </AnimatedPressable>
           <Text style={{ flex: 1 }}>{category}</Text>
-          <Text>{unread}</Text>
+          {unread > 0 && (
+            <Text>{unread}</Text>
+          )}
         </Row>
         <Row h={1} bg="component" w="100%" />
       </Pressable>
@@ -89,7 +91,9 @@ function FeedItem({
             <SiteIcon source={feed.siteUrl} />
           )}
           <Text style={{ flex: 1 }}>{feed.title}</Text>
-          <Text>{feed.unread}</Text>
+          {feed.unread > 0 && (
+            <Text>{feed.unread}</Text>
+          )}
         </Row>
         <Row h={1} bg="component" w="100%" />
       </Pressable>
