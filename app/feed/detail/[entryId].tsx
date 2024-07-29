@@ -749,7 +749,7 @@ sub {
 
 export default function FeedDetail() {
   const [webviewHeight, setWebviewHeight] = useState<DimensionValue>()
-  const { entryId } = useLocalSearchParams()
+  const { entryId } = useLocalSearchParams<{ entryId: string }>()
   const { theme } = useStyles()
   const { data } = useQuerySubscription(
     db.query.entries.findFirst({
@@ -770,6 +770,20 @@ export default function FeedDetail() {
           })
           .where(eq(entries.id, entryId as string)),
         )
+        .catch(console.error)
+    }
+    if (data && !data.read) {
+      db.update(entries)
+        .set({
+          read: true,
+        })
+        .where(eq(entries.id, entryId!))
+        .catch(console.error)
+      apiClient.reads.$post({
+        json: {
+          entryIds: [entryId!],
+        },
+      })
         .catch(console.error)
     }
   }, [data])
