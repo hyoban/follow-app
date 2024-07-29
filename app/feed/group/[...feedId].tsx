@@ -144,28 +144,12 @@ export default function Page() {
           renderItem={({ item }) => <EntryItem entry={item} />}
           refreshing={isRefreshing}
           onRefresh={async () => {
-            setIsRefreshing(true);
-
-            // @ts-expect-error
-            (apiClient.entries['check-new'].$get({
-              query: {
-                feedIdList: [...feedIdList, ...feedIdList],
-                insertedAfter: (new Date(entryList?.at(0)?.publishedAt ?? 0)).getMilliseconds(),
-              },
-            }) as Promise<{ data: {
-              has_new: boolean
-              lastest_at?: string
-            } }>)
-              .then(({ data }) => {
-                const { has_new } = data
-                if (has_new) {
-                  fetchAndUpdateEntriesInDB({
-                    feedIdList,
-                    publishedBefore: entryList?.at(0)?.publishedAt,
-                  })
-                    .catch(console.error)
-                }
-              })
+            setIsRefreshing(true)
+            checkedEntryIdList.current.clear()
+            fetchAndUpdateEntriesInDB({
+              feedIdList,
+              publishedBefore: entryList?.at(0)?.publishedAt,
+            })
               .catch(console.error)
               .finally(() => setIsRefreshing(false))
           }}

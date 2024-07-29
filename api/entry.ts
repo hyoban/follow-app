@@ -22,6 +22,9 @@ export async function getEntries(
 export async function createOrUpdateEntriesInDB(
   entryList: Array<Awaited<ReturnType<typeof getEntries>>[0]>,
 ) {
+  if (entryList.length === 0) {
+    return
+  }
   return Promise.all(entryList.map(async (entry) => {
     const entryInDB = await db.query.entries.findFirst({
       where: eq(entries.id, entry.id),
