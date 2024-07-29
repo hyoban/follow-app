@@ -9,7 +9,7 @@ import { WebView } from 'react-native-webview'
 import { apiClient } from '~/api/client'
 import { Row, Text } from '~/components'
 import { db } from '~/db'
-import { entries } from '~/db/schema'
+import { entries, feeds } from '~/db/schema'
 import { useQuerySubscription } from '~/hooks/use-query-subscription'
 
 const fontFaceList = [
@@ -778,6 +778,12 @@ export default function FeedDetail() {
           read: true,
         })
         .where(eq(entries.id, entryId!))
+        .catch(console.error)
+      db.update(feeds)
+        .set({
+          unread: data.feed.unread - 1,
+        })
+        .where(eq(feeds.id, data.feed.id))
         .catch(console.error)
       apiClient.reads.$post({
         json: {
