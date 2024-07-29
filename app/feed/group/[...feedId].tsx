@@ -2,7 +2,7 @@ import { formatDistance } from 'date-fns'
 import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
 import { Link, Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
@@ -90,6 +90,7 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
 
 export default function Page() {
   const title = useTabTitle()
+  const checkedEntryIdList = useRef(new Set<string>())
 
   const { theme } = useStyles()
   const { feedId: feedIdList } = useLocalSearchParams<{ feedId: string[] }>()
@@ -149,14 +150,17 @@ export default function Page() {
           }}
           onViewableItemsChanged={async ({ viewableItems }) => {
             await Promise.all(
-              viewableItems.map(async ({ item }) => {
-                const res = await apiClient.entries.$get({ query: { id: item.id } })
-                if (res.data?.read !== item.read) {
-                  await db.update(entries)
-                    .set({ read: res.data?.read ?? false })
-                    .where(eq(entries.id, item.id))
-                }
-              }),
+              viewableItems
+                .filter(({ item }) => !checkedEntryIdList.current.has(item.id))
+                .map(async ({ item }) => {
+                  const res = await apiClient.entries.$get({ query: { id: item.id } })
+                  checkedEntryIdList.current.add(item.id)
+                  if (res.data?.read !== item.read) {
+                    await db.update(entries)
+                      .set({ read: res.data?.read ?? false })
+                      .where(eq(entries.id, item.id))
+                  }
+                }),
             )
           }}
         />
