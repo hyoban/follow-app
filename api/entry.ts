@@ -10,7 +10,7 @@ type GetEntriesProps = InferRequestType<typeof apiClient.entries.$post>['json']
 export async function getEntries(
   props?: GetEntriesProps,
 ) {
-  const entries = await apiClient.entries.$post({ json: { limit: 100, ...props } })
+  const entries = await apiClient.entries.$post({ json: { ...props } })
   return entries.data?.map(entry => ({
     ...entry,
     ...entry.entries,

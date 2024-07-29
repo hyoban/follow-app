@@ -1,11 +1,10 @@
 import { formatDistance } from 'date-fns'
 import { Image } from 'expo-image'
 import { Link, Stack, useLocalSearchParams } from 'expo-router'
-import { useState } from 'react'
+import { useEffect } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
-import { apiClient } from '~/api/client'
 import { createOrUpdateEntriesInDB } from '~/api/entry'
 import { Column, Container, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
@@ -89,16 +88,16 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
 export default function Page() {
   const title = useTabTitle()
 
-  const [isRefreshing, setIsRefreshing] = useState(false)
-
   const { theme } = useStyles()
-  const { feedId } = useLocalSearchParams()
-  const feedIdList = !feedId ? [] : Array.isArray(feedId) ? feedId : [feedId]
+  const { feedId: feedIdList } = useLocalSearchParams<{ feedId: string[] }>()
 
   const { data: entryList } = useQuerySubscription(
     db.query.entries.findMany({
       where(fields, operators) {
-        return operators.inArray(fields.feedId, feedIdList)
+        return operators.inArray(fields.feedId, feedIdList ?? [])
+      },
+      orderBy(fields, { desc }) {
+        return [desc(fields.publishedAt)]
       },
       with: {
         feed: true,
@@ -107,7 +106,16 @@ export default function Page() {
     ['entries', feedIdList],
   )
 
-  if (!feedId) {
+  useEffect(() => {
+    if (entryList && entryList.length === 0) {
+      createOrUpdateEntriesInDB({
+        feedIdList,
+      })
+        .catch(console.error)
+    }
+  }, [entryList])
+
+  if (!feedIdList) {
     return null
   }
 
@@ -129,32 +137,12 @@ export default function Page() {
         <FlatList
           data={entryList}
           renderItem={({ item }) => <EntryItem entry={item} />}
-          refreshing={isRefreshing}
-          onRefresh={async () => {
-            setIsRefreshing(true);
-            // @ts-expect-error
-            (apiClient.entries['check-new'].$get({
-              query: {
-                feedIdList: [...feedIdList, ...feedIdList],
-                insertedAfter: Date.now() - 1000 * 60 * 60 * 24,
-              },
-            }) as Promise<{ data: {
-              has_new: boolean
-              lastest_at?: string
-            } }>)
-              .then(({ data }) => {
-                const { lastest_at } = data
-                const lastestAt = lastest_at ? new Date(lastest_at) : new Date()
-                const newest = new Date(entryList?.at(0)?.publishedAt ?? 0)
-                if (lastestAt > newest || entryList?.length === 0) {
-                  createOrUpdateEntriesInDB({
-                    feedIdList,
-                  })
-                    .catch(console.error)
-                }
-              })
+          onEndReached={() => {
+            createOrUpdateEntriesInDB({
+              feedIdList,
+              publishedAfter: entryList?.at(-1)?.publishedAt,
+            })
               .catch(console.error)
-              .finally(() => setIsRefreshing(false))
           }}
         />
       </Container>
