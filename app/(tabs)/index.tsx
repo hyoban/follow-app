@@ -1,5 +1,4 @@
 import AsyncStorage from '@react-native-async-storage/async-storage'
-import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
 import { Link, Stack } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
@@ -21,7 +20,6 @@ import { Container, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
-import { feeds } from '~/db/schema'
 import { useQuerySubscription } from '~/hooks/use-query-subscription'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -30,15 +28,15 @@ function FeedFolder({
   category,
   feedIdList,
   unread,
-  isExpanded,
-  setIsExpanded,
 }: {
   category: string
   feedIdList: string[]
   unread: number
-  isExpanded: boolean
-  setIsExpanded: (isExpanded: boolean) => void
 }) {
+  const expandedSections = useAtomValue(expandedSectionsAtom)
+  const handleToggle = useSetAtom(toggleExpandedSectionAtom)
+  const isExpanded = expandedSections.includes(category)
+
   const rotate = useSharedValue(isExpanded ? '90deg' : '0deg')
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
@@ -52,7 +50,8 @@ function FeedFolder({
           <AnimatedPressable
             style={animatedStyle}
             onPress={() => {
-              setIsExpanded(!isExpanded)
+              handleToggle(category)
+                .catch(console.error)
               rotate.value = withSpring(
                 isExpanded ? '0deg' : '90deg',
                 { duration: 500, dampingRatio: 1 },
@@ -176,12 +175,19 @@ function FeedLayout() {
   const refreshing = useAtomValue(isSyncingFeedsAtom)
   useAtomValue(syncFeedsEffect)
 
-  const { data } = useQuerySubscription(
-    db.query.feeds.findMany({ where: eq(feeds.view, 0) }),
+  const { data: feeds } = useQuerySubscription(
+    db.query.feeds.findMany({
+      where(schema, { eq }) {
+        return eq(schema.view, 0)
+      },
+    }),
     ['feeds', { view: 0 }],
   )
-  const feedsGrouped = useMemo(() => groupBy(data ?? [], 'category'), [data])
-  const listData = useMemo(
+  const feedsGrouped = useMemo(
+    () => groupBy(feeds ?? [], 'category'),
+    [feeds],
+  )
+  const data = useMemo(
     () => Array.from(
       Object.entries(feedsGrouped),
       ([title, data]) => [title, data],
@@ -190,13 +196,12 @@ function FeedLayout() {
   )
 
   const expandedSections = useAtomValue(expandedSectionsAtom)
-  const handleToggle = useSetAtom(toggleExpandedSectionAtom)
 
   return (
     <Animated.FlatList
       contentInsetAdjustmentBehavior="automatic"
       style={{ width: '100%', paddingHorizontal: 18 }}
-      data={listData}
+      data={data}
       extraData={expandedSections}
       renderItem={({ item }) => {
         if (typeof item === 'string') {
@@ -207,8 +212,6 @@ function FeedLayout() {
                   category={item}
                   feedIdList={feedsGrouped[item].map(i => i.id)}
                   unread={feedsGrouped[item].reduce((acc, sub) => acc + sub.unread, 0)}
-                  isExpanded={expandedSections.includes(item)}
-                  setIsExpanded={() => handleToggle(item)}
                 />
               )
         }
