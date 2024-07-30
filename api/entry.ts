@@ -1,7 +1,8 @@
 import { eq } from 'drizzle-orm'
 
 import { db } from '~/db'
-import { entries } from '~/db/schema'
+import type { Feed } from '~/db/schema'
+import { entries, feeds } from '~/db/schema'
 
 import { apiClient } from './client'
 
@@ -25,7 +26,7 @@ export async function createOrUpdateEntriesInDB(
   if (entryList.length === 0) {
     return
   }
-  return Promise.all(entryList.map(async (entry) => {
+  return await Promise.all(entryList.map(async (entry) => {
     const entryInDB = await db.query.entries.findFirst({
       where: eq(entries.id, entry.id),
     })
@@ -55,5 +56,40 @@ export async function fetchAndUpdateEntriesInDB(
   props?: GetEntriesProps,
 ) {
   const entriesFromApi = await getEntries(props)
-  return createOrUpdateEntriesInDB(entriesFromApi)
+  return await createOrUpdateEntriesInDB(entriesFromApi)
+}
+
+export async function markEntryAsRead(
+  entryId: string,
+  feed: Feed,
+) {
+  return await Promise.all(
+    [
+      db.update(entries)
+        .set({
+          read: true,
+        })
+        .where(eq(entries.id, entryId)),
+      db.update(feeds)
+        .set({
+          unread: feed.unread > 0 ? feed.unread - 1 : 0,
+        })
+        .where(eq(feeds.id, feed.id)),
+      apiClient.reads.$post({
+        json: {
+          entryIds: [entryId],
+        },
+      }),
+    ],
+  )
+}
+
+export async function loadEntryContent(
+  entryId: string,
+) {
+  const res = await apiClient.entries
+    .$get({ query: { id: entryId } })
+  return await db.update(entries)
+    .set({ content: res.data?.entries.content })
+    .where(eq(entries.id, entryId))
 }

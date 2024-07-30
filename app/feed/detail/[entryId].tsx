@@ -6,10 +6,10 @@ import { Platform, SafeAreaView, ScrollView } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 import { WebView } from 'react-native-webview'
 
-import { apiClient } from '~/api/client'
+import { loadEntryContent, markEntryAsRead } from '~/api/entry'
 import { Row, Text } from '~/components'
 import { db } from '~/db'
-import { entries, feeds } from '~/db/schema'
+import { entries } from '~/db/schema'
 import { useQuerySubscription } from '~/hooks/use-query-subscription'
 
 const fontFaceList = [
@@ -763,33 +763,11 @@ export default function FeedDetail() {
 
   useEffect(() => {
     if (data && !data.content) {
-      apiClient.entries.$get({ query: { id: entryId as string } })
-        .then(res => db.update(entries)
-          .set({
-            content: res.data?.entries.content,
-          })
-          .where(eq(entries.id, entryId as string)),
-        )
+      loadEntryContent(entryId!)
         .catch(console.error)
     }
     if (data && !data.read) {
-      db.update(entries)
-        .set({
-          read: true,
-        })
-        .where(eq(entries.id, entryId!))
-        .catch(console.error)
-      db.update(feeds)
-        .set({
-          unread: data.feed.unread - 1,
-        })
-        .where(eq(feeds.id, data.feed.id))
-        .catch(console.error)
-      apiClient.reads.$post({
-        json: {
-          entryIds: [entryId!],
-        },
-      })
+      markEntryAsRead(entryId!, data.feed)
         .catch(console.error)
     }
   }, [data])
