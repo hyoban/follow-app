@@ -73,12 +73,16 @@ export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
         where: eq(feeds.id, feed.feedId),
       })
       if (!feedInDB) {
+        console.info('Insert feed', feed.feedId)
         return db.insert(feeds)
           .values(feed)
       }
-      return db.update(feeds)
-        .set(feed)
-        .where(eq(feeds.id, feed.feedId))
+      if (needUpdate(feed, feedInDB)) {
+        console.info('Update feed', feed.feedId)
+        return db.update(feeds)
+          .set(feed)
+          .where(eq(feeds.id, feed.feedId))
+      }
     }),
 
     db.delete(feeds).where(notInArray(feeds.id, existFeedIds)),
@@ -91,4 +95,9 @@ export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
   else {
     store.set(isSyncingFeedsAtom, false)
   }
+}
+
+function needUpdate(data: any, dataInDB: any) {
+  const keys = Object.keys(dataInDB)
+  return keys.some(key => data[key] !== dataInDB[key])
 }
