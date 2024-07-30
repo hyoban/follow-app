@@ -1,8 +1,10 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
 import { Link, Stack } from 'expo-router'
-import { useAtomValue } from 'jotai'
-import { useMemo, useState } from 'react'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atomWithStorage, createJSONStorage } from 'jotai/utils'
+import { useMemo } from 'react'
 import { Pressable } from 'react-native'
 import Animated, {
   Easing,
@@ -156,6 +158,20 @@ const exitingAnimation = new Keyframe({
   },
 }).duration(10000)
 
+const storage = createJSONStorage<string[]>(() => AsyncStorage)
+const expandedSectionsAtom = atomWithStorage<string[]>('expanded-sections', [], storage)
+const toggleExpandedSectionAtom = atom(null, async (get, set, update: string) => {
+  const expandedSections = await get(expandedSectionsAtom)
+  if (expandedSections.includes(update)) {
+    set(expandedSectionsAtom, expandedSections.filter(i => i !== update))
+      .catch(console.error)
+  }
+  else {
+    set(expandedSectionsAtom, [...expandedSections, update])
+      .catch(console.error)
+  }
+})
+
 function FeedLayout() {
   const refreshing = useAtomValue(isSyncingFeedsAtom)
   useAtomValue(syncFeedsEffect)
@@ -173,19 +189,8 @@ function FeedLayout() {
     [feedsGrouped],
   )
 
-  const [expandedSections, setExpandedSections] = useState(new Set<string>())
-  const handleToggle = (title: string) => {
-    setExpandedSections((expandedSections) => {
-      const next = new Set(expandedSections)
-      if (next.has(title)) {
-        next.delete(title)
-      }
-      else {
-        next.add(title)
-      }
-      return next
-    })
-  }
+  const expandedSections = useAtomValue(expandedSectionsAtom)
+  const handleToggle = useSetAtom(toggleExpandedSectionAtom)
 
   return (
     <Animated.FlatList
@@ -202,12 +207,12 @@ function FeedLayout() {
                   category={item}
                   feedIdList={feedsGrouped[item].map(i => i.id)}
                   unread={feedsGrouped[item].reduce((acc, sub) => acc + sub.unread, 0)}
-                  isExpanded={expandedSections.has(item)}
+                  isExpanded={expandedSections.includes(item)}
                   setIsExpanded={() => handleToggle(item)}
                 />
               )
         }
-        const shouldShow = !item[0].category || expandedSections.has(item[0].category)
+        const shouldShow = !item[0].category || expandedSections.includes(item[0].category)
         if (!shouldShow) {
           return null
         }
