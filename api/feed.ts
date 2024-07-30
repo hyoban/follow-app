@@ -1,6 +1,7 @@
 import { eq, notInArray } from 'drizzle-orm'
 import { atom, getDefaultStore } from 'jotai'
 import { atomEffect } from 'jotai-effect'
+import { AppState } from 'react-native'
 
 import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
@@ -22,13 +23,31 @@ export async function getFeeds() {
 export const isSyncingFeedsAtom = atom(false)
 
 export const syncFeedsEffect = atomEffect((_get, set) => {
-  syncFeeds({ indicator: 'title' })
-    .catch((error) => {
-      console.error(error)
-    })
-    .finally(() => {
-      set(isSyncingFeedsAtom, false)
-    })
+  const syncFeedsBackground = () => {
+    syncFeeds({ indicator: 'title' })
+      .catch((error) => {
+        console.error(error)
+      })
+      .finally(() => {
+        set(isSyncingFeedsAtom, false)
+      })
+  }
+
+  syncFeedsBackground()
+
+  const subscription = AppState.addEventListener(
+    'change',
+    (nextAppState) => {
+      if (
+        nextAppState === 'active'
+      ) {
+        syncFeedsBackground()
+      }
+    },
+  )
+  return () => {
+    subscription.remove()
+  }
 })
 
 export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
