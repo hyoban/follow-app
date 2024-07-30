@@ -1,5 +1,6 @@
 import { eq, notInArray } from 'drizzle-orm'
-import { getDefaultStore } from 'jotai'
+import { atom, getDefaultStore } from 'jotai'
+import { atomEffect } from 'jotai-effect'
 
 import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
@@ -18,10 +19,31 @@ export async function getFeeds() {
   }))
 }
 
-export async function syncFeeds() {
+export const isSyncingFeedsAtom = atom(false)
+
+export const syncFeedsEffect = atomEffect((_get, set) => {
+  syncFeeds({ indicator: 'title' })
+    .catch((error) => {
+      console.error(error)
+    })
+    .finally(() => {
+      set(isSyncingFeedsAtom, false)
+    })
+})
+
+export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
+  const { indicator = 'spinner' } = props ?? {}
+
   const store = getDefaultStore()
-  const tabTitle = store.get(tabTitleAtom)
-  store.set(tabTitleAtom, 'Syncing...')
+
+  let lastTabTitle = ''
+  if (indicator === 'title') {
+    lastTabTitle = store.get(tabTitleAtom)
+    store.set(tabTitleAtom, 'Syncing...')
+  }
+  else {
+    store.set(isSyncingFeedsAtom, true)
+  }
 
   const feedsFromApi = await getFeeds()
   const existFeedIds = feedsFromApi.map(feed => feed.feedId)
@@ -44,5 +66,10 @@ export async function syncFeeds() {
     db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
   ])
 
-  store.set(tabTitleAtom, tabTitle)
+  if (indicator === 'title') {
+    store.set(tabTitleAtom, lastTabTitle)
+  }
+  else {
+    store.set(isSyncingFeedsAtom, false)
+  }
 }
