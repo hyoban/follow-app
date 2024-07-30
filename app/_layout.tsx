@@ -26,7 +26,7 @@ export default function RootLayout() {
 
   useDrizzleStudio(expoDb)
 
-  const title = useTabTitle()
+  const [title] = useTabTitle()
 
   const { success, error } = useMigrations(db, migrations)
 

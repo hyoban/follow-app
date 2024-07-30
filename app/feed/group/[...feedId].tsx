@@ -89,7 +89,7 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
 }
 
 export default function Page() {
-  const title = useTabTitle()
+  const [title] = useTabTitle()
   const checkedEntryIdList = useRef(new Set<string>())
   const [isRefreshing, setIsRefreshing] = useState(false)
 

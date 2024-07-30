@@ -2,7 +2,7 @@ import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
 import { Link, Stack } from 'expo-router'
 import { useAtomValue } from 'jotai'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Pressable } from 'react-native'
 import Animated, {
   Easing,
@@ -13,7 +13,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 
-import { createOrUpdateFeedsInDB } from '~/api/feed'
+import { syncFeeds } from '~/api/feed'
 import { layoutAtom } from '~/atom/layout'
 import { Container, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
@@ -157,13 +157,20 @@ const exitingAnimation = new Keyframe({
 }).duration(10000)
 
 function FeedLayout() {
-  const [isFetching, setIsFetching] = useState(false)
-  const updateFeeds = useCallback(() => {
-    setIsFetching(true)
-    createOrUpdateFeedsInDB()
-      .then(() => setIsFetching(false))
-      .catch(() => setIsFetching(false))
+  const [refreshing, setRefreshing] = useState(false)
+  const onRefresh = useCallback(() => {
+    syncFeeds()
+      .catch((error) => {
+        console.error(error)
+      })
+      .finally(() => {
+        setRefreshing(false)
+      })
   }, [])
+
+  useEffect(() => {
+    onRefresh()
+  }, [onRefresh])
 
   const { data } = useQuerySubscription(
     db.query.feeds.findMany({ where: eq(feeds.view, 0) }),
@@ -191,6 +198,7 @@ function FeedLayout() {
       return next
     })
   }
+
   return (
     <Animated.FlatList
       contentInsetAdjustmentBehavior="automatic"
@@ -226,8 +234,8 @@ function FeedLayout() {
           </LayoutAnimationConfig>
         )
       }}
-      refreshing={isFetching}
-      onRefresh={updateFeeds}
+      refreshing={refreshing}
+      onRefresh={onRefresh}
     />
   )
 }

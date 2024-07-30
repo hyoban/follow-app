@@ -1,12 +1,16 @@
 import { usePathname } from 'expo-router'
-import { useEffect, useMemo, useState } from 'react'
+import { atom, useAtom } from 'jotai'
+import { useEffect, useMemo } from 'react'
 
 import { views } from '~/consts/view'
 
+export const tabTitleAtom = atom('')
+
 export function useTabTitle() {
+  const [title, setTitle] = useAtom(tabTitleAtom)
+
   const pathname = usePathname()
   const viewName = useMemo(() => pathname === '/' ? 'index' : pathname.slice(1), [pathname])
-  const [title, setTitle] = useState(views.find(view => view.name === viewName)?.title)
 
   useEffect(() => {
     const newTitle = views.find(view => view.name === viewName)?.title
@@ -14,5 +18,6 @@ export function useTabTitle() {
       setTitle(newTitle)
     }
   }, [viewName])
-  return title
+
+  return [title, setTitle] as const
 }
