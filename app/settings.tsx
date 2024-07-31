@@ -72,7 +72,7 @@ async function handlePressButtonAsync() {
         })
     }
   })
-  await WebBrowser.openBrowserAsync('https://web.follow.is/login')
+  await WebBrowser.openBrowserAsync(process.env.EXPO_PUBLIC_FOLLOW_LOGIN_URL)
 }
 
 export default function UserInfo() {
