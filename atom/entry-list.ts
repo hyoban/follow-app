@@ -4,7 +4,7 @@ import { atomWithStorage, createJSONStorage } from 'jotai/utils'
 
 const storage = createJSONStorage<string[]>(() => AsyncStorage)
 export const unreadOnlyListAtom = atomWithStorage<string[]>('unread-only-map', [], storage)
-export const toggleUnreadOnlyListAtom = atom(null, async (get, set, update: string[]) => {
+export const toggleUnreadOnlyAtom = atom(null, async (get, set, update: string[]) => {
   const unreadOnlyList = await get(unreadOnlyListAtom)
   const target = update.join('/')
   set(
