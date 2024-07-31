@@ -102,9 +102,9 @@ function FeedItem({
   )
 }
 
-function groupBy<T>(array: T[], key: string) {
+function groupBy<T>(array: T[], key: (item: T) => string) {
   return array.reduce((acc, item) => {
-    const group = (item as any)[key] ?? 'No Category Found'
+    const group = key(item)
     if (!acc[group]) {
       acc[group] = []
     }
@@ -171,6 +171,14 @@ const toggleExpandedSectionAtom = atom(null, async (get, set, update: string) =>
   }
 })
 
+function getFeedCategory(feed: Feed) {
+  return feed.category || (feed.siteUrl ? (new URL(feed.siteUrl)).host : '')
+}
+
+function isSingleCategory(feeds: Feed[]) {
+  return feeds.length <= 1 && !feeds.every(i => i.category)
+}
+
 function FeedLayout() {
   const refreshing = useAtomValue(isSyncingFeedsAtom)
   useAtomValue(syncFeedsEffect)
@@ -184,13 +192,16 @@ function FeedLayout() {
     ['feeds', { view: 0 }],
   )
   const feedsGrouped = useMemo(
-    () => groupBy(feeds ?? [], 'category'),
+    () => groupBy(feeds ?? [], getFeedCategory),
     [feeds],
   )
+
   const data = useMemo(
     () => Array.from(
       Object.entries(feedsGrouped),
-      ([title, data]) => [title, data],
+      ([title, data]) => isSingleCategory(data)
+        ? [data]
+        : [title, data],
     ).flat(),
     [feedsGrouped],
   )
@@ -205,7 +216,7 @@ function FeedLayout() {
       extraData={expandedSections}
       renderItem={({ item }) => {
         if (typeof item === 'string') {
-          return item === 'No Category Found'
+          return item === ''
             ? null
             : (
                 <FeedFolder
@@ -215,7 +226,8 @@ function FeedLayout() {
                 />
               )
         }
-        const shouldShow = !item[0].category || expandedSections.includes(item[0].category)
+        const category = getFeedCategory(item[0])
+        const shouldShow = expandedSections.includes(category) || isSingleCategory(item)
         if (!shouldShow) {
           return null
         }
