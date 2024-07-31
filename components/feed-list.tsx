@@ -14,7 +14,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 
-import { isSyncingFeedsAtom, syncFeeds, syncFeedsEffect } from '~/api/feed'
+import { isSyncingFeedsAtom, syncFeeds } from '~/api/feed'
 import type { TabView } from '~/atom/layout'
 import { Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
@@ -180,7 +180,6 @@ function isSingleCategory(feeds: Feed[]) {
 
 export function FeedList({ view }: { view: TabView }) {
   const refreshing = useAtomValue(isSyncingFeedsAtom)
-  useAtomValue(syncFeedsEffect)
 
   const { data: feeds } = useFeedList(view)
   const feedsGrouped = useMemo(
