@@ -41,7 +41,7 @@ function FeedFolder({
 
   return (
     <Link
-      href={`/feed/group/${feedIdList.join('/')}`}
+      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}`}
       asChild
     >
       <Pressable>
@@ -77,7 +77,7 @@ function FeedItem({
 }) {
   return (
     <Link
-      href={`/feed/group/${feed.id}`}
+      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}`}
       asChild
     >
       <Pressable>

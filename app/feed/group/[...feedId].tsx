@@ -6,16 +6,15 @@ import { useStyles } from 'react-native-unistyles'
 import { toggleUnreadOnlyListAtom } from '~/atom/entry-list'
 import { Iconify } from '~/components'
 import { EntryList } from '~/components/entry-list'
-import { useEntryList, useShowUnreadOnly } from '~/hooks/use-entry-list'
+import { useShowUnreadOnly } from '~/hooks/use-entry-list'
 import { useTab } from '~/hooks/use-tab-title'
 
 export default function Page() {
   const { theme } = useStyles()
-  const { title } = useTab()
+  const { title: headerBackTitle } = useTab()
 
-  const { feedId: feedIdList } = useLocalSearchParams<{ feedId: string[] }>()
+  const { feedId: feedIdList, title: headerTitle } = useLocalSearchParams<{ feedId: string[], title: string }>()
   const showUnreadOnly = useShowUnreadOnly(feedIdList ?? [])
-  const { data: entryList } = useEntryList(feedIdList ?? [])
 
   const toggleUnreadOnlyList = useSetAtom(toggleUnreadOnlyListAtom)
 
@@ -23,8 +22,8 @@ export default function Page() {
     <>
       <Stack.Screen
         options={{
-          headerTitle: entryList?.at(0)?.feed.category ?? entryList?.at(0)?.feed.title ?? 'Feed',
-          headerBackTitle: title,
+          headerTitle,
+          headerBackTitle,
           headerTitleStyle: {
             color: theme.colors.gray12,
           },
