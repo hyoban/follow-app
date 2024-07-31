@@ -1,16 +1,16 @@
 import { useAtomValue } from 'jotai'
 import { useMemo } from 'react'
 
-import { unreadOnlyFeedIdListAtom } from '~/atom/entry-list'
+import { unreadOnlyListAtom } from '~/atom/entry-list'
 import { db } from '~/db'
 
 import { useQuerySubscription } from './use-query-subscription'
 
 export function useShowUnreadOnly(feedIdList: string[]) {
-  const unreadOnlyFeedIdList = useAtomValue(unreadOnlyFeedIdListAtom)
+  const unreadOnlyList = useAtomValue(unreadOnlyListAtom)
   return useMemo(
-    () => feedIdList?.every(feedId => unreadOnlyFeedIdList.includes(feedId)),
-    [feedIdList, unreadOnlyFeedIdList],
+    () => unreadOnlyList.includes(feedIdList.join('/')),
+    [feedIdList, unreadOnlyList],
   )
 }
 

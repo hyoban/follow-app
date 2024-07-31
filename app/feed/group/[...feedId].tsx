@@ -3,7 +3,7 @@ import { useSetAtom } from 'jotai'
 import { Pressable } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
-import { toggleUnreadOnlyFeedIdListAtom } from '~/atom/entry-list'
+import { toggleUnreadOnlyListAtom } from '~/atom/entry-list'
 import { Iconify } from '~/components'
 import { EntryList } from '~/components/entry-list'
 import { useEntryList, useShowUnreadOnly } from '~/hooks/use-entry-list'
@@ -17,7 +17,7 @@ export default function Page() {
   const showUnreadOnly = useShowUnreadOnly(feedIdList ?? [])
   const { data: entryList } = useEntryList(feedIdList ?? [])
 
-  const toggleUnreadOnlyFeedIdList = useSetAtom(toggleUnreadOnlyFeedIdListAtom)
+  const toggleUnreadOnlyList = useSetAtom(toggleUnreadOnlyListAtom)
 
   return (
     <>
@@ -34,7 +34,9 @@ export default function Page() {
           headerRight: () => (
             <Pressable
               onPress={() => {
-                toggleUnreadOnlyFeedIdList(feedIdList ?? [])
+                if (!feedIdList)
+                  return
+                toggleUnreadOnlyList(feedIdList)
                   .catch(console.error)
               }}
             >

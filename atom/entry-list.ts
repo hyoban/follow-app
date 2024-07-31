@@ -3,15 +3,15 @@ import { atom } from 'jotai'
 import { atomWithStorage, createJSONStorage } from 'jotai/utils'
 
 const storage = createJSONStorage<string[]>(() => AsyncStorage)
-export const unreadOnlyFeedIdListAtom = atomWithStorage<string[]>('unread-only-feed-id-list', [], storage)
-export const toggleUnreadOnlyFeedIdListAtom = atom(null, async (get, set, update: string[]) => {
-  const unreadOnlyFeedIdList = await get(unreadOnlyFeedIdListAtom)
-  if (update.every(feedId => unreadOnlyFeedIdList.includes(feedId))) {
-    set(unreadOnlyFeedIdListAtom, unreadOnlyFeedIdList.filter(feedId => !update.includes(feedId)))
-      .catch(console.error)
-  }
-  else {
-    set(unreadOnlyFeedIdListAtom, [...unreadOnlyFeedIdList, ...update])
-      .catch(console.error)
-  }
+export const unreadOnlyListAtom = atomWithStorage<string[]>('unread-only-map', [], storage)
+export const toggleUnreadOnlyListAtom = atom(null, async (get, set, update: string[]) => {
+  const unreadOnlyList = await get(unreadOnlyListAtom)
+  const target = update.join('/')
+  set(
+    unreadOnlyListAtom,
+    unreadOnlyList.includes(target)
+      ? unreadOnlyList.filter(i => i !== target)
+      : [...unreadOnlyList, target],
+  )
+    .catch(console.error)
 })
