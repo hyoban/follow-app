@@ -9,7 +9,7 @@ const { hc } = require('hono/dist/client') as typeof import('hono/client')
 
 let csrfTokenPromise: Promise<string> | null = null
 export const apiFetch = ofetch.create({
-  baseURL: 'https://api.dev.follow.is',
+  baseURL: process.env.EXPO_PUBLIC_FOLLOW_API_URL,
   credentials: 'omit',
   retry: false,
   onRequest: async ({ options }) => {
@@ -47,7 +47,7 @@ export const apiClient = hc<AppType>('', {
   fetch: async (
     input: RequestInit | string | URL,
     options = {},
-  ) => apiFetch(
+  ) => await apiFetch(
     input.toString(),
     options,
   ),
