@@ -73,13 +73,13 @@ export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
         where: eq(feeds.id, feed.feedId),
       })
       if (!feedInDB) {
-        console.info('Insert feed', feed.feedId)
-        return db.insert(feeds)
+        console.info('Insert feed', feed.feeds.title)
+        return await db.insert(feeds)
           .values(feed)
       }
       if (needUpdate(feed, feedInDB)) {
-        console.info('Update feed', feed.feedId)
-        return db.update(feeds)
+        console.info('Update feed', feed.feeds.title)
+        return await db.update(feeds)
           .set(feed)
           .where(eq(feeds.id, feed.feedId))
       }

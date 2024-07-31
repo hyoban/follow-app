@@ -28,23 +28,26 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
             py={12}
             gap={10}
           >
-            <View
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 8 / 2,
-                backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
-              }}
-            />
-            {
-              data?.image
-                ? (
-                    <Image
-                      source={{ uri: data?.image ?? '' }}
-                      style={{ width: 24, height: 24, borderRadius: 24 / 4 }}
-                    />
-                  ) : <SiteIcon source={data?.siteUrl} />
-            }
+            <View>
+              {
+                data?.image ? (
+                  <Image
+                    source={{ uri: data?.image ?? '' }}
+                    style={{ width: 24, height: 24, borderRadius: 24 / 4 }}
+                  />
+                ) : <SiteIcon source={data?.siteUrl} />
+              }
+              <View
+                style={{
+                  width: 8,
+                  height: 8,
+                  borderRadius: 8 / 2,
+                  backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
+                  position: 'absolute',
+                  left: -5,
+                }}
+              />
+            </View>
             <Column gap={6} flex={1}>
               <Row gap={6}>
                 <Text size={10}>{data?.title}</Text>
