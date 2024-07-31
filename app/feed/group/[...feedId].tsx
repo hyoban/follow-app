@@ -1,14 +1,17 @@
+import AsyncStorage from '@react-native-async-storage/async-storage'
 import { formatDistance } from 'date-fns'
 import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
 import { Link, Stack, useLocalSearchParams } from 'expo-router'
+import { useAtom } from 'jotai'
+import { atomWithStorage, createJSONStorage } from 'jotai/utils'
 import { useEffect, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
 import { apiClient } from '~/api/client'
 import { fetchAndUpdateEntriesInDB } from '~/api/entry'
-import { Column, Container, Row, Text } from '~/components'
+import { Column, Container, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
@@ -91,7 +94,12 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
   )
 }
 
+const storage = createJSONStorage<string[]>(() => AsyncStorage)
+const unreadOnlyFeedIdListAtom = atomWithStorage<string[]>('expanded-sections', [], storage)
+
 export default function Page() {
+  const [unreadOnlyFeedIdList, setUnreadOnlyFeedIdList] = useAtom(unreadOnlyFeedIdListAtom)
+
   const [title] = useTabTitle()
   const checkedEntryIdList = useRef(new Set<string>())
   const [isRefreshing, setIsRefreshing] = useState(false)
@@ -99,10 +107,17 @@ export default function Page() {
   const { theme } = useStyles()
   const { feedId: feedIdList } = useLocalSearchParams<{ feedId: string[] }>()
 
+  const showUnreadOnly = feedIdList?.every(feedId => unreadOnlyFeedIdList.includes(feedId))
+
   const { data: entryList } = useQuerySubscription(
     db.query.entries.findMany({
-      where(fields, operators) {
-        return operators.inArray(fields.feedId, feedIdList ?? [])
+      where(fields, { inArray, and }) {
+        return !showUnreadOnly
+          ? inArray(fields.feedId, feedIdList ?? [])
+          : and(
+            inArray(fields.feedId, feedIdList ?? []),
+            eq(fields.read, false),
+          )
       },
       orderBy(fields, { desc }) {
         return [desc(fields.publishedAt)]
@@ -111,7 +126,7 @@ export default function Page() {
         feed: true,
       },
     }),
-    ['entries', feedIdList],
+    ['entries', { feedIdList, showUnreadOnly }],
   )
 
   useEffect(() => {
@@ -139,6 +154,22 @@ export default function Page() {
           headerStyle: {
             backgroundColor: theme.colors.gray2,
           },
+          headerRight: () => (
+            <Pressable
+              onPress={() => {
+                setUnreadOnlyFeedIdList(
+                  unreadOnlyFeedIdList.includes(feedIdList[0])
+                    ? unreadOnlyFeedIdList.filter(i => i !== feedIdList[0])
+                    : [...unreadOnlyFeedIdList, feedIdList[0]],
+                )
+                  .catch(console.error)
+              }}
+            >
+              {showUnreadOnly
+                ? <Iconify icon="mingcute:document-fill" />
+                : <Iconify icon="mingcute:document-line" />}
+            </Pressable>
+          ),
         }}
       />
       <Container>
