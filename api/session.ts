@@ -29,7 +29,7 @@ interface User {
 }
 
 export async function getSession(authToken: string): Promise<Session> {
-  const response = await fetch('https://api.dev.follow.is/auth/session', {
+  const response = await fetch('https://api.follow.is/auth/session', {
     headers: {
       cookie: `authjs.session-token=${authToken}`,
     },
@@ -41,7 +41,7 @@ export async function getSession(authToken: string): Promise<Session> {
 export async function getCsrfToken(
   authToken: string,
 ) {
-  const response = await fetch('https://api.dev.follow.is/auth/csrf', {
+  const response = await fetch('https://api.follow.is/auth/csrf', {
     headers: {
       cookie: `authjs.session-token=${authToken}`,
     },

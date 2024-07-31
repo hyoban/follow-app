@@ -72,7 +72,7 @@ async function handlePressButtonAsync() {
         })
     }
   })
-  await WebBrowser.openBrowserAsync('https://dev.follow.is/login')
+  await WebBrowser.openBrowserAsync('https://web.follow.is/login')
 }
 
 export default function UserInfo() {
