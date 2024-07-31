@@ -1,13 +1,11 @@
-import { Stack } from 'expo-router'
+import { Container } from '~/components'
+import { FeedList } from '~/components/feed-list'
 
-import { Container, Text } from '~/components'
-
-export default function Home() {
+export default function Page() {
   return (
     <>
-      <Stack.Screen />
-      <Container p={20}>
-        <Text>This is Page Two</Text>
+      <Container>
+        <FeedList view={1} />
       </Container>
     </>
   )
