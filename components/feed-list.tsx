@@ -15,11 +15,11 @@ import Animated, {
 } from 'react-native-reanimated'
 
 import { isSyncingFeedsAtom, syncFeeds, syncFeedsEffect } from '~/api/feed'
+import type { TabView } from '~/atom/layout'
 import { Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
-import { db } from '~/db'
 import type { Feed } from '~/db/schema'
-import { useQuerySubscription } from '~/hooks/use-query-subscription'
+import { useFeedList } from '~/hooks/use-feed-list'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -178,18 +178,11 @@ function isSingleCategory(feeds: Feed[]) {
   return feeds.length <= 1 && !feeds.every(i => i.category)
 }
 
-export function FeedList({ view }: { view: number }) {
+export function FeedList({ view }: { view: TabView }) {
   const refreshing = useAtomValue(isSyncingFeedsAtom)
   useAtomValue(syncFeedsEffect)
 
-  const { data: feeds } = useQuerySubscription(
-    db.query.feeds.findMany({
-      where(schema, { eq }) {
-        return eq(schema.view, view)
-      },
-    }),
-    ['feeds', { view }],
-  )
+  const { data: feeds } = useFeedList(view)
   const feedsGrouped = useMemo(
     () => groupBy(feeds ?? [], getFeedCategory),
     [feeds],

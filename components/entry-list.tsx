@@ -109,6 +109,7 @@ export function EntryList({ feedIdList }: { feedIdList: string[] }) {
     <>
       <Container>
         <FlatList
+          contentInsetAdjustmentBehavior="automatic"
           data={entryList}
           renderItem={({ item }) => <EntryItem entry={item} />}
           refreshing={isRefreshing}

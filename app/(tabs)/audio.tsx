@@ -1,12 +1,5 @@
-import { Container } from '~/components'
-import { FeedList } from '~/components/feed-list'
+import { TabPage } from '~/components/tab-page'
 
 export default function Page() {
-  return (
-    <>
-      <Container>
-        <FeedList view={4} />
-      </Container>
-    </>
-  )
+  return <TabPage />
 }

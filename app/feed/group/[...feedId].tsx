@@ -7,11 +7,11 @@ import { toggleUnreadOnlyFeedIdListAtom } from '~/atom/entry-list'
 import { Iconify } from '~/components'
 import { EntryList } from '~/components/entry-list'
 import { useEntryList, useShowUnreadOnly } from '~/hooks/use-entry-list'
-import { useTabTitle } from '~/hooks/use-tab-title'
+import { useTab } from '~/hooks/use-tab-title'
 
 export default function Page() {
   const { theme } = useStyles()
-  const [title] = useTabTitle()
+  const { title } = useTab()
 
   const { feedId: feedIdList } = useLocalSearchParams<{ feedId: string[] }>()
   const showUnreadOnly = useShowUnreadOnly(feedIdList ?? [])
