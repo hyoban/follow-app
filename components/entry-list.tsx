@@ -20,7 +20,21 @@ type EntryItemProps = {
   options?: {
     hideImage?: boolean
     hideDescription?: boolean
+    hideSiteIcon?: boolean
   }
+}
+
+function SiteImage({ feed, size = 24 }: { feed: Feed, size?: number }) {
+  return feed?.image
+    ? (
+        <Image
+          source={{ uri: feed.image }}
+          style={{ width: size, height: size, borderRadius: size / 4 }}
+        />
+      )
+    : (
+        <SiteIcon source={feed?.siteUrl} />
+      )
 }
 
 function EntryItem({ entry, options }: EntryItemProps) {
@@ -31,26 +45,18 @@ function EntryItem({ entry, options }: EntryItemProps) {
       <Link href={`/feed/detail/${entry.id}`} asChild>
         <Pressable>
           <Row px={15} py={12} gap={10}>
-            <View>
-              {data?.image ? (
-                <Image
-                  source={{ uri: data?.image ?? '' }}
-                  style={{ width: 24, height: 24, borderRadius: 24 / 4 }}
-                />
-              ) : (
-                <SiteIcon source={data?.siteUrl} />
-              )}
-              <View
-                style={{
-                  width: 8,
-                  height: 8,
-                  borderRadius: 8 / 2,
-                  backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
-                  position: 'absolute',
-                  left: -5,
-                }}
-              />
-            </View>
+            {!options?.hideSiteIcon && <SiteImage feed={data} />}
+            <View
+              style={{
+                width: 8,
+                height: 8,
+                borderRadius: 8 / 2,
+                backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
+                position: 'absolute',
+                left: 5,
+                top: 9,
+              }}
+            />
             <Column gap={6} flex={1}>
               <Row gap={6}>
                 <Text size={10}>{data?.title}</Text>
@@ -63,7 +69,7 @@ function EntryItem({ entry, options }: EntryItemProps) {
                 </Text>
               </Row>
               <Row>
-                <Text style={{ flex: 1, flexWrap: 'wrap' }} weight={600}>
+                <Text style={{ flex: 1, flexWrap: 'wrap' }} weight={600} numberOfLines={2}>
                   {entry.title}
                 </Text>
               </Row>
@@ -75,16 +81,18 @@ function EntryItem({ entry, options }: EntryItemProps) {
             </Column>
             {options?.hideImage
               ? null
-              : entry.media
-              && entry.media.find(media => media.type === 'photo') && (
-                <Image
-                  source={{
-                    uri: entry.media.find(media => media.type === 'photo')
-                      ?.url,
-                  }}
-                  style={{ width: 50, height: 50 }}
-                />
-              )}
+              : options?.hideSiteIcon
+                ? <SiteImage feed={data} size={60} />
+                : (entry.media && entry.media.find(media => media.type === 'photo'))
+                    ? (
+                        <Image
+                          source={{
+                            uri: entry.media.find(media => media.type === 'photo')?.url,
+                          }}
+                          style={{ width: 50, height: 50, borderRadius: 5 }}
+                        />
+                      )
+                    : null}
           </Row>
         </Pressable>
       </Link>
