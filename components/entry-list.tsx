@@ -41,31 +41,36 @@ function SiteImage({ feed, size = 24 }: { feed: Feed, size?: number }) {
       )
 }
 
-function EntryItem({ entry, options }: EntryItemProps) {
+function Dot({ show, size = 8 }: { show: boolean, size?: number }) {
   const { theme } = useStyles()
-  const data = entry.feed
+  return (
+    <View
+      style={{
+        width: size,
+        height: size,
+        borderRadius: size / 2,
+        backgroundColor: theme.colors.accent10,
+        position: 'absolute',
+        left: 5,
+        top: 9,
+        display: show ? 'flex' : 'none',
+      }}
+    />
+  )
+}
+
+function EntryItem({ entry, options }: EntryItemProps) {
+  const { feed } = entry
   return (
     <>
       <Link href={`/feed/detail/${entry.id}`} asChild>
         <Pressable>
           <Row px={15} py={12} gap={10}>
-            {!options?.hideSiteIcon && <SiteImage feed={data} />}
-            <View
-              style={{
-                width: 8,
-                height: 8,
-                borderRadius: 8 / 2,
-                backgroundColor: entry?.read
-                  ? 'transparent'
-                  : theme.colors.accent10,
-                position: 'absolute',
-                left: 5,
-                top: 9,
-              }}
-            />
+            {!options?.hideSiteIcon && <SiteImage feed={feed} />}
+            <Dot show={!entry.read} />
             <Column gap={6} flex={1}>
               <Row gap={6}>
-                <Text size={10}>{data?.title}</Text>
+                <Text size={10}>{feed?.title}</Text>
                 <Text size={10}>
                   {formatDistance(new Date(entry.publishedAt), new Date(), {
                     addSuffix: true,
@@ -89,8 +94,7 @@ function EntryItem({ entry, options }: EntryItemProps) {
                   {entry.description}
                 </Text>
               )}
-              {options?.imageNewLine
-              && (
+              {options?.imageNewLine && (
                 <Row gap={10}>
                   {entry.media?.map(
                     media => media.type === 'photo'
@@ -113,13 +117,13 @@ function EntryItem({ entry, options }: EntryItemProps) {
                 </Row>
               )}
             </Column>
-            {options?.hideImage
-            || options?.imageNewLine ? null : options?.hideSiteIcon
+            {options?.hideImage || options?.imageNewLine
+              ? null
+              : options?.hideSiteIcon
                 ? (
-                    <SiteImage feed={data} size={60} />
+                    <SiteImage feed={feed} size={60} />
                   )
-                : entry.media
-                && entry.media.find(media => media.type === 'photo')
+                : entry.media && entry.media.find(media => media.type === 'photo')
                   ? (
                       <Image
                         source={{
