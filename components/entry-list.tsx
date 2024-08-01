@@ -1,5 +1,6 @@
 import { formatDistance } from 'date-fns'
 import { eq } from 'drizzle-orm'
+import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { useEffect, useRef, useState } from 'react'
@@ -21,6 +22,9 @@ type EntryItemProps = {
     hideImage?: boolean
     hideDescription?: boolean
     hideSiteIcon?: boolean
+    hideDivider?: boolean
+    noTruncation?: boolean
+    imageNewLine?: boolean
   }
 }
 
@@ -51,7 +55,9 @@ function EntryItem({ entry, options }: EntryItemProps) {
                 width: 8,
                 height: 8,
                 borderRadius: 8 / 2,
-                backgroundColor: entry?.read ? 'transparent' : theme.colors.accent10,
+                backgroundColor: entry?.read
+                  ? 'transparent'
+                  : theme.colors.accent10,
                 position: 'absolute',
                 left: 5,
                 top: 9,
@@ -61,42 +67,72 @@ function EntryItem({ entry, options }: EntryItemProps) {
               <Row gap={6}>
                 <Text size={10}>{data?.title}</Text>
                 <Text size={10}>
-                  {formatDistance(
-                    new Date(entry.publishedAt),
-                    new Date(),
-                    { addSuffix: true },
-                  )}
+                  {formatDistance(new Date(entry.publishedAt), new Date(), {
+                    addSuffix: true,
+                  })}
                 </Text>
               </Row>
               <Row>
-                <Text style={{ flex: 1, flexWrap: 'wrap' }} weight={600} numberOfLines={2}>
+                <Text
+                  style={{ flex: 1, flexWrap: 'wrap' }}
+                  weight={600}
+                  numberOfLines={options?.noTruncation ? undefined : 2}
+                >
                   {entry.title}
                 </Text>
               </Row>
               {!options?.hideDescription && (
-                <Text size={12} numberOfLines={3}>
+                <Text
+                  size={12}
+                  numberOfLines={options?.noTruncation ? undefined : 3}
+                >
                   {entry.description}
                 </Text>
               )}
+              {options?.imageNewLine
+              && (
+                <Row gap={10}>
+                  {entry.media?.map(
+                    media => media.type === 'photo'
+                      ? (
+                          <Image
+                            key={media.url}
+                            source={{ uri: media.url }}
+                            style={{ width: 100, height: 100, borderRadius: 5 }}
+                          />
+                        )
+                      : media.type === 'video'
+                        ? (
+                            <Video
+                              style={{ width: 100, height: 100 }}
+                              source={{ uri: media.url }}
+                            />
+                          )
+                        : null,
+                  )}
+                </Row>
+              )}
             </Column>
             {options?.hideImage
-              ? null
-              : options?.hideSiteIcon
-                ? <SiteImage feed={data} size={60} />
-                : (entry.media && entry.media.find(media => media.type === 'photo'))
-                    ? (
-                        <Image
-                          source={{
-                            uri: entry.media.find(media => media.type === 'photo')?.url,
-                          }}
-                          style={{ width: 50, height: 50, borderRadius: 5 }}
-                        />
-                      )
-                    : null}
+            || options?.imageNewLine ? null : options?.hideSiteIcon
+                ? (
+                    <SiteImage feed={data} size={60} />
+                  )
+                : entry.media
+                && entry.media.find(media => media.type === 'photo')
+                  ? (
+                      <Image
+                        source={{
+                          uri: entry.media.find(media => media.type === 'photo')?.url,
+                        }}
+                        style={{ width: 50, height: 50, borderRadius: 5 }}
+                      />
+                    )
+                  : null}
           </Row>
         </Pressable>
       </Link>
-      <Row w="100%" h={1} bg="component" />
+      {!options?.hideDivider && <Row w="100%" h={1} bg="component" />}
     </>
   )
 }
