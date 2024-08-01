@@ -1,6 +1,6 @@
 import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
-import { Redirect } from 'expo-router'
+import { Redirect, useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { Platform } from 'react-native'
 import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
@@ -53,6 +53,7 @@ function ThemeSwitcher() {
 }
 
 export default function UserInfo() {
+  const router = useRouter()
   const { data: user } = useQuerySubscription(db.query.users.findFirst(), 'current-user')
 
   if (!user)
@@ -88,6 +89,7 @@ export default function UserInfo() {
             color="red"
             onPress={async () => {
               await db.delete(users).where(eq(users.id, user.id))
+              router.navigate('/')
             }}
           >
             <Text color="red">Logout</Text>

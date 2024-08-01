@@ -7,13 +7,25 @@ import { getSession, saveSessionToUserTable } from '~/api/session'
 import { Button, Text } from '~/components'
 
 function handlePressButtonAsync() {
-  return new Promise<string>((resolve) => {
+  return new Promise<void>((resolve) => {
     Linking.addEventListener('url', ({ url }) => {
       const { hostname, queryParams } = Linking.parse(url)
       if (hostname === 'auth' && queryParams !== null && typeof queryParams.token === 'string') {
         WebBrowser.dismissBrowser()
         const { token } = queryParams
-        resolve(token)
+        getSession(token)
+          .then((session) => {
+            saveSessionToUserTable(session)
+              .then(() => {
+                resolve()
+              })
+              .catch(() => {
+                console.error('Failed to save session')
+              })
+          })
+          .catch(() => {
+            console.error('Failed to get session')
+          })
       }
     })
     void WebBrowser.openBrowserAsync(process.env.EXPO_PUBLIC_FOLLOW_LOGIN_URL)
@@ -27,20 +39,8 @@ export default function SignIn() {
       <Button
         fullWidth
         onPress={async () => {
-          const token = await handlePressButtonAsync()
-          getSession(token)
-            .then((session) => {
-              saveSessionToUserTable(session)
-                .then(() => {
-                  router.replace('/')
-                })
-                .catch(() => {
-                  console.error('Failed to save session')
-                })
-            })
-            .catch(() => {
-              console.error('Failed to get session')
-            })
+          await handlePressButtonAsync()
+          router.replace('/')
         }}
       >
         <Text>Login</Text>
