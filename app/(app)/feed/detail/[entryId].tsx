@@ -778,8 +778,7 @@ export default function FeedDetail() {
   return (
     <>
       <Stack.Screen options={{
-        headerTitle: data?.feed.title ?? '',
-        headerBackTitleVisible: false,
+        headerTitle: '',
         headerStyle: {
           backgroundColor: theme.colors.gray2,
         },
