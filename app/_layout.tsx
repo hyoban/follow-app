@@ -3,32 +3,23 @@ import '../theme/unistyles'
 import { drizzle } from 'drizzle-orm/expo-sqlite'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
-import { Stack } from 'expo-router'
-import { openDatabaseSync } from 'expo-sqlite/next'
+import { Slot } from 'expo-router'
+import { openDatabaseSync } from 'expo-sqlite'
 import { View } from 'react-native'
-import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { Text } from '~/components'
-import { LayoutSwitch } from '~/components/layout-switch'
-import { SettingsLink } from '~/components/settings-link'
 import migrations from '~/drizzle/migrations'
-import { useTab } from '~/hooks/use-tab-title'
+
+export const unstable_settings = {
+  // Ensure that reloading on `/settings` keeps a back button present.
+  initialRouteName: '(app)',
+}
 
 const expoDb = openDatabaseSync('db.db')
 const db = drizzle(expoDb)
 
-export const unstable_settings = {
-  // Ensure that reloading on `/settings` keeps a back button present.
-  initialRouteName: '(tabs)',
-}
-
-export default function RootLayout() {
-  const { styles } = useStyles(styleSheet)
-
+export default function Root() {
   useDrizzleStudio(expoDb)
-
-  const { title } = useTab()
-
   const { success, error } = useMigrations(db, migrations)
 
   if (error) {
@@ -49,45 +40,7 @@ export default function RootLayout() {
       </View>
     )
   }
-
   return (
-    <Stack>
-      <Stack.Screen
-        name="(tabs)"
-        options={{
-          headerLargeTitle: true,
-          title,
-          headerRight: () => (
-            <>
-              <LayoutSwitch />
-              <SettingsLink />
-            </>
-          ),
-          headerStyle: styles.header,
-          headerTitleStyle: styles.title,
-          headerLargeTitleStyle: styles.title,
-        }}
-      />
-      <Stack.Screen
-        name="settings"
-        options={{
-          presentation: 'modal',
-          title: 'Settings',
-          headerStyle: styles.header,
-          headerTitleStyle: styles.title,
-        }}
-      />
-    </Stack>
+    <Slot />
   )
 }
-
-const styleSheet = createStyleSheet(theme => ({
-  header: {
-    backgroundColor: theme.colors.gray2,
-  },
-  title: {
-    color: theme.colors.gray12,
-    fontFamily: 'SN Pro',
-    fontWeight: 'bold',
-  },
-}))
