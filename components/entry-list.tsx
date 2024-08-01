@@ -108,6 +108,7 @@ function EntryItem({ entry, options }: EntryItemProps) {
                       : media.type === 'video'
                         ? (
                             <Video
+                              key={media.url}
                               style={{ width: 100, height: 100 }}
                               source={{ uri: media.url }}
                             />
