@@ -15,27 +15,31 @@ import type { Entry, Feed } from '~/db/schema'
 import { entries } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 
-function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
+type EntryItemProps = {
+  entry: Entry & { feed: Feed }
+  options?: {
+    hideImage?: boolean
+    hideDescription?: boolean
+  }
+}
+
+function EntryItem({ entry, options }: EntryItemProps) {
   const { theme } = useStyles()
   const data = entry.feed
   return (
     <>
       <Link href={`/feed/detail/${entry.id}`} asChild>
         <Pressable>
-          <Row
-            px={15}
-            py={12}
-            gap={10}
-          >
+          <Row px={15} py={12} gap={10}>
             <View>
-              {
-                data?.image ? (
-                  <Image
-                    source={{ uri: data?.image ?? '' }}
-                    style={{ width: 24, height: 24, borderRadius: 24 / 4 }}
-                  />
-                ) : <SiteIcon source={data?.siteUrl} />
-              }
+              {data?.image ? (
+                <Image
+                  source={{ uri: data?.image ?? '' }}
+                  style={{ width: 24, height: 24, borderRadius: 24 / 4 }}
+                />
+              ) : (
+                <SiteIcon source={data?.siteUrl} />
+              )}
               <View
                 style={{
                   width: 8,
@@ -63,34 +67,39 @@ function EntryItem({ entry }: { entry: Entry & { feed: Feed } }) {
                   {entry.title}
                 </Text>
               </Row>
-              <Text
-                size={12}
-                numberOfLines={3}
-              >
-                {entry.description}
-              </Text>
+              {!options?.hideDescription && (
+                <Text size={12} numberOfLines={3}>
+                  {entry.description}
+                </Text>
+              )}
             </Column>
-            {entry.media
-            && entry.media.find(media => media.type === 'photo')
-            && (
-              <Image
-                source={{ uri: entry.media.find(media => media.type === 'photo')?.url }}
-                style={{ width: 50, height: 50 }}
-              />
-            )}
+            {options?.hideImage
+              ? null
+              : entry.media
+              && entry.media.find(media => media.type === 'photo') && (
+                <Image
+                  source={{
+                    uri: entry.media.find(media => media.type === 'photo')
+                      ?.url,
+                  }}
+                  style={{ width: 50, height: 50 }}
+                />
+              )}
           </Row>
         </Pressable>
       </Link>
-      <Row
-        w="100%"
-        h={1}
-        bg="component"
-      />
+      <Row w="100%" h={1} bg="component" />
     </>
   )
 }
 
-export function EntryList({ feedIdList }: { feedIdList: string[] }) {
+export function EntryList({
+  feedIdList,
+  options,
+}: {
+  feedIdList: string[]
+  options?: EntryItemProps['options']
+}) {
   const checkedEntryIdList = useRef(new Set<string>())
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -100,8 +109,7 @@ export function EntryList({ feedIdList }: { feedIdList: string[] }) {
     if (entryList && entryList.length === 0) {
       fetchAndUpdateEntriesInDB({
         feedIdList,
-      })
-        .catch(console.error)
+      }).catch(console.error)
     }
   }, [entryList])
 
@@ -111,7 +119,7 @@ export function EntryList({ feedIdList }: { feedIdList: string[] }) {
         <FlatList
           contentInsetAdjustmentBehavior="automatic"
           data={entryList}
-          renderItem={({ item }) => <EntryItem entry={item} />}
+          renderItem={({ item }) => <EntryItem entry={item} options={options} />}
           refreshing={isRefreshing}
           onRefresh={async () => {
             setIsRefreshing(true)
@@ -127,18 +135,20 @@ export function EntryList({ feedIdList }: { feedIdList: string[] }) {
             fetchAndUpdateEntriesInDB({
               feedIdList,
               publishedAfter: entryList?.at(-1)?.publishedAt,
-            })
-              .catch(console.error)
+            }).catch(console.error)
           }}
           onViewableItemsChanged={async ({ viewableItems }) => {
             await Promise.all(
               viewableItems
                 .filter(({ item }) => !checkedEntryIdList.current.has(item.id))
                 .map(async ({ item }) => {
-                  const res = await apiClient.entries.$get({ query: { id: item.id } })
+                  const res = await apiClient.entries.$get({
+                    query: { id: item.id },
+                  })
                   checkedEntryIdList.current.add(item.id)
                   if (res.data?.read !== item.read) {
-                    await db.update(entries)
+                    await db
+                      .update(entries)
                       .set({ read: res.data?.read ?? false })
                       .where(eq(entries.id, item.id))
                   }
