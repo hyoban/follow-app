@@ -33,6 +33,7 @@ export default function TabLayout() {
 const stylesheet = createStyleSheet(theme => ({
   tabBar: {
     backgroundColor: theme.colors.gray2,
+    borderTopColor: theme.colors.gray6,
   },
   title: {
     color: theme.colors.gray12,
