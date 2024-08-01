@@ -24,6 +24,7 @@
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.32.1",
     "expo": "^51.0.21",
+    "expo-av": "~14.0.6",
     "expo-constants": "~16.0.1",
     "expo-dev-client": "~4.0.14",
     "expo-dev-launcher": "^4.0.22",
