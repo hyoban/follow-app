@@ -276,6 +276,7 @@ export function EntryList({
           ? <EntryMedia entry={item} props={{ isVideo: view === 3 }} />
           : <EntryItem entry={item} options={options} />
       }
+      initialNumToRender={5}
       refreshing={isRefreshing}
       onRefresh={async () => {
         setIsRefreshing(true)
