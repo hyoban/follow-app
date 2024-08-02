@@ -15,3 +15,10 @@ This does not represent the final software functionality or appearance.
 - [ ] switch entry in entry detail page
 - [x] mark as read after entering entry detail page
 - [ ] render content as native view
+- [ ] video view
+- [ ] audio view
+
+## Weekly Blog About Development
+
+- [2024-07-22](https://hyoban.xlog.app/react-native-follow-1)
+- [2024-07-29](https://hyoban.xlog.app/react-native-follow-2)
