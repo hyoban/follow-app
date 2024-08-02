@@ -20,6 +20,7 @@ import { Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
 import { useFeedList } from '~/hooks/use-feed-list'
+import { useTab } from '~/hooks/use-tab-title'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -32,6 +33,7 @@ function FeedFolder({
   feedIdList: string[]
   unread: number
 }) {
+  const { view } = useTab()
   const expandedSections = useAtomValue(expandedSectionsAtom)
   const handleToggle = useSetAtom(toggleExpandedSectionAtom)
   const isExpanded = expandedSections.includes(category)
@@ -41,7 +43,7 @@ function FeedFolder({
 
   return (
     <Link
-      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}`}
+      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}`}
       asChild
     >
       <Pressable>
@@ -75,9 +77,10 @@ function FeedItem({
 }: {
   feed: Feed
 }) {
+  const { view } = useTab()
   return (
     <Link
-      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}`}
+      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}`}
       asChild
     >
       <Pressable>

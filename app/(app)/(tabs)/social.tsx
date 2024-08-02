@@ -18,11 +18,7 @@ export default function TabPage() {
         {viewLayoutMap[viewIndex] === 'detail' && (
           <EntryList
             feedIdList={data?.map(i => i.id) ?? []}
-            options={{
-              hideDivider: true,
-              noTruncation: true,
-              imageNewLine: true,
-            }}
+            view={viewIndex}
           />
         )}
       </Container>

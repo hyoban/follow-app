@@ -18,10 +18,7 @@ export default function TabPage() {
         {viewLayoutMap[viewIndex] === 'detail' && (
           <EntryList
             feedIdList={data?.map(i => i.id) ?? []}
-            options={{
-              hideDescription: true,
-              hideSiteIcon: true,
-            }}
+            view={viewIndex}
           />
         )}
       </Container>

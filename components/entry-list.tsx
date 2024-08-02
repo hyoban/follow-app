@@ -3,12 +3,13 @@ import { eq } from 'drizzle-orm'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
 import { apiClient } from '~/api/client'
 import { fetchAndUpdateEntriesInDB } from '~/api/entry'
+import type { TabView } from '~/atom/layout'
 import { Column, Container, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
@@ -25,6 +26,33 @@ type EntryItemProps = {
     hideDivider?: boolean
     noTruncation?: boolean
     imageNewLine?: boolean
+  }
+}
+
+function getEntryItemPropsByView(view?: TabView): EntryItemProps['options'] {
+  switch (view) {
+    case 1: {
+      return {
+        hideDivider: true,
+        noTruncation: true,
+        imageNewLine: true,
+      }
+    }
+    case 4: {
+      return {
+        hideDescription: true,
+        hideSiteIcon: true,
+      }
+    }
+    case 5: {
+      return {
+        hideImage: true,
+        hideDescription: true,
+      }
+    }
+    default: {
+      return {}
+    }
   }
 }
 
@@ -144,11 +172,13 @@ function EntryItem({ entry, options }: EntryItemProps) {
 
 export function EntryList({
   feedIdList,
-  options,
+  view,
 }: {
   feedIdList: string[]
-  options?: EntryItemProps['options']
+  view?: TabView
 }) {
+  const options = useMemo(() => getEntryItemPropsByView(view), [view])
+
   const checkedEntryIdList = useRef(new Set<string>())
   const [isRefreshing, setIsRefreshing] = useState(false)
 
