@@ -5,12 +5,13 @@ import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
+import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
 import { apiClient } from '~/api/client'
 import { fetchAndUpdateEntriesInDB } from '~/api/entry'
 import type { TabView } from '~/atom/layout'
-import { Column, Container, Row, Text } from '~/components'
+import { Column, Container, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
@@ -19,6 +20,7 @@ import { useEntryList } from '~/hooks/use-entry-list'
 
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
+  view?: TabView
   options?: {
     hideImage?: boolean
     hideDescription?: boolean
@@ -150,7 +152,11 @@ function EntryItem({ entry, options }: EntryItemProps) {
               ? null
               : options?.hideSiteIcon
                 ? (
-                    <SiteImage feed={feed} size={60} />
+                    <AudioButton
+                      entry={entry}
+                    >
+                      <SiteImage feed={feed} size={60} />
+                    </AudioButton>
                   )
                 : entry.media && entry.media.find(media => media.type === 'photo')
                   ? (
@@ -167,6 +173,75 @@ function EntryItem({ entry, options }: EntryItemProps) {
       </Link>
       {!options?.hideDivider && <Row w="100%" h={1} bg="component" />}
     </>
+  )
+}
+
+interface AudioButtonProps {
+  entry?: Entry & { feed: Feed }
+  children?: React.ReactNode
+}
+
+function AudioButton({ entry, children }: AudioButtonProps) {
+  const attachment = entry?.attachments?.find(attachment => attachment.mime_type?.startsWith('audio'))
+  const playerState = usePlaybackState()
+  const [isPlaying, setIsPlaying] = useState(false)
+
+  const playAudio = async () => {
+    if (!attachment)
+      return
+
+    const currentTrack = await TrackPlayer.getActiveTrack()
+    if (attachment.url === currentTrack?.url) {
+      await TrackPlayer.reset()
+      setIsPlaying(false)
+      return
+    }
+
+    if (playerState.state === 'playing') {
+      await TrackPlayer.reset()
+    }
+
+    await TrackPlayer.add({
+      url: attachment.url,
+      title: entry?.title ?? 'No title',
+      artwork: entry?.feed.image ?? undefined,
+    })
+    await TrackPlayer.play()
+    setIsPlaying(true)
+  }
+
+  if (!attachment)
+    return <>{children}</>
+
+  return (
+    <Pressable onPress={playAudio}>
+      {children}
+      {
+        isPlaying
+          ? (
+              <Iconify
+                icon="carbon:stop-filled"
+                size={24}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  bottom: 5,
+                }}
+              />
+            )
+          : (
+              <Iconify
+                icon="carbon:play-filled"
+                size={24}
+                style={{
+                  position: 'absolute',
+                  right: 0,
+                  bottom: 5,
+                }}
+              />
+            )
+      }
+    </Pressable>
   )
 }
 

@@ -21,8 +21,8 @@ export async function getFeeds() {
 }
 
 export const isSyncingFeedsAtom = atom(false)
-
-export const syncFeedsEffect = atomEffect((_get, set) => {
+const appStateAtom = atom('active')
+export const syncFeedsEffect = atomEffect((get, set) => {
   const syncFeedsBackground = () => {
     syncFeeds({ indicator: 'title' })
       .catch((error) => {
@@ -40,9 +40,11 @@ export const syncFeedsEffect = atomEffect((_get, set) => {
     (nextAppState) => {
       if (
         nextAppState === 'active'
+        && get(appStateAtom) === 'background'
       ) {
         syncFeedsBackground()
       }
+      set(appStateAtom, nextAppState)
     },
   )
   return () => {

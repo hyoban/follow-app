@@ -65,6 +65,11 @@ export default function app({ config }: ConfigContext): ExpoConfig {
       supportsTablet: true,
       bundleIdentifier: 'cc.hyoban.follow',
       userInterfaceStyle: 'automatic',
+      infoPlist: {
+        UIBackgroundModes: [
+          'audio',
+        ],
+      },
     },
     android: {
       adaptiveIcon: {
