@@ -11,7 +11,7 @@ import { useStyles } from 'react-native-unistyles'
 import { apiClient } from '~/api/client'
 import { fetchAndUpdateEntriesInDB } from '~/api/entry'
 import type { TabView } from '~/atom/layout'
-import { Column, Container, Iconify, Row, Text } from '~/components'
+import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
@@ -268,54 +268,50 @@ export function EntryList({
   }, [entryList])
 
   return (
-    <>
-      <Container>
-        <FlatList
-          contentInsetAdjustmentBehavior="automatic"
-          data={entryList}
-          renderItem={
-            ({ item }) => view === 2 || view === 3
-              ? <EntryMedia entry={item} props={{ isVideo: view === 3 }} />
-              : <EntryItem entry={item} options={options} />
-          }
-          refreshing={isRefreshing}
-          onRefresh={async () => {
-            setIsRefreshing(true)
-            checkedEntryIdList.current.clear()
-            fetchAndUpdateEntriesInDB({
-              feedIdList,
-              publishedBefore: entryList?.at(0)?.publishedAt,
-            })
-              .catch(console.error)
-              .finally(() => setIsRefreshing(false))
-          }}
-          onEndReached={() => {
-            fetchAndUpdateEntriesInDB({
-              feedIdList,
-              publishedAfter: entryList?.at(-1)?.publishedAt,
-            }).catch(console.error)
-          }}
-          onViewableItemsChanged={async ({ viewableItems }) => {
-            await Promise.all(
-              viewableItems
-                .filter(({ item }) => !checkedEntryIdList.current.has(item.id))
-                .map(async ({ item }) => {
-                  const res = await apiClient.entries.$get({
-                    query: { id: item.id },
-                  })
-                  checkedEntryIdList.current.add(item.id)
-                  if (res.data?.read !== item.read) {
-                    await db
-                      .update(entries)
-                      .set({ read: res.data?.read ?? false })
-                      .where(eq(entries.id, item.id))
-                  }
-                }),
-            )
-          }}
-        />
-      </Container>
-    </>
+    <FlatList
+      contentInsetAdjustmentBehavior="automatic"
+      data={entryList}
+      renderItem={
+        ({ item }) => view === 2 || view === 3
+          ? <EntryMedia entry={item} props={{ isVideo: view === 3 }} />
+          : <EntryItem entry={item} options={options} />
+      }
+      refreshing={isRefreshing}
+      onRefresh={async () => {
+        setIsRefreshing(true)
+        checkedEntryIdList.current.clear()
+        fetchAndUpdateEntriesInDB({
+          feedIdList,
+          publishedBefore: entryList?.at(0)?.publishedAt,
+        })
+          .catch(console.error)
+          .finally(() => setIsRefreshing(false))
+      }}
+      onEndReached={() => {
+        fetchAndUpdateEntriesInDB({
+          feedIdList,
+          publishedAfter: entryList?.at(-1)?.publishedAt,
+        }).catch(console.error)
+      }}
+      onViewableItemsChanged={async ({ viewableItems }) => {
+        await Promise.all(
+          viewableItems
+            .filter(({ item }) => !checkedEntryIdList.current.has(item.id))
+            .map(async ({ item }) => {
+              const res = await apiClient.entries.$get({
+                query: { id: item.id },
+              })
+              checkedEntryIdList.current.add(item.id)
+              if (res.data?.read !== item.read) {
+                await db
+                  .update(entries)
+                  .set({ read: res.data?.read ?? false })
+                  .where(eq(entries.id, item.id))
+              }
+            }),
+        )
+      }}
+    />
   )
 }
 
