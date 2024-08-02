@@ -198,7 +198,7 @@ export function EntryList({
         <FlatList
           contentInsetAdjustmentBehavior="automatic"
           data={entryList}
-          renderItem={({ item }) => <EntryItem entry={item} options={options} />}
+          renderItem={({ item }) => view === 2 ? <EntryImage entry={item} /> : <EntryItem entry={item} options={options} />}
           refreshing={isRefreshing}
           onRefresh={async () => {
             setIsRefreshing(true)
@@ -237,5 +237,31 @@ export function EntryList({
         />
       </Container>
     </>
+  )
+}
+
+function EntryImage({ entry }: Omit<EntryItemProps, 'props'>) {
+  return (
+    <Column>
+      <Image
+        source={{ uri: entry.media?.[0]?.url }}
+        style={{ width: '100%', aspectRatio: 1 }}
+      />
+      <Column p={10}>
+        <Text weight="600">
+          {entry.title}
+        </Text>
+        <Row align="center" gap={4}>
+          <Text size={12}>
+            {entry.feed.title}
+          </Text>
+          <Text size={12}>
+            {formatDistance(new Date(entry.publishedAt), new Date(), {
+              addSuffix: true,
+            })}
+          </Text>
+        </Row>
+      </Column>
+    </Column>
   )
 }
