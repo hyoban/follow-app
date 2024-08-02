@@ -198,7 +198,11 @@ export function EntryList({
         <FlatList
           contentInsetAdjustmentBehavior="automatic"
           data={entryList}
-          renderItem={({ item }) => view === 2 ? <EntryImage entry={item} /> : <EntryItem entry={item} options={options} />}
+          renderItem={
+            ({ item }) => view === 2 || view === 3
+              ? <EntryMedia entry={item} props={{ isVideo: view === 3 }} />
+              : <EntryItem entry={item} options={options} />
+          }
           refreshing={isRefreshing}
           onRefresh={async () => {
             setIsRefreshing(true)
@@ -240,18 +244,21 @@ export function EntryList({
   )
 }
 
-function EntryImage({ entry }: Omit<EntryItemProps, 'props'>) {
+function EntryMedia({ entry, props }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
+  const { isVideo } = props ?? {}
+  const uri = entry.media?.find(media => media.type === 'photo')?.url
   return (
     <Column>
       <Image
-        source={{ uri: entry.media?.[0]?.url }}
-        style={{ width: '100%', aspectRatio: 1 }}
+        source={{ uri: uri?.startsWith('http') ? uri.replace('http://', 'https://') : uri }}
+        style={{ width: '100%', aspectRatio: isVideo ? 16 / 9 : 1 }}
       />
-      <Column p={10}>
+      <Column p={10} gap={10}>
         <Text weight="600">
           {entry.title}
         </Text>
         <Row align="center" gap={4}>
+          <SiteImage feed={entry.feed} size={16} />
           <Text size={12}>
             {entry.feed.title}
           </Text>
