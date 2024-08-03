@@ -21,11 +21,11 @@ export default function Auth() {
                 resolve()
               })
               .catch(() => {
-                reject('Failed to save session')
+                reject(new Error('Failed to save session'))
               })
           })
           .catch(() => {
-            reject('Failed to get session')
+            reject(new Error('Failed to get session'))
           })
       })
     },
