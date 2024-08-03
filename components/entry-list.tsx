@@ -2,7 +2,7 @@ import { formatDistance } from 'date-fns'
 import { eq } from 'drizzle-orm'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
-import { Link } from 'expo-router'
+import { Link, useLocalSearchParams } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
@@ -93,9 +93,13 @@ function EntryItem({ entry }: EntryItemProps) {
   const { feed } = entry
   const { view } = useAtomValue(currentViewTabAtom)
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
+  const { feedId: feedIdList } = useLocalSearchParams<{ feedId: string[] }>()
   return (
     <>
-      <Link href={`/feed/detail/${entry.id}`} asChild>
+      <Link
+        href={`/feed/detail/${entry.id}?feedId=${feedIdList.join(',')}` as any}
+        asChild
+      >
         <Pressable>
           <Row px={15} py={12} gap={10}>
             {!options?.hideSiteIcon && <SiteImage feed={feed} />}
