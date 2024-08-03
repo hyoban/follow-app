@@ -12,6 +12,7 @@ import { checkNotExistEntries } from '~/api/entry'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
+import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
@@ -260,7 +261,7 @@ export function EntryList({
 }: {
   feedIdList: string[]
 }) {
-  const [limit, setLimit] = useState(50)
+  const [limit, setLimit] = useState(FETCH_PAGE_SIZE)
   const { data: dataInDb } = useEntryList(feedIdList)
   const data = useMemo(() => dataInDb?.slice(0, limit), [dataInDb, limit])
 
@@ -287,19 +288,19 @@ export function EntryList({
   return (
     <FlashList
       contentInsetAdjustmentBehavior="automatic"
-      estimatedItemSize={150}
+      estimatedItemSize={limit}
       data={data}
       renderItem={renderItem}
       onEndReached={() => {
         checkNotExistEntries(
           feedIdList,
           data?.at(-1)?.publishedAt,
-          data?.at(limit - 50)?.publishedAt,
+          data?.at(limit - FETCH_PAGE_SIZE)?.publishedAt,
         )
           .catch((error) => {
             console.error(error)
           })
-        setLimit(limit + 50)
+        setLimit(limit + FETCH_PAGE_SIZE)
       }}
     />
   )

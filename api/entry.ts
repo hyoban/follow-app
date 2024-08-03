@@ -1,6 +1,7 @@
 import { isAfter } from 'date-fns'
 import { eq, inArray } from 'drizzle-orm'
 
+import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
 import { entries, feeds } from '~/db/schema'
@@ -75,7 +76,7 @@ export async function checkNotExistEntries(
   start?: string,
 ) {
   console.info('checkNotExistEntries', start, end)
-  let entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: 100 })
+  let entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: FETCH_PAGE_SIZE })
   await createOrUpdateEntriesInDB(entriesFromApi)
   while (
     entriesFromApi.length > 0
@@ -84,7 +85,7 @@ export async function checkNotExistEntries(
     && isAfter(new Date(entriesFromApi.at(-1)!.publishedAt!), new Date(end))
   ) {
     const publishedAfter = entriesFromApi.at(-1)?.publishedAt
-    entriesFromApi = await getEntries({ feedIdList, publishedAfter, limit: 100 })
+    entriesFromApi = await getEntries({ feedIdList, publishedAfter, limit: FETCH_PAGE_SIZE })
   }
   console.info('checkNotExistEntries done')
 }
