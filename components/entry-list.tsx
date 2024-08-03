@@ -1,8 +1,8 @@
 import { formatDistance } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
-import { Link, useLocalSearchParams } from 'expo-router'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Link } from 'expo-router'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
@@ -89,7 +89,7 @@ function EntryItem({ entry }: EntryItemProps) {
   const { feed } = entry
   const { view } = useTabInfo()
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
-  const { feedId: feedIdList } = useLocalSearchParams<{ feedId?: string[] }>()
+  const { feedIdList } = useContext(FeedIdList)
   return (
     <>
       <Link
@@ -255,6 +255,8 @@ function RenderItem({ entry }: EntryItemProps) {
     : <EntryItem entry={entry} />
 }
 
+const FeedIdList = createContext<{ feedIdList: string[] }>({ feedIdList: [] })
+
 export function EntryList({
   feedIdList,
 }: {
@@ -285,23 +287,25 @@ export function EntryList({
   }, [data, feedIdList])
 
   return (
-    <FlatList
-      contentInsetAdjustmentBehavior="automatic"
-      data={data}
-      renderItem={renderItem}
-      onEndReachedThreshold={10}
-      onEndReached={() => {
-        checkNotExistEntries(
-          feedIdList,
-          data?.at(-1)?.publishedAt,
-          data?.at(-20)?.publishedAt,
-        )
-          .catch((error) => {
-            console.error(error)
-          })
-        setLimit(limit + FETCH_PAGE_SIZE)
-      }}
-    />
+    <FeedIdList.Provider value={{ feedIdList }}>
+      <FlatList
+        contentInsetAdjustmentBehavior="automatic"
+        data={data}
+        renderItem={renderItem}
+        onEndReachedThreshold={10}
+        onEndReached={() => {
+          checkNotExistEntries(
+            feedIdList,
+            data?.at(-1)?.publishedAt,
+            data?.at(-20)?.publishedAt,
+          )
+            .catch((error) => {
+              console.error(error)
+            })
+          setLimit(limit + FETCH_PAGE_SIZE)
+        }}
+      />
+    </FeedIdList.Provider>
   )
 }
 

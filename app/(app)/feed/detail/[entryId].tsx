@@ -1,6 +1,5 @@
-import { inArray } from 'drizzle-orm'
 import { Stack, useLocalSearchParams } from 'expo-router'
-import { useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type { DimensionValue } from 'react-native'
 import { ActivityIndicator, ScrollView } from 'react-native'
 import PagerView from 'react-native-pager-view'
@@ -10,27 +9,39 @@ import WebView from 'react-native-webview'
 import { loadEntryContent, markEntryAsRead } from '~/api/entry'
 import { Container, Text } from '~/components'
 import { simpleCSS } from '~/consts/css'
-import { db } from '~/db'
-import { entries } from '~/db/schema'
-import { useQuerySubscription } from '~/hooks/use-query-subscription'
+import { useEntryList } from '~/hooks/use-entry-list'
+
+function LazyComponent({
+  componentKey,
+  currentKey,
+  children,
+  placeholder,
+}: {
+  componentKey: string
+  currentKey: string
+  children: React.ReactNode
+  placeholder?: React.ReactNode
+}) {
+  const [hasRendered, setHasRendered] = useState(false)
+
+  useEffect(() => {
+    if (!hasRendered && currentKey === componentKey)
+      setHasRendered(true)
+  }, [currentKey, componentKey, hasRendered])
+
+  if (hasRendered)
+    return children
+  return placeholder || <></>
+}
 
 export default function FeedDetail() {
   const { entryId, feedId } = useLocalSearchParams<{ entryId: string, feedId: string }>()
-  const feedIdList = feedId.split(',')
-  const { data: entryList } = useQuerySubscription(
-    db.query.entries.findMany({
-      where: inArray(entries.feedId, feedIdList),
-      orderBy(fields, { desc }) {
-        return [desc(fields.publishedAt)]
-      },
-      with: {
-        feed: true,
-      },
-    }),
-    [feedId, entryId],
-  )
+  const feedIdList = useMemo(() => feedId.split(','), [feedId])
+  const { data: entryList } = useEntryList(feedIdList)
   const { theme } = useStyles()
-  const data = entryList?.find(entry => entry.id === entryId)
+  const entryIndex = entryList?.findIndex(i => i.id === entryId)
+  const [currentPageIndex, setCurrentPageIndex] = useState(entryIndex)
+  const currentEntry = useMemo(() => currentPageIndex ? entryList?.at(currentPageIndex) : null, [entryList, currentPageIndex])
 
   return (
     <>
@@ -47,9 +58,10 @@ export default function FeedDetail() {
       <Container style={{ flex: 1, backgroundColor: theme.colors.gray1 }}>
         <PagerView
           style={{ flex: 1 }}
-          initialPage={entryList?.findIndex(i => i.id === data?.id)}
+          initialPage={entryIndex}
           onPageSelected={(e) => {
             const { position } = e.nativeEvent
+            setCurrentPageIndex(position)
             const entry = entryList?.[position]
 
             if (entry && !entry.content) {
@@ -64,14 +76,21 @@ export default function FeedDetail() {
           }}
         >
           {entryList?.map(entry => (
-            <ScrollView key={entry.id}>
-              <Text size={20} weight={600} style={{ padding: 20 }}>
-                {entry?.title}
-              </Text>
-              <WebViewAutoHeight
-                html={entry?.content ?? ''}
-              />
-            </ScrollView>
+            <LazyComponent
+              key={entry.id}
+              componentKey={entry.id}
+              currentKey={currentEntry?.id ?? ''}
+              placeholder={<ActivityIndicator />}
+            >
+              <ScrollView>
+                <Text size={20} weight={600} style={{ padding: 20 }}>
+                  {entry?.title}
+                </Text>
+                <WebViewAutoHeight
+                  html={entry?.content ?? ''}
+                />
+              </ScrollView>
+            </LazyComponent>
           ))}
         </PagerView>
       </Container>
