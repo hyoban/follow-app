@@ -222,6 +222,7 @@ function AudioButton({ entry, children }: AudioButtonProps) {
               <Iconify
                 icon="carbon:stop-filled"
                 size={24}
+                color="white"
                 style={{
                   position: 'absolute',
                   right: 0,
@@ -233,6 +234,7 @@ function AudioButton({ entry, children }: AudioButtonProps) {
               <Iconify
                 icon="carbon:play-filled"
                 size={24}
+                color="white"
                 style={{
                   position: 'absolute',
                   right: 0,
