@@ -53,15 +53,20 @@ export default function app({ config }: ConfigContext): ExpoConfig {
     orientation: 'portrait',
     icon: './assets/icon.png',
     userInterfaceStyle: 'automatic',
-    splash: {
-      image: './assets/splash.png',
-      resizeMode: 'contain',
-      backgroundColor: '#ffffff',
-    },
     assetBundlePatterns: [
       '**/*',
     ],
     ios: {
+      splash: {
+        image: './assets/splash.png',
+        resizeMode: 'contain',
+        backgroundColor: '#ffffff',
+        dark: {
+          image: './assets/splash-dark.png',
+          resizeMode: 'contain',
+          backgroundColor: '#111111',
+        },
+      },
       supportsTablet: true,
       bundleIdentifier: 'cc.hyoban.follow',
       userInterfaceStyle: 'automatic',
@@ -72,9 +77,15 @@ export default function app({ config }: ConfigContext): ExpoConfig {
       },
     },
     android: {
-      adaptiveIcon: {
-        foregroundImage: './assets/adaptive-icon.png',
+      splash: {
+        image: './assets/splash.png',
+        resizeMode: 'contain',
         backgroundColor: '#ffffff',
+        dark: {
+          image: './assets/splash-dark.png',
+          resizeMode: 'contain',
+          backgroundColor: '#111111',
+        },
       },
       package: 'cc.hyoban.follow',
       userInterfaceStyle: 'automatic',
