@@ -1,6 +1,15 @@
+import type { TabViewIndex } from '~/atom/layout'
 import { Iconify } from '~/components'
 
-export const views = [
+export type TabView = {
+  view: TabViewIndex
+  name: string
+  title: string
+  icon: (color: string) => React.ReactNode
+  color: string
+}
+
+export const tabViewList: TabView[] = [
   {
     view: 0,
     name: 'index',

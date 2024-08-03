@@ -15,12 +15,12 @@ import Animated, {
 } from 'react-native-reanimated'
 
 import { isSyncingFeedsAtom, syncFeeds } from '~/api/feed'
-import type { TabView } from '~/atom/layout'
+import type { TabViewIndex } from '~/atom/layout'
+import { currentViewTabAtom } from '~/atom/layout'
 import { Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
 import { useFeedList } from '~/hooks/use-feed-list'
-import { useTab } from '~/hooks/use-tab-title'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -33,7 +33,7 @@ function FeedFolder({
   feedIdList: string[]
   unread: number
 }) {
-  const { view } = useTab()
+  const { view } = useAtomValue(currentViewTabAtom)
   const expandedSections = useAtomValue(expandedSectionsAtom)
   const handleToggle = useSetAtom(toggleExpandedSectionAtom)
   const isExpanded = expandedSections.includes(category)
@@ -77,7 +77,7 @@ function FeedItem({
 }: {
   feed: Feed
 }) {
-  const { view } = useTab()
+  const { view } = useAtomValue(currentViewTabAtom)
   return (
     <Link
       href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}`}
@@ -181,7 +181,7 @@ function isSingleCategory(feeds: Feed[]) {
   return feeds.length <= 1 && !feeds.every(i => i.category)
 }
 
-export function FeedList({ view }: { view: TabView }) {
+export function FeedList({ view }: { view: TabViewIndex }) {
   const refreshing = useAtomValue(isSyncingFeedsAtom)
 
   const { data: feeds } = useFeedList(view)

@@ -5,7 +5,6 @@ import { AppState } from 'react-native'
 
 import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
-import { tabTitleAtom } from '~/hooks/use-tab-title'
 
 import { apiClient } from './client'
 
@@ -57,12 +56,7 @@ export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
 
   const store = getDefaultStore()
 
-  let lastTabTitle = ''
-  if (indicator === 'title') {
-    lastTabTitle = store.get(tabTitleAtom)
-    store.set(tabTitleAtom, 'Syncing...')
-  }
-  else {
+  if (indicator === 'spinner') {
     store.set(isSyncingFeedsAtom, true)
   }
 
@@ -91,10 +85,7 @@ export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
     db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
   ])
 
-  if (indicator === 'title') {
-    store.set(tabTitleAtom, lastTabTitle)
-  }
-  else {
+  if (indicator === 'spinner') {
     store.set(isSyncingFeedsAtom, false)
   }
 }

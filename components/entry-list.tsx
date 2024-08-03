@@ -10,7 +10,7 @@ import { useStyles } from 'react-native-unistyles'
 
 import { apiClient } from '~/api/client'
 import { fetchAndUpdateEntriesInDB } from '~/api/entry'
-import type { TabView } from '~/atom/layout'
+import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
@@ -20,7 +20,7 @@ import { useEntryList } from '~/hooks/use-entry-list'
 
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
-  view?: TabView
+  view?: TabViewIndex
   options?: {
     hideImage?: boolean
     hideDescription?: boolean
@@ -31,7 +31,7 @@ type EntryItemProps = {
   }
 }
 
-function getEntryItemPropsByView(view?: TabView): EntryItemProps['options'] {
+function getEntryItemPropsByView(view?: TabViewIndex): EntryItemProps['options'] {
   switch (view) {
     case 1: {
       return {
@@ -250,7 +250,7 @@ export function EntryList({
   view,
 }: {
   feedIdList: string[]
-  view?: TabView
+  view?: TabViewIndex
 }) {
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
 

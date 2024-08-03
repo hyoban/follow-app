@@ -1,10 +1,11 @@
 import { Stack, useLocalSearchParams } from 'expo-router'
+import { useAtomValue } from 'jotai'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import type { TabView } from '~/atom/layout'
+import type { TabViewIndex } from '~/atom/layout'
+import { currentViewTabAtom } from '~/atom/layout'
 import { EntryList } from '~/components/entry-list'
 import { UnreadFilter } from '~/components/unread-filter'
-import { useTab } from '~/hooks/use-tab-title'
 
 type PageLocalSearchParams = {
   feedId: string[]
@@ -14,7 +15,7 @@ type PageLocalSearchParams = {
 
 export default function Page() {
   const { styles } = useStyles(stylesheet)
-  const { title: headerBackTitle } = useTab()
+  const { title: headerBackTitle } = useAtomValue(currentViewTabAtom)
   const {
     feedId: feedIdList,
     title: headerTitle,
@@ -34,7 +35,7 @@ export default function Page() {
       />
       <EntryList
         feedIdList={feedIdList ?? []}
-        view={Number.isInteger(Number(view)) ? Number(view) as TabView : undefined}
+        view={Number.isInteger(Number(view)) ? Number(view) as TabViewIndex : undefined}
       />
     </>
   )
