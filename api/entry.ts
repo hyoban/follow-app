@@ -75,7 +75,7 @@ export async function checkNotExistEntries(
   end?: string,
   start?: string,
 ) {
-  console.info('checkNotExistEntries', start, end)
+  console.info('checkNotExistEntries', feedIdList.length, start, end)
   let entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: FETCH_PAGE_SIZE })
   await createOrUpdateEntriesInDB(entriesFromApi)
   while (

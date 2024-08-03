@@ -291,11 +291,12 @@ export function EntryList({
       estimatedItemSize={limit}
       data={data}
       renderItem={renderItem}
+      onEndReachedThreshold={5}
       onEndReached={() => {
         checkNotExistEntries(
           feedIdList,
           data?.at(-1)?.publishedAt,
-          data?.at(limit - FETCH_PAGE_SIZE)?.publishedAt,
+          data?.at(-20)?.publishedAt,
         )
           .catch((error) => {
             console.error(error)
