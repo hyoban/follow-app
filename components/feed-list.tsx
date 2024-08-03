@@ -39,11 +39,11 @@ function FeedFolder({
   const rotate = useSharedValue(isExpanded ? '90deg' : '0deg')
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
-  const { view } = useTabInfo()
+  const { view, title } = useTabInfo()
 
   return (
     <Link
-      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}`}
+      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}$backTitle=${encodeURIComponent(title)}`}
       asChild
     >
       <Pressable>
@@ -77,10 +77,10 @@ function FeedItem({
 }: {
   feed: Feed
 }) {
-  const { view } = useTabInfo()
+  const { view, title } = useTabInfo()
   return (
     <Link
-      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}`}
+      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title)}`}
       asChild
     >
       <Pressable>

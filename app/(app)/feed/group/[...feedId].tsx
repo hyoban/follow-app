@@ -4,19 +4,23 @@ import { useStyles } from 'react-native-unistyles'
 import { Container } from '~/components'
 import { EntryList } from '~/components/entry-list'
 import { UnreadFilter } from '~/components/unread-filter'
-import { useTabInfo } from '~/hooks/use-tab-info'
 import { commonStylesheet } from '~/theme/common'
 
 type PageLocalSearchParams = {
   feedId: string[]
   title: string
   view: string
+  backTitle: string
 }
 
 export default function Page() {
   const { styles } = useStyles(commonStylesheet)
-  const { title: headerBackTitle } = useTabInfo()
-  const { feedId: feedIdList, title: headerTitle } = useLocalSearchParams<PageLocalSearchParams>()
+
+  const {
+    feedId: feedIdList,
+    title: headerTitle,
+    backTitle: headerBackTitle,
+  } = useLocalSearchParams<PageLocalSearchParams>()
 
   return (
     <>
