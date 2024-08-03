@@ -1,24 +1,20 @@
 import '../theme/unistyles'
 
-import { drizzle } from 'drizzle-orm/expo-sqlite'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { Slot } from 'expo-router'
-import { openDatabaseSync } from 'expo-sqlite'
 import { useEffect } from 'react'
 import { View } from 'react-native'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 
 import { Text } from '~/components'
+import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
 
 export const unstable_settings = {
   // Ensure that reloading on `/settings` keeps a back button present.
   initialRouteName: '(app)',
 }
-
-const expoDb = openDatabaseSync('db.db')
-const db = drizzle(expoDb)
 
 TrackPlayer.registerPlaybackService(() => async () => {
   TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())
