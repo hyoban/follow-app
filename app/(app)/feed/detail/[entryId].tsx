@@ -32,9 +32,6 @@ export default function FeedDetail() {
   const { theme } = useStyles()
   const data = entryList?.find(entry => entry.id === entryId)
 
-  if (!entryId || typeof entryId !== 'string')
-    return null
-
   return (
     <>
       <Stack.Screen options={{
