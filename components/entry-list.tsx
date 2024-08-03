@@ -93,11 +93,11 @@ function EntryItem({ entry }: EntryItemProps) {
   const { feed } = entry
   const { view } = useAtomValue(currentViewTabAtom)
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
-  const { feedId: feedIdList } = useLocalSearchParams<{ feedId: string[] }>()
+  const { feedId: feedIdList } = useLocalSearchParams<{ feedId?: string[] }>()
   return (
     <>
       <Link
-        href={`/feed/detail/${entry.id}?feedId=${feedIdList.join(',')}` as any}
+        href={`/feed/detail/${entry.id}${feedIdList ? `?feedId=${feedIdList.join(',')}` : ''}`}
         asChild
       >
         <Pressable>
