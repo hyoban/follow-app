@@ -288,7 +288,7 @@ export function EntryList({
   return (
     <FlashList
       contentInsetAdjustmentBehavior="automatic"
-      estimatedItemSize={limit}
+      estimatedItemSize={142}
       data={data}
       renderItem={renderItem}
       onEndReachedThreshold={5}

@@ -86,6 +86,7 @@ export async function checkNotExistEntries(
   ) {
     const publishedAfter = entriesFromApi.at(-1)?.publishedAt
     entriesFromApi = await getEntries({ feedIdList, publishedAfter, limit: FETCH_PAGE_SIZE })
+    await createOrUpdateEntriesInDB(entriesFromApi)
   }
   console.info('checkNotExistEntries done')
 }
