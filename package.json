@@ -21,6 +21,7 @@
     "@radix-ui/colors": "^3.0.0",
     "@react-native-async-storage/async-storage": "^1.23.1",
     "@react-navigation/native": "^6.1.7",
+    "@shopify/flash-list": "1.6.4",
     "date-fns": "^3.6.0",
     "drizzle-orm": "^0.32.1",
     "expo": "^51.0.24",

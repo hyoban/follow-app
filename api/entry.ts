@@ -1,4 +1,5 @@
-import { eq } from 'drizzle-orm'
+import { isAfter } from 'date-fns'
+import { eq, inArray } from 'drizzle-orm'
 
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
@@ -26,30 +27,66 @@ export async function createOrUpdateEntriesInDB(
   if (entryList.length === 0) {
     return
   }
-  return await Promise.all(entryList.map(async (entry) => {
-    const entryInDB = await db.query.entries.findFirst({
-      where: eq(entries.id, entry.id),
-    })
-    if (entryInDB) {
+
+  const entryListInDb = await db.query.entries.findMany({
+    where: inArray(entries.id, entryList.map(entry => entry.id)),
+  })
+  const entryListToUpdate = entryList
+    .filter((entry) => {
+      const entryInDB = entryListInDb.find(entryInDB => entryInDB.id === entry.id)
+      if (!entryInDB)
+        return false
+
       let isSame = true
       for (const key of Object.keys(entryInDB)) {
+        if (key !== 'read') {
+          continue
+        }
+
         if (entryInDB[key as keyof typeof entryInDB] !== entry[key as keyof typeof entry]) {
           isSame = false
+          console.info('different key', key, entryInDB[key as keyof typeof entryInDB], entry[key as keyof typeof entry])
           break
         }
       }
+      return !isSame
+    })
+  console.info('entryListToUpdate', entryListToUpdate.length)
+  await Promise.all(
+    entryListToUpdate.map(
+      entry => db.update(entries)
+        .set(entry)
+        .where(eq(entries.id, entry.id)),
+    ),
+  )
 
-      if (!isSame) {
-        await db.update(entries)
-          .set(entry)
-          .where(eq(entries.id, entry.id))
-      }
-    }
-    else {
-      await db.insert(entries)
-        .values(entry)
-    }
-  }))
+  const entryListToCreate = entryList
+    .filter(entry => !entryListInDb.find(entryInDB => entryInDB.id === entry.id))
+  console.info('entryListToCreate', entryListToCreate.length)
+  if (entryListToCreate.length > 0) {
+    await db.insert(entries)
+      .values(entryListToCreate)
+  }
+}
+
+export async function checkNotExistEntries(
+  feedIdList: string[],
+  end: string,
+  start?: string,
+) {
+  console.info('checkNotExistEntries', start, end)
+  let entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: 100 })
+  do {
+    await createOrUpdateEntriesInDB(entriesFromApi)
+
+    const publishedAfter = entriesFromApi.at(-1)?.publishedAt
+    entriesFromApi = await getEntries({ feedIdList, publishedAfter, limit: 100 })
+  } while (
+    entriesFromApi.length > 0
+    && entriesFromApi.at(-1)?.publishedAt
+    && isAfter(new Date(entriesFromApi.at(-1)!.publishedAt!), new Date(end))
+  )
+  console.info('checkNotExistEntries done')
 }
 
 export async function fetchAndUpdateEntriesInDB(

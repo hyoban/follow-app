@@ -25,6 +25,9 @@ importers:
       '@react-navigation/native':
         specifier: ^6.1.7
         version: 6.1.18(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+      '@shopify/flash-list':
+        specifier: 1.6.4
+        version: 1.6.4(@babel/runtime@7.24.8)(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
@@ -1688,6 +1691,13 @@ packages:
 
   '@segment/loosely-validate-event@2.0.0':
     resolution: {integrity: sha512-ZMCSfztDBqwotkl848ODgVcAmN4OItEWDCkshcKz0/W6gGSQayuuCtWV/MlodFivAZD793d6UgANd6wCXUfrIw==}
+
+  '@shopify/flash-list@1.6.4':
+    resolution: {integrity: sha512-M2momcnY7swsvmpHIFDVbdOaFw4aQocJXA/lFP0Gpz+alQjFylqVKvszxl4atYO2SNbjxlb2L6hEP9WEcAknGQ==}
+    peerDependencies:
+      '@babel/runtime': '*'
+      react: '*'
+      react-native: '*'
 
   '@sideway/address@4.1.5':
     resolution: {integrity: sha512-IqO/DUQHUkPeixNQ8n0JA6102hT9CmaljNTPmQ1u8MEhBo/R4Q8eKLN/vGZxuebwOroDB4cbpjheD4+/sKFK4Q==}
@@ -5051,6 +5061,12 @@ packages:
     resolution: {integrity: sha512-hjMmLaUXAm1hIuTqOdeYObMslq/q+Xff6QE3Y2P+uoHAg2nmVlLBps2hzh1UJDdMtDTMXOFewK6ky51JQIeECg==}
     engines: {node: '>= 4'}
 
+  recyclerlistview@4.2.0:
+    resolution: {integrity: sha512-uuBCi0c+ggqHKwrzPX4Z/mJOzsBbjZEAwGGmlwpD/sD7raXixdAbdJ6BTcAmuWG50Cg4ru9p12M94Njwhr/27A==}
+    peerDependencies:
+      react: '>= 15.2.1'
+      react-native: '>= 0.30.0'
+
   refa@0.12.1:
     resolution: {integrity: sha512-J8rn6v4DBb2nnFqkqwy6/NnTYMcgLA+sLr0iIO41qpv0n+ngb7ksag2tMRl0inb1bbO/esUwzW1vbJi7K0sI0g==}
     engines: {node: ^12.0.0 || ^14.0.0 || >=16.0.0}
@@ -5670,8 +5686,14 @@ packages:
   ts-interface-checker@0.1.13:
     resolution: {integrity: sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==}
 
+  ts-object-utils@0.0.5:
+    resolution: {integrity: sha512-iV0GvHqOmilbIKJsfyfJY9/dNHCs969z3so90dQWsO1eMMozvTpnB1MEaUbb3FYtZTGjv5sIy/xmslEz0Rg2TA==}
+
   ts-pattern@5.2.0:
     resolution: {integrity: sha512-aGaSpOlDcns7ZoeG/OMftWyQG1KqPVhgplhJxNCvyIXqWrumM5uIoOSarw/hmmi/T1PnuQ/uD8NaFHvLpHicDg==}
+
+  tslib@2.4.0:
+    resolution: {integrity: sha512-d6xOpEDfsi2CZVlPQzGeux8XMwLT9hssAsaPYExaQMuYskwb+x1x7J371tWlbBdWHroy99KnVB6qIkUbs5X3UQ==}
 
   tslib@2.6.3:
     resolution: {integrity: sha512-xNvxJEOUiWPGhUuUdQgAJPKOOJfGnIyKySOc09XkKsgdUV/3E2zvwZYdejjmRgPCgcym1juLH3226yA7sEFJKQ==}
@@ -8271,6 +8293,14 @@ snapshots:
     dependencies:
       component-type: 1.2.2
       join-component: 1.1.0
+
+  '@shopify/flash-list@1.6.4(@babel/runtime@7.24.8)(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)':
+    dependencies:
+      '@babel/runtime': 7.24.8
+      react: 18.2.0
+      react-native: 0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0)
+      recyclerlistview: 4.2.0(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+      tslib: 2.4.0
 
   '@sideway/address@4.1.5':
     dependencies:
@@ -12099,6 +12129,14 @@ snapshots:
       source-map: 0.6.1
       tslib: 2.6.3
 
+  recyclerlistview@4.2.0(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
+    dependencies:
+      lodash.debounce: 4.0.8
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-native: 0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0)
+      ts-object-utils: 0.0.5
+
   refa@0.12.1:
     dependencies:
       '@eslint-community/regexpp': 4.11.0
@@ -12742,7 +12780,11 @@ snapshots:
 
   ts-interface-checker@0.1.13: {}
 
+  ts-object-utils@0.0.5: {}
+
   ts-pattern@5.2.0: {}
+
+  tslib@2.4.0: {}
 
   tslib@2.6.3: {}
 

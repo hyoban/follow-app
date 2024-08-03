@@ -1,21 +1,18 @@
+import { FlashList } from '@shopify/flash-list'
 import { formatDistance } from 'date-fns'
-import { eq } from 'drizzle-orm'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link, useLocalSearchParams } from 'expo-router'
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, Pressable, View } from 'react-native'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { Pressable, View } from 'react-native'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
-import { apiClient } from '~/api/client'
-import { fetchAndUpdateEntriesInDB } from '~/api/entry'
+import { checkNotExistEntries } from '~/api/entry'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
-import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
-import { entries } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
 
@@ -131,11 +128,11 @@ function EntryItem({ entry }: EntryItemProps) {
               )}
               {options?.imageNewLine && (
                 <Row gap={10}>
-                  {entry.media?.map(
-                    media => media.type === 'photo'
+                  {entry.media?.map((media, index) =>
+                    media.type === 'photo'
                       ? (
                           <Image
-                            key={media.url}
+                            key={index}
                             source={{ uri: media.url }}
                             style={{ width: 100, height: 100, borderRadius: 5 }}
                           />
@@ -143,7 +140,7 @@ function EntryItem({ entry }: EntryItemProps) {
                       : media.type === 'video'
                         ? (
                             <Video
-                              key={media.url}
+                              key={index}
                               style={{ width: 100, height: 100 }}
                               source={{ uri: media.url }}
                             />
@@ -263,59 +260,46 @@ export function EntryList({
 }: {
   feedIdList: string[]
 }) {
-  const checkedEntryIdList = useRef(new Set<string>())
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [limit, setLimit] = useState(50)
+  const { data: dataInDb } = useEntryList(feedIdList)
+  const data = useMemo(() => dataInDb?.slice(0, limit), [dataInDb, limit])
 
-  const { data: entryList } = useEntryList(feedIdList)
+  const renderItem = useCallback(
+    ({ item }: { item: Entry & { feed: Feed } }) => <RenderItem entry={item} />,
+    [],
+  )
+
+  const onceRef = useRef(false)
 
   useEffect(() => {
-    if (entryList && entryList.length === 0) {
-      fetchAndUpdateEntriesInDB({
+    if (data?.at(-1)?.publishedAt && !onceRef.current) {
+      onceRef.current = true
+      checkNotExistEntries(
         feedIdList,
-      }).catch(console.error)
+        data!.at(-1)!.publishedAt,
+      )
+        .catch((error) => {
+          console.error(error)
+        })
     }
-  }, [entryList])
+  }, [data, feedIdList])
 
   return (
-    <FlatList
+    <FlashList
       contentInsetAdjustmentBehavior="automatic"
-      data={entryList}
-      renderItem={({ item }) => <RenderItem entry={item} />}
-      initialNumToRender={5}
-      refreshing={isRefreshing}
-      onRefresh={async () => {
-        setIsRefreshing(true)
-        checkedEntryIdList.current.clear()
-        fetchAndUpdateEntriesInDB({
-          feedIdList,
-          publishedBefore: entryList?.at(0)?.publishedAt,
-        })
-          .catch(console.error)
-          .finally(() => setIsRefreshing(false))
-      }}
+      estimatedItemSize={150}
+      data={data}
+      renderItem={renderItem}
       onEndReached={() => {
-        fetchAndUpdateEntriesInDB({
+        checkNotExistEntries(
           feedIdList,
-          publishedAfter: entryList?.at(-1)?.publishedAt,
-        }).catch(console.error)
-      }}
-      onViewableItemsChanged={async ({ viewableItems }) => {
-        await Promise.all(
-          viewableItems
-            .filter(({ item }) => !checkedEntryIdList.current.has(item.id))
-            .map(async ({ item }) => {
-              const res = await apiClient.entries.$get({
-                query: { id: item.id },
-              })
-              checkedEntryIdList.current.add(item.id)
-              if (res.data?.read !== item.read) {
-                await db
-                  .update(entries)
-                  .set({ read: res.data?.read ?? false })
-                  .where(eq(entries.id, item.id))
-              }
-            }),
+          data!.at(-1)!.publishedAt,
+          data?.at(limit - 50)?.publishedAt,
         )
+          .catch((error) => {
+            console.error(error)
+          })
+        setLimit(limit + 50)
       }}
     />
   )
