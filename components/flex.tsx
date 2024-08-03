@@ -2,6 +2,8 @@ import type { ViewProps, ViewStyle } from 'react-native'
 import { View } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
+import { commonStylesheet } from '~/theme/common'
+
 import type { CommonProps } from './layout'
 
 export type FlexProps = ViewProps & CommonProps & {
@@ -109,6 +111,17 @@ export function Column(props: Omit<FlexProps, 'direction'>) {
   return <Flex direction="column" {...props} />
 }
 
-export function Container(props: FlexProps) {
-  return <Flex w="100%" h="100%" {...props} />
+export function Container({ style, ...props }: FlexProps) {
+  const { styles } = useStyles(commonStylesheet)
+  return (
+    <Flex
+      w="100%"
+      h="100%"
+      style={[
+        styles.appBackground,
+        style,
+      ]}
+      {...props}
+    />
+  )
 }
