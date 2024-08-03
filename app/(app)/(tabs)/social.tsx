@@ -15,12 +15,7 @@ export default function TabPage() {
     <>
       <Container>
         {viewLayoutMap[viewIndex] === 'list' && <FeedList view={viewIndex} />}
-        {viewLayoutMap[viewIndex] === 'detail' && (
-          <EntryList
-            feedIdList={data?.map(i => i.id) ?? []}
-            view={viewIndex}
-          />
-        )}
+        {viewLayoutMap[viewIndex] === 'detail' && (<EntryList feedIdList={data?.map(i => i.id) ?? []} />)}
       </Container>
     </>
   )
