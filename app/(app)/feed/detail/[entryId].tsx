@@ -1,6 +1,6 @@
 import { inArray } from 'drizzle-orm'
 import { Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 import type { DimensionValue } from 'react-native'
 import { ScrollView } from 'react-native'
 import PagerView from 'react-native-pager-view'
@@ -31,17 +31,6 @@ export default function FeedDetail() {
   )
   const { theme } = useStyles()
   const data = entryList?.find(entry => entry.id === entryId)
-
-  useEffect(() => {
-    if (data && !data.content) {
-      loadEntryContent(entryId!)
-        .catch(console.error)
-    }
-    if (data && !data.read) {
-      markEntryAsRead(entryId!, data.feed)
-        .catch(console.error)
-    }
-  }, [data])
 
   if (!entryId || typeof entryId !== 'string')
     return null
