@@ -276,7 +276,7 @@ export function EntryList({
       onceRef.current = true
       checkNotExistEntries(
         feedIdList,
-        data!.at(-1)!.publishedAt,
+        data?.at(-1)?.publishedAt,
       )
         .catch((error) => {
           console.error(error)
@@ -293,7 +293,7 @@ export function EntryList({
       onEndReached={() => {
         checkNotExistEntries(
           feedIdList,
-          data!.at(-1)!.publishedAt,
+          data?.at(-1)?.publishedAt,
           data?.at(limit - 50)?.publishedAt,
         )
           .catch((error) => {

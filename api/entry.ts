@@ -71,21 +71,21 @@ export async function createOrUpdateEntriesInDB(
 
 export async function checkNotExistEntries(
   feedIdList: string[],
-  end: string,
+  end?: string,
   start?: string,
 ) {
   console.info('checkNotExistEntries', start, end)
   let entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: 100 })
-  do {
-    await createOrUpdateEntriesInDB(entriesFromApi)
-
-    const publishedAfter = entriesFromApi.at(-1)?.publishedAt
-    entriesFromApi = await getEntries({ feedIdList, publishedAfter, limit: 100 })
-  } while (
+  await createOrUpdateEntriesInDB(entriesFromApi)
+  while (
     entriesFromApi.length > 0
     && entriesFromApi.at(-1)?.publishedAt
+    && end
     && isAfter(new Date(entriesFromApi.at(-1)!.publishedAt!), new Date(end))
-  )
+  ) {
+    const publishedAfter = entriesFromApi.at(-1)?.publishedAt
+    entriesFromApi = await getEntries({ feedIdList, publishedAfter, limit: 100 })
+  }
   console.info('checkNotExistEntries done')
 }
 
