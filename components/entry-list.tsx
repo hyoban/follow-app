@@ -97,7 +97,7 @@ function EntryItem({ entry }: EntryItemProps) {
   return (
     <>
       <Link
-        href={`/feed/detail/${entry.id}${feedIdList ? `?feedId=${feedIdList.join(',')}` : ''}`}
+        href={`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : feed.id}` as any}
         asChild
       >
         <Pressable>
