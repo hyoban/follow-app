@@ -16,7 +16,6 @@ import Animated, {
 
 import { isSyncingFeedsAtom, syncFeeds } from '~/api/feed'
 import type { TabViewIndex } from '~/atom/layout'
-import { currentViewTabAtom } from '~/atom/layout'
 import { Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
@@ -33,7 +32,6 @@ function FeedFolder({
   feedIdList: string[]
   unread: number
 }) {
-  const { view } = useAtomValue(currentViewTabAtom)
   const expandedSections = useAtomValue(expandedSectionsAtom)
   const handleToggle = useSetAtom(toggleExpandedSectionAtom)
   const isExpanded = expandedSections.includes(category)
@@ -43,7 +41,7 @@ function FeedFolder({
 
   return (
     <Link
-      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}`}
+      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}`}
       asChild
     >
       <Pressable>
@@ -77,10 +75,9 @@ function FeedItem({
 }: {
   feed: Feed
 }) {
-  const { view } = useAtomValue(currentViewTabAtom)
   return (
     <Link
-      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}`}
+      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}`}
       asChild
     >
       <Pressable>

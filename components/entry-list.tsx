@@ -3,6 +3,7 @@ import { eq } from 'drizzle-orm'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
+import { useAtomValue } from 'jotai'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
@@ -11,6 +12,7 @@ import { useStyles } from 'react-native-unistyles'
 import { apiClient } from '~/api/client'
 import { fetchAndUpdateEntriesInDB } from '~/api/entry'
 import type { TabViewIndex } from '~/atom/layout'
+import { currentViewTabAtom } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
@@ -20,18 +22,16 @@ import { useEntryList } from '~/hooks/use-entry-list'
 
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
-  view?: TabViewIndex
-  options?: {
-    hideImage?: boolean
-    hideDescription?: boolean
-    hideSiteIcon?: boolean
-    hideDivider?: boolean
-    noTruncation?: boolean
-    imageNewLine?: boolean
-  }
 }
 
-function getEntryItemPropsByView(view?: TabViewIndex): EntryItemProps['options'] {
+function getEntryItemPropsByView(view?: TabViewIndex): {
+  hideImage?: boolean
+  hideDescription?: boolean
+  hideSiteIcon?: boolean
+  hideDivider?: boolean
+  noTruncation?: boolean
+  imageNewLine?: boolean
+} {
   switch (view) {
     case 1: {
       return {
@@ -89,8 +89,10 @@ function Dot({ show, size = 8 }: { show: boolean, size?: number }) {
   )
 }
 
-function EntryItem({ entry, options }: EntryItemProps) {
+function EntryItem({ entry }: EntryItemProps) {
   const { feed } = entry
+  const { view } = useAtomValue(currentViewTabAtom)
+  const options = useMemo(() => getEntryItemPropsByView(view), [view])
   return (
     <>
       <Link href={`/feed/detail/${entry.id}`} asChild>
@@ -176,8 +178,7 @@ function EntryItem({ entry, options }: EntryItemProps) {
   )
 }
 
-interface AudioButtonProps {
-  entry?: Entry & { feed: Feed }
+type AudioButtonProps = EntryItemProps & {
   children?: React.ReactNode
 }
 
@@ -247,15 +248,18 @@ function AudioButton({ entry, children }: AudioButtonProps) {
   )
 }
 
+function RenderItem({ entry }: EntryItemProps) {
+  const { view } = useAtomValue(currentViewTabAtom)
+  return view === 2 || view === 3
+    ? <EntryMedia entry={entry} props={{ isVideo: view === 3 }} />
+    : <EntryItem entry={entry} />
+}
+
 export function EntryList({
   feedIdList,
-  view,
 }: {
   feedIdList: string[]
-  view?: TabViewIndex
 }) {
-  const options = useMemo(() => getEntryItemPropsByView(view), [view])
-
   const checkedEntryIdList = useRef(new Set<string>())
   const [isRefreshing, setIsRefreshing] = useState(false)
 
@@ -273,11 +277,7 @@ export function EntryList({
     <FlatList
       contentInsetAdjustmentBehavior="automatic"
       data={entryList}
-      renderItem={
-        ({ item }) => view === 2 || view === 3
-          ? <EntryMedia entry={item} props={{ isVideo: view === 3 }} />
-          : <EntryItem entry={item} options={options} />
-      }
+      renderItem={({ item }) => <RenderItem entry={item} />}
       initialNumToRender={5}
       refreshing={isRefreshing}
       onRefresh={async () => {
