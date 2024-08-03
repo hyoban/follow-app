@@ -1,10 +1,9 @@
-import { FlashList } from '@shopify/flash-list'
 import { formatDistance } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link, useLocalSearchParams } from 'expo-router'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { FlatList, Pressable, View } from 'react-native'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
@@ -286,12 +285,11 @@ export function EntryList({
   }, [data, feedIdList])
 
   return (
-    <FlashList
+    <FlatList
       contentInsetAdjustmentBehavior="automatic"
-      estimatedItemSize={142}
       data={data}
       renderItem={renderItem}
-      onEndReachedThreshold={5}
+      onEndReachedThreshold={10}
       onEndReached={() => {
         checkNotExistEntries(
           feedIdList,
