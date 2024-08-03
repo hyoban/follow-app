@@ -1,6 +1,8 @@
 import { atom } from 'jotai'
 
-export const unreadOnlyListAtom = atom<string[]>([])
+import { atomWithStorage } from './storage'
+
+export const unreadOnlyListAtom = atomWithStorage<string[]>('unread-only-list', [])
 export const toggleUnreadOnlyAtom = atom(null, (get, set, update: string[]) => {
   const unreadOnlyList = get(unreadOnlyListAtom)
   const target = update.join('/')

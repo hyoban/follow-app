@@ -103,6 +103,9 @@ importers:
       react-native-markdown-display:
         specifier: ^7.0.2
         version: 7.0.2(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+      react-native-mmkv:
+        specifier: ^2.12.2
+        version: 2.12.2(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
       react-native-pager-view:
         specifier: 6.3.0
         version: 6.3.0(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
@@ -4899,6 +4902,12 @@ packages:
     peerDependencies:
       react: '>=16.2.0'
       react-native: '>=0.50.4'
+
+  react-native-mmkv@2.12.2:
+    resolution: {integrity: sha512-6058Aq0p57chPrUutLGe9fYoiDVDNMU2PKV+lLFUJ3GhoHvUrLdsS1PDSCLr00yqzL4WJQ7TTzH+V8cpyrNcfg==}
+    peerDependencies:
+      react: '*'
+      react-native: '>=0.71.0'
 
   react-native-pager-view@6.3.0:
     resolution: {integrity: sha512-ufJOoVa9pFL1J/yb4hpsCqp8n1qTlcF5VvwqvCacHX//D7hSeRscsiIXg1u1pXNWwllvACb+mqxec/3Uj2mxrA==}
@@ -11883,6 +11892,11 @@ snapshots:
       react: 18.2.0
       react-native: 0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0)
       react-native-fit-image: 1.5.5
+
+  react-native-mmkv@2.12.2(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
+    dependencies:
+      react: 18.2.0
+      react-native: 0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0)
 
   react-native-pager-view@6.3.0(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
     dependencies:

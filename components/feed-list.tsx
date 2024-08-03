@@ -14,6 +14,7 @@ import Animated, {
 
 import { isSyncingFeedsAtom, syncFeeds } from '~/api/feed'
 import type { TabViewIndex } from '~/atom/layout'
+import { atomWithStorage } from '~/atom/storage'
 import { Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
@@ -158,7 +159,7 @@ const exitingAnimation = new Keyframe({
   },
 }).duration(10000)
 
-const expandedSectionsAtom = atom<string[]>([])
+const expandedSectionsAtom = atomWithStorage<string[]>('expanded-sections', [])
 const toggleExpandedSectionAtom = atom(null, async (get, set, update: string) => {
   const expandedSections = get(expandedSectionsAtom)
   if (expandedSections.includes(update)) {
