@@ -1,14 +1,12 @@
-import { eq } from 'drizzle-orm'
 import { Image } from 'expo-image'
-import { Redirect, useRouter } from 'expo-router'
+import { Redirect } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { Platform } from 'react-native'
 import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 
 import { Button, Column, Row, Text } from '~/components'
-import { db } from '~/db'
-import { users } from '~/db/schema'
-import { useQuerySubscription } from '~/hooks/use-query-subscription'
+import { useCurrentUser } from '~/hooks/use-current-user'
+import { useLogOut } from '~/hooks/use-log-out'
 import { accentColors, getAccentColor } from '~/theme'
 
 const accentColorGroups = Array.from(
@@ -53,8 +51,8 @@ function ThemeSwitcher() {
 }
 
 export default function UserInfo() {
-  const router = useRouter()
-  const { data: user } = useQuerySubscription(db.query.users.findFirst(), 'current-user')
+  const logout = useLogOut()
+  const { user } = useCurrentUser()
 
   if (!user)
     return <Redirect href="/sign-in" />
@@ -87,10 +85,7 @@ export default function UserInfo() {
           <Button
             fullWidth
             color="red"
-            onPress={async () => {
-              await db.delete(users).where(eq(users.id, user.id))
-              router.navigate('/')
-            }}
+            onPress={logout}
           >
             <Text color="red">Logout</Text>
           </Button>

@@ -2,13 +2,12 @@ import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { Pressable } from 'react-native'
 
-import { db } from '~/db'
-import { useQuerySubscription } from '~/hooks/use-query-subscription'
+import { useCurrentUser } from '~/hooks/use-current-user'
 
 import { Iconify } from './icon'
 
 export function SettingsLink() {
-  const { data: user } = useQuerySubscription(db.query.users.findFirst(), 'current-user')
+  const { user } = useCurrentUser()
   return (
     <Link href="/settings" asChild>
       <Pressable>
