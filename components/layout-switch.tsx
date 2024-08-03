@@ -17,8 +17,8 @@ export function LayoutSwitch() {
         <Iconify
           icon="mingcute:folder-2-fill"
           style={styles.icon}
-          onPress={() => setViewLayoutMap(async (viewLayoutMap) => {
-            const oldViewLayoutMap = await viewLayoutMap
+          onPress={() => setViewLayoutMap((viewLayoutMap) => {
+            const oldViewLayoutMap = viewLayoutMap
             return { ...oldViewLayoutMap, [view]: 'list' }
           })}
         />
@@ -26,8 +26,8 @@ export function LayoutSwitch() {
         <Iconify
           icon="mingcute:list-check-fill"
           style={styles.icon}
-          onPress={() => setViewLayoutMap(async (viewLayoutMap) => {
-            const oldViewLayoutMap = await viewLayoutMap
+          onPress={() => setViewLayoutMap((viewLayoutMap) => {
+            const oldViewLayoutMap = viewLayoutMap
             return { ...oldViewLayoutMap, [view]: 'detail' }
           })}
         />

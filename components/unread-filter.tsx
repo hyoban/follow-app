@@ -20,7 +20,6 @@ export function UnreadFilter(
     <Pressable
       onPress={() => {
         toggleUnreadOnly(feedIdList)
-          .catch(console.error)
       }}
     >
       {showUnreadOnly
