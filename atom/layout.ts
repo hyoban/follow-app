@@ -1,11 +1,9 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { atomWithStorage, createJSONStorage } from 'jotai/utils'
+import { atom } from 'jotai'
 
 export type TabViewIndex = 0 | 1 | 2 | 3 | 4 | 5
 type ViewLayoutMap = Record<TabViewIndex, 'list' | 'detail'>
-const storage = createJSONStorage<ViewLayoutMap>(() => AsyncStorage)
-export const viewLayoutMapAtom = atomWithStorage<ViewLayoutMap>(
-  'view-layout-map',
+
+export const viewLayoutMapAtom = atom<ViewLayoutMap>(
   {
     0: 'list',
     1: 'list',
@@ -14,5 +12,4 @@ export const viewLayoutMapAtom = atomWithStorage<ViewLayoutMap>(
     4: 'list',
     5: 'list',
   },
-  storage,
 )

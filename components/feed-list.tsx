@@ -1,8 +1,6 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { atomWithStorage, createJSONStorage } from 'jotai/utils'
 import { useMemo } from 'react'
 import { Pressable } from 'react-native'
 import Animated, {
@@ -160,17 +158,14 @@ const exitingAnimation = new Keyframe({
   },
 }).duration(10000)
 
-const storage = createJSONStorage<string[]>(() => AsyncStorage)
-const expandedSectionsAtom = atomWithStorage<string[]>('expanded-sections', [], storage)
+const expandedSectionsAtom = atom<string[]>([])
 const toggleExpandedSectionAtom = atom(null, async (get, set, update: string) => {
-  const expandedSections = await get(expandedSectionsAtom)
+  const expandedSections = get(expandedSectionsAtom)
   if (expandedSections.includes(update)) {
     set(expandedSectionsAtom, expandedSections.filter(i => i !== update))
-      .catch(console.error)
   }
   else {
     set(expandedSectionsAtom, [...expandedSections, update])
-      .catch(console.error)
   }
 })
 
