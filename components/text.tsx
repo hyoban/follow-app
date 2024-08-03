@@ -51,6 +51,7 @@ const styleSheet = createStyleSheet(theme => ({
       ],
       fontSize: size,
       fontWeight: weight,
+      lineHeight: size * 1.5,
     }
   },
 }))
