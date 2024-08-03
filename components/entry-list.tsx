@@ -1,9 +1,10 @@
+import { FlashList } from '@shopify/flash-list'
 import { formatDistance } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { FlatList, Pressable, View } from 'react-native'
+import { Pressable, View } from 'react-native'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
@@ -288,7 +289,8 @@ export function EntryList({
 
   return (
     <FeedIdList.Provider value={{ feedIdList }}>
-      <FlatList
+      <FlashList
+        estimatedItemSize={150}
         contentInsetAdjustmentBehavior="automatic"
         data={data}
         renderItem={renderItem}
