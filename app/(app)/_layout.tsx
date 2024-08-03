@@ -1,17 +1,16 @@
 import { Redirect, Stack } from 'expo-router'
-import { useAtomValue } from 'jotai'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import { currentViewTabAtom } from '~/atom/layout'
 import { LayoutSwitch } from '~/components/layout-switch'
 import { SettingsLink } from '~/components/settings-link'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { useTabInfo } from '~/hooks/use-tab-info'
 
 export default function RootLayout() {
   const { styles } = useStyles(styleSheet)
 
   const { user } = useCurrentUser()
-  const { title } = useAtomValue(currentViewTabAtom)
+  const { title } = useTabInfo()
 
   if (!user)
     return <Redirect href="/sign-in" />

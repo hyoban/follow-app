@@ -1,31 +1,29 @@
 import { Tabs } from 'expo-router'
-import { useAtomValue, useSetAtom } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeedsEffect } from '~/api/feed'
-import type { TabViewIndex } from '~/atom/layout'
-import { updateCurrentViewTabAtom } from '~/atom/layout'
 import { tabViewList } from '~/consts/view'
 import type { ThemeColorKey } from '~/theme'
 
 export default function TabLayout() {
   const { styles, theme } = useStyles(stylesheet)
   useAtomValue(syncFeedsEffect)
-  const updateCurrentViewTab = useSetAtom(updateCurrentViewTabAtom)
 
   return (
-    <Tabs
-      screenListeners={{
-        state: (state) => {
-          updateCurrentViewTab(state.data.state.index as TabViewIndex)
-        },
-      }}
-    >
+    <Tabs>
       {tabViewList.map(view => (
         <Tabs.Screen
           key={view.name}
           name={view.name}
           options={{
+            href: {
+              pathname: view.path as any,
+              params: {
+                view: view.view,
+                title: view.title,
+              },
+            },
             title: view.title,
             tabBarIcon: ({ color }) => view.icon(color),
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],

@@ -1,14 +1,15 @@
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtom } from 'jotai'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import { currentViewTabAtom, viewLayoutMapAtom } from '~/atom/layout'
+import { viewLayoutMapAtom } from '~/atom/layout'
+import { useTabInfo } from '~/hooks/use-tab-info'
 
 import { Row } from './flex'
 import { Iconify } from './icon'
 
 export function LayoutSwitch() {
   const { styles } = useStyles(styleSheet)
-  const { view } = useAtomValue(currentViewTabAtom)
+  const { view } = useTabInfo()
   const [viewLayoutMap, setViewLayoutMap] = useAtom(viewLayoutMapAtom)
   return (
     <Row mr={18}>

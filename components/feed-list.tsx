@@ -20,6 +20,7 @@ import { Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
 import { useFeedList } from '~/hooks/use-feed-list'
+import { useTabInfo } from '~/hooks/use-tab-info'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -39,9 +40,11 @@ function FeedFolder({
   const rotate = useSharedValue(isExpanded ? '90deg' : '0deg')
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
+  const { view } = useTabInfo()
+
   return (
     <Link
-      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}`}
+      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}`}
       asChild
     >
       <Pressable>
@@ -75,9 +78,10 @@ function FeedItem({
 }: {
   feed: Feed
 }) {
+  const { view } = useTabInfo()
   return (
     <Link
-      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}`}
+      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}`}
       asChild
     >
       <Pressable>

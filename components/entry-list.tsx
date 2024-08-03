@@ -3,7 +3,6 @@ import { eq } from 'drizzle-orm'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link, useLocalSearchParams } from 'expo-router'
-import { useAtomValue } from 'jotai'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
@@ -12,13 +11,13 @@ import { useStyles } from 'react-native-unistyles'
 import { apiClient } from '~/api/client'
 import { fetchAndUpdateEntriesInDB } from '~/api/entry'
 import type { TabViewIndex } from '~/atom/layout'
-import { currentViewTabAtom } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
 import { entries } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
+import { useTabInfo } from '~/hooks/use-tab-info'
 
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
@@ -91,7 +90,7 @@ function Dot({ show, size = 8 }: { show: boolean, size?: number }) {
 
 function EntryItem({ entry }: EntryItemProps) {
   const { feed } = entry
-  const { view } = useAtomValue(currentViewTabAtom)
+  const { view } = useTabInfo()
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
   const { feedId: feedIdList } = useLocalSearchParams<{ feedId?: string[] }>()
   return (
@@ -253,7 +252,7 @@ function AudioButton({ entry, children }: AudioButtonProps) {
 }
 
 function RenderItem({ entry }: EntryItemProps) {
-  const { view } = useAtomValue(currentViewTabAtom)
+  const { view } = useTabInfo()
   return view === 2 || view === 3
     ? <EntryMedia entry={entry} props={{ isVideo: view === 3 }} />
     : <EntryItem entry={entry} />
