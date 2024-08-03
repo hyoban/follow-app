@@ -2,7 +2,7 @@ import { inArray } from 'drizzle-orm'
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useState } from 'react'
 import type { DimensionValue } from 'react-native'
-import { ScrollView } from 'react-native'
+import { ActivityIndicator, ScrollView } from 'react-native'
 import PagerView from 'react-native-pager-view'
 import { useStyles } from 'react-native-unistyles'
 import WebView from 'react-native-webview'
@@ -44,7 +44,7 @@ export default function FeedDetail() {
         },
       }}
       />
-      <Container style={{ backgroundColor: theme.colors.gray1 }}>
+      <Container style={{ flex: 1, backgroundColor: theme.colors.gray1 }}>
         <PagerView
           style={{ flex: 1 }}
           initialPage={entryList?.findIndex(i => i.id === data?.id)}
@@ -83,17 +83,22 @@ function WebViewAutoHeight({ html }: { html: string }) {
   const [height, setHeight] = useState<DimensionValue>()
 
   return (
-    <WebView
-      scrollEnabled={false}
-      style={{ height }}
-      originWhitelist={['*']}
-      injectedJavaScript="window.ReactNativeWebView.postMessage(document.body.scrollHeight)"
-      onMessage={(e) => {
-        setHeight(Number.parseInt(e.nativeEvent.data, 10))
-      }}
-      source={{
-        baseUrl: '',
-        html: `
+    <>
+      {!height && <ActivityIndicator />}
+      <WebView
+        scrollEnabled={false}
+        style={{
+          height,
+          display: height ? 'flex' : 'none',
+        }}
+        originWhitelist={['*']}
+        injectedJavaScript="window.ReactNativeWebView.postMessage(document.body.scrollHeight)"
+        onMessage={(e) => {
+          setHeight(Number.parseInt(e.nativeEvent.data, 10))
+        }}
+        source={{
+          baseUrl: '',
+          html: `
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -109,7 +114,8 @@ function WebViewAutoHeight({ html }: { html: string }) {
 </body>
 </html>
         `,
-      }}
-    />
+        }}
+      />
+    </>
   )
 }
