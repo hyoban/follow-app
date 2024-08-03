@@ -80,7 +80,7 @@ export default function FeedDetail() {
 }
 
 function WebViewAutoHeight({ html }: { html: string }) {
-  const [height, setHeight] = useState<DimensionValue>()
+  const [height, setHeight] = useState<DimensionValue>('auto')
 
   if (!html) {
     return <ActivityIndicator />
