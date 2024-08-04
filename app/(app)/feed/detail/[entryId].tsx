@@ -41,8 +41,7 @@ export default function FeedDetail() {
   const { theme } = useStyles()
   const entryIndex = entryList?.findIndex(i => i.id === entryId)
   const [currentPageIndex, setCurrentPageIndex] = useState(entryIndex)
-  const currentEntry = useMemo(() => currentPageIndex ? entryList?.at(currentPageIndex) : null, [entryList, currentPageIndex])
-
+  const currentEntry = useMemo(() => currentPageIndex !== undefined ? entryList?.at(currentPageIndex) : null, [entryList, currentPageIndex])
   return (
     <>
       <Stack.Screen options={{
