@@ -39,6 +39,7 @@ export function useQuerySubscription<
       const config = is(entity, SQLiteTable) ? getTableConfig(entity) : getViewConfig(entity)
 
       listener = addDatabaseChangeListener(({ tableName }) => {
+        console.info('change detected', tableName, config.name)
         if (config.name === tableName) {
           query.then((data) => { next(undefined, data) })
             .catch((error) => { next(error) })

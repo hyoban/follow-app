@@ -80,11 +80,11 @@ export async function checkNotExistEntries(
   const store = getDefaultStore()
   store.set(isLoadingAtom, true)
 
-  const read = !store.get(showUnreadOnlyAtom)
+  const readOnly = store.get(showUnreadOnlyAtom)
   const entriesFromApi = await getEntries({
     feedIdList,
     publishedAfter: start,
-    read,
+    read: readOnly ? false : undefined,
     limit: FETCH_PAGE_SIZE,
   })
   await createOrUpdateEntriesInDB(entriesFromApi)
