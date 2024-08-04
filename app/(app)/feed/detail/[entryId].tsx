@@ -1,5 +1,5 @@
-import { Stack, useLocalSearchParams } from 'expo-router'
-import { useEffect, useMemo, useState } from 'react'
+import { Stack, useLocalSearchParams, useNavigation } from 'expo-router'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DimensionValue } from 'react-native'
 import { ActivityIndicator, ScrollView } from 'react-native'
 import PagerView from 'react-native-pager-view'
@@ -42,6 +42,17 @@ export default function FeedDetail() {
   const entryIndex = entryList?.findIndex(i => i.id === entryId)
   const [currentPageIndex, setCurrentPageIndex] = useState(entryIndex)
   const currentEntry = useMemo(() => currentPageIndex !== undefined ? entryList?.at(currentPageIndex) : null, [entryList, currentPageIndex])
+
+  const entryIdListToMarkAsRead = useRef<string[]>([])
+  const navigation = useNavigation()
+  useEffect(() => {
+    const res = navigation.addListener('beforeRemove', () => {
+      flagEntryReadStatus({ entryId: entryIdListToMarkAsRead.current })
+        .catch(console.error)
+    })
+    return res
+  }, [navigation])
+
   return (
     <>
       <Stack.Screen options={{
@@ -69,8 +80,7 @@ export default function FeedDetail() {
             }
 
             if (entry && !entry.read) {
-              flagEntryReadStatus({ entryId: entry.id })
-                .catch(console.error)
+              entryIdListToMarkAsRead.current.push(entry.id)
             }
           }}
         >
