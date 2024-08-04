@@ -6,7 +6,7 @@ import PagerView from 'react-native-pager-view'
 import { useStyles } from 'react-native-unistyles'
 import WebView from 'react-native-webview'
 
-import { loadEntryContent, markEntryAsRead } from '~/api/entry'
+import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
 import { Container, Text } from '~/components'
 import { simpleCSS } from '~/consts/css'
 import { useEntryList } from '~/hooks/use-entry-list'
@@ -70,7 +70,7 @@ export default function FeedDetail() {
             }
 
             if (entry && !entry.read) {
-              markEntryAsRead(entry.id, entry.feed)
+              flagEntryReadStatus(entry.id, entry.feed)
                 .catch(console.error)
             }
           }}

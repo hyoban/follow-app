@@ -101,27 +101,34 @@ export async function fetchAndUpdateEntriesInDB(
   return await createOrUpdateEntriesInDB(entriesFromApi)
 }
 
-export async function markEntryAsRead(
+export async function flagEntryReadStatus(
   entryId: string,
   feed: Feed,
+  read = true,
 ) {
   return await Promise.all(
     [
       db.update(entries)
         .set({
-          read: true,
+          read,
         })
         .where(eq(entries.id, entryId)),
       db.update(feeds)
         .set({
-          unread: feed.unread > 0 ? feed.unread - 1 : 0,
+          unread: feed.unread > 0 ? read ? feed.unread - 1 : feed.unread + 1 : 0,
         })
         .where(eq(feeds.id, feed.id)),
-      apiClient.reads.$post({
-        json: {
-          entryIds: [entryId],
-        },
-      }),
+      read
+        ? apiClient.reads.$post({
+          json: {
+            entryIds: [entryId],
+          },
+        })
+        : apiClient.reads.$delete({
+          json: {
+            entryId,
+          },
+        }),
     ],
   )
 }

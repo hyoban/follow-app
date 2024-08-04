@@ -45,6 +45,7 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native": "0.74.3",
+    "react-native-context-menu-view": "^1.16.0",
     "react-native-gesture-handler": "~2.16.1",
     "react-native-iconify": "^1.0.2",
     "react-native-markdown-display": "^7.0.2",

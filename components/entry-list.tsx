@@ -5,10 +5,11 @@ import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
+import ContextMenu from 'react-native-context-menu-view'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
-import { checkNotExistEntries } from '~/api/entry'
+import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
@@ -93,87 +94,108 @@ function EntryItem({ entry }: EntryItemProps) {
   const { feedIdList } = useContext(FeedIdList)
   return (
     <>
-      <Link
-        href={`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : feed.id}` as any}
-        asChild
+      <ContextMenu
+        actions={[
+          entry.read
+            ? { title: 'Mark as Unread', systemIcon: 'circlebadge' }
+            : { title: 'Mark as Read', systemIcon: 'circlebadge.fill' },
+        ]}
+        onPress={(e) => {
+          switch (e.nativeEvent.index) {
+            case 0: {
+              flagEntryReadStatus(entry.id, feed, !entry.read)
+                .catch(console.error)
+              break
+            }
+            default: {
+              break
+            }
+          }
+        }}
       >
-        <Pressable>
-          <Row px={15} py={12} gap={10}>
-            {!options?.hideSiteIcon && <SiteImage feed={feed} />}
-            <Dot show={!entry.read} />
-            <Column gap={6} flex={1}>
-              <Row gap={6}>
-                <Text size={10}>{feed?.title}</Text>
-                <Text size={10}>
-                  {formatDistance(new Date(entry.publishedAt), new Date(), {
-                    addSuffix: true,
-                  })}
-                </Text>
-              </Row>
-              <Row>
-                <Text
-                  style={{ flex: 1, flexWrap: 'wrap' }}
-                  weight={600}
-                  numberOfLines={options?.noTruncation ? undefined : 2}
-                >
-                  {entry.title}
-                </Text>
-              </Row>
-              {!options?.hideDescription && (
-                <Text
-                  size={12}
-                  numberOfLines={options?.noTruncation ? undefined : 3}
-                >
-                  {entry.description}
-                </Text>
-              )}
-              {options?.imageNewLine && (
-                <Row gap={10}>
-                  {entry.media?.map((media, index) =>
-                    media.type === 'photo'
-                      ? (
-                          <Image
-                            key={index}
-                            source={{ uri: media.url }}
-                            style={{ width: 100, height: 100, borderRadius: 5 }}
-                          />
-                        )
-                      : media.type === 'video'
+        <Link
+          href={`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : feed.id}` as any}
+          asChild
+        >
+          <Pressable>
+            <Row px={15} py={12} gap={10}>
+              {!options?.hideSiteIcon && <SiteImage feed={feed} />}
+              <Dot show={!entry.read} />
+              <Column gap={6} flex={1}>
+                <Row gap={6}>
+                  <Text size={10}>{feed?.title}</Text>
+                  <Text size={10}>
+                    {formatDistance(new Date(entry.publishedAt), new Date(), {
+                      addSuffix: true,
+                    })}
+                  </Text>
+                </Row>
+                <Row>
+                  <Text
+                    style={{ flex: 1, flexWrap: 'wrap' }}
+                    weight={600}
+                    numberOfLines={options?.noTruncation ? undefined : 2}
+                  >
+                    {entry.title}
+                  </Text>
+                </Row>
+                {!options?.hideDescription && (
+                  <Text
+                    size={12}
+                    numberOfLines={options?.noTruncation ? undefined : 3}
+                  >
+                    {entry.description}
+                  </Text>
+                )}
+                {options?.imageNewLine && (
+                  <Row gap={10}>
+                    {entry.media?.map((media, index) =>
+                      media.type === 'photo'
                         ? (
-                            <Video
+                            <Image
                               key={index}
-                              style={{ width: 100, height: 100 }}
                               source={{ uri: media.url }}
+                              style={{ width: 100, height: 100, borderRadius: 5 }}
                             />
                           )
-                        : null,
-                  )}
-                </Row>
-              )}
-            </Column>
-            {options?.hideImage || options?.imageNewLine
-              ? null
-              : options?.hideSiteIcon
-                ? (
-                    <AudioButton
-                      entry={entry}
-                    >
-                      <SiteImage feed={feed} size={60} />
-                    </AudioButton>
-                  )
-                : entry.media && entry.media.find(media => media.type === 'photo')
+                        : media.type === 'video'
+                          ? (
+                              <Video
+                                key={index}
+                                style={{ width: 100, height: 100 }}
+                                source={{ uri: media.url }}
+                              />
+                            )
+                          : null,
+                    )}
+                  </Row>
+                )}
+              </Column>
+              {options?.hideImage || options?.imageNewLine
+                ? null
+                : options?.hideSiteIcon
                   ? (
-                      <Image
-                        source={{
-                          uri: entry.media.find(media => media.type === 'photo')?.url,
-                        }}
-                        style={{ width: 50, height: 50, borderRadius: 5 }}
-                      />
+                      <AudioButton
+                        entry={entry}
+                      >
+                        <SiteImage feed={feed} size={60} />
+                      </AudioButton>
                     )
-                  : null}
-          </Row>
-        </Pressable>
-      </Link>
+                  : entry.media && entry.media.find(media => media.type === 'photo')
+                    ? (
+                        <Image
+                          source={{
+                            uri: entry.media.find(media => media.type === 'photo')?.url,
+                          }}
+                          style={{ width: 50, height: 50, borderRadius: 5 }}
+                        />
+                      )
+                    : null}
+            </Row>
+          </Pressable>
+        </Link>
+      </ContextMenu>
+
       {!options?.hideDivider && <Row w="100%" h={1} bg="component" />}
     </>
   )
