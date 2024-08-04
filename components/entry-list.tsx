@@ -290,7 +290,6 @@ export function EntryList({
   return (
     <FeedIdList.Provider value={{ feedIdList }}>
       <FlashList
-        estimatedItemSize={150}
         contentInsetAdjustmentBehavior="automatic"
         data={data}
         renderItem={renderItem}
