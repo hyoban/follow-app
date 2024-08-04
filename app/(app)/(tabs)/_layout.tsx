@@ -4,11 +4,13 @@ import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeedsEffect } from '~/api/feed'
 import { tabViewList } from '~/consts/view'
+import { useUnreadCountList } from '~/hooks/use-badge-count'
 import type { ThemeColorKey } from '~/theme'
 
 export default function TabLayout() {
   const { styles, theme } = useStyles(stylesheet)
   useAtomValue(syncFeedsEffect)
+  const countList = useUnreadCountList()
 
   return (
     <Tabs>
@@ -30,6 +32,10 @@ export default function TabLayout() {
             tabBarShowLabel: false,
             tabBarStyle: styles.tabBar,
             headerShown: false,
+            tabBarBadge: countList[view.view] > 0 ? countList[view.view] : undefined,
+            tabBarBadgeStyle: {
+              transform: [{ scale: 0.8 }],
+            },
           }}
         />
       ))}

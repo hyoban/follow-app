@@ -1,0 +1,53 @@
+import { useMemo } from 'react'
+
+import type { TabViewIndex } from '~/atom/layout'
+import { db } from '~/db'
+
+import { useQuerySubscription } from './use-query-subscription'
+
+export function useUnreadCount(view?: TabViewIndex) {
+  const { data } = useQuerySubscription(
+    db.query.feeds.findFirst({
+      extras(fields, operators) {
+        return {
+          unreadCount: operators.sql`count(${fields.unread})`.as('unread_count'),
+        }
+      },
+      where(fields, operators) {
+        if (view !== undefined) {
+          return operators.eq(fields.view, view)
+        }
+      },
+    }),
+    ['feed-unread-count', view],
+  )
+  return data?.unreadCount as number ?? 0
+}
+
+export function useUnreadCountList() {
+  const count0 = useUnreadCount(0)
+  const count1 = useUnreadCount(1)
+  const count2 = useUnreadCount(2)
+  const count3 = useUnreadCount(3)
+  const count4 = useUnreadCount(4)
+  const count5 = useUnreadCount(5)
+  const countList = useMemo(
+    () => [
+      count0,
+      count1,
+      count2,
+      count3,
+      count4,
+      count5,
+    ] as const,
+    [
+      count0,
+      count1,
+      count2,
+      count3,
+      count4,
+      count5,
+    ],
+  )
+  return countList
+}
