@@ -1,7 +1,7 @@
 import { Image } from 'expo-image'
 import { useRouter } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useMemo } from 'react'
+import { useMemo, useState } from 'react'
 import { Pressable } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import Animated, {
@@ -14,6 +14,7 @@ import Animated, {
 } from 'react-native-reanimated'
 
 import { flagEntryReadStatus } from '~/api/entry'
+import { syncFeeds } from '~/api/feed'
 import type { TabViewIndex } from '~/atom/layout'
 import { atomWithStorage } from '~/atom/storage'
 import { Iconify, Row, Text } from '~/components'
@@ -220,6 +221,7 @@ function isSingleCategory(feeds: Feed[]) {
 }
 
 export function FeedList({ view }: { view: TabViewIndex }) {
+  const [isRefreshing, setRefreshing] = useState(false)
   const { data: feeds } = useFeedList(view)
   const feedsGrouped = useMemo(
     () => groupBy(feeds ?? [], getFeedCategory),
@@ -244,6 +246,15 @@ export function FeedList({ view }: { view: TabViewIndex }) {
       style={{ width: '100%' }}
       data={data}
       extraData={expandedSections}
+      refreshing={isRefreshing}
+      onRefresh={() => {
+        setRefreshing(true)
+        syncFeeds({ hideLoading: true })
+          .catch(console.error)
+          .finally(() => {
+            setRefreshing(false)
+          })
+      }}
       renderItem={({ item }) => {
         if (typeof item === 'string') {
           return item === ''

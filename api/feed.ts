@@ -52,10 +52,11 @@ export const syncFeedsEffect = atomEffect((get, set) => {
   }
 })
 
-export async function syncFeeds() {
+export async function syncFeeds({ hideLoading }: { hideLoading?: boolean } = {}) {
   const store = getDefaultStore()
 
-  store.set(isLoadingAtom, true)
+  if (!hideLoading)
+    store.set(isLoadingAtom, true)
 
   const feedsFromApi = await getFeeds()
   const existFeedIds = feedsFromApi.map(feed => feed.feedId)
@@ -82,7 +83,8 @@ export async function syncFeeds() {
     db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
   ])
 
-  store.set(isLoadingAtom, false)
+  if (!hideLoading)
+    store.set(isLoadingAtom, false)
 }
 
 function needUpdate(data: any, dataInDB: any) {

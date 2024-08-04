@@ -1,8 +1,9 @@
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { useStyles } from 'react-native-unistyles'
 
-import { Container } from '~/components'
+import { Container, Row } from '~/components'
 import { EntryList } from '~/components/entry-list'
+import { LoadingIndicator } from '~/components/loading-indicator'
 import { UnreadFilter } from '~/components/unread-filter'
 import { commonStylesheet } from '~/theme/common'
 
@@ -30,7 +31,12 @@ export default function Page() {
           headerBackTitle,
           headerTitleStyle: styles.highContrastText,
           headerStyle: styles.subtleBackground,
-          headerRight: () => <UnreadFilter />,
+          headerRight: () => (
+            <Row gap={18} style={styles.subtleBackground}>
+              <LoadingIndicator />
+              <UnreadFilter />
+            </Row>
+          ),
         }}
       />
       <Container>
