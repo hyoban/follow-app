@@ -1,5 +1,5 @@
 import { Image } from 'expo-image'
-import { useRouter } from 'expo-router'
+import { Link } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useMemo, useState } from 'react'
 import { Pressable } from 'react-native'
@@ -42,39 +42,41 @@ function FeedFolder({
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
   const { view, title } = useTabInfo()
-  const router = useRouter()
 
   return (
-    <ContextMenuWrapper feedIdList={feedIdList}>
-      <Row gap={10} h={45} align="center" px={18}>
-        <AnimatedPressable
-          style={animatedStyle}
-          onPress={() => {
-            handleToggle(category)
-              .catch(console.error)
-            rotate.value = withSpring(
-              isExpanded ? '0deg' : '90deg',
-              { duration: 500, dampingRatio: 1 },
-            )
-          }}
+    <>
+      <ContextMenuWrapper feedIdList={feedIdList}>
+        <Link
+          href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title)}`}
+          asChild
         >
-          <Iconify icon="mingcute:right-fill" />
-        </AnimatedPressable>
-        <Pressable
-          onPress={() => {
-            router.push(`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title)}`)
-          }}
-          style={{ flex: 1 }}
-        >
-          <Text>{category}</Text>
-        </Pressable>
-        {unread > 0 && (
-          <Text>{unread}</Text>
-        )}
-      </Row>
+          <Pressable onLongPress={() => {}}>
+            <Row gap={10} h={45} align="center" px={18}>
+              <AnimatedPressable
+                style={animatedStyle}
+                onPress={() => {
+                  handleToggle(category)
+                    .catch(console.error)
+                  rotate.value = withSpring(
+                    isExpanded ? '0deg' : '90deg',
+                    { duration: 500, dampingRatio: 1 },
+                  )
+                }}
+              >
+                <Iconify icon="mingcute:right-fill" />
+              </AnimatedPressable>
+              <Text style={{ flex: 1 }}>
+                {category}
+              </Text>
+              {unread > 0 && (
+                <Text>{unread}</Text>
+              )}
+            </Row>
+          </Pressable>
+        </Link>
+      </ContextMenuWrapper>
       <Row h={1} bg="component" w="100%" />
-
-    </ContextMenuWrapper>
+    </>
   )
 }
 
@@ -115,34 +117,36 @@ function FeedItem({
   feed: Feed
 }) {
   const { view, title } = useTabInfo()
-  const router = useRouter()
   return (
-    <ContextMenuWrapper
-      feedIdList={[feed.id]}
-    >
-      <Row gap={10} h={45} align="center" px={18}>
-        {feed.image ? (
-          <Image
-            source={{ uri: feed.image }}
-            style={{ width: 24, height: 24, borderRadius: 1000 }}
-          />
-        ) : (
-          <SiteIcon source={feed.siteUrl} />
-        )}
-        <Pressable
-          onPress={() => {
-            router.push(`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title)}`)
-          }}
-          style={{ flex: 1 }}
+    <>
+      <ContextMenuWrapper
+        feedIdList={[feed.id]}
+      >
+        <Link
+          href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title)}`}
+          asChild
         >
-          <Text>{feed.title}</Text>
-        </Pressable>
-        {feed.unread > 0 && (
-          <Text>{feed.unread}</Text>
-        )}
-      </Row>
+          <Pressable onLongPress={() => {}}>
+            <Row gap={10} h={45} align="center" px={18}>
+              {feed.image ? (
+                <Image
+                  source={{ uri: feed.image }}
+                  style={{ width: 24, height: 24, borderRadius: 1000 }}
+                />
+              ) : (
+                <SiteIcon source={feed.siteUrl} />
+              )}
+              <Text style={{ flex: 1 }}>{feed.title}</Text>
+
+              {feed.unread > 0 && (
+                <Text>{feed.unread}</Text>
+              )}
+            </Row>
+          </Pressable>
+        </Link>
+      </ContextMenuWrapper>
       <Row h={1} bg="component" w="100%" />
-    </ContextMenuWrapper>
+    </>
   )
 }
 
