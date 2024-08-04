@@ -7,12 +7,7 @@ import { useQuerySubscription } from './use-query-subscription'
 
 export function useUnreadCount(view?: TabViewIndex) {
   const { data } = useQuerySubscription(
-    db.query.feeds.findFirst({
-      extras(fields, operators) {
-        return {
-          unreadCount: operators.sql`count(${fields.unread})`.as('unread_count'),
-        }
-      },
+    db.query.feeds.findMany({
       where(fields, operators) {
         if (view !== undefined) {
           return operators.eq(fields.view, view)
@@ -21,7 +16,7 @@ export function useUnreadCount(view?: TabViewIndex) {
     }),
     ['feed-unread-count', view],
   )
-  return data?.unreadCount as number ?? 0
+  return data?.reduce((acc, feed) => acc + feed.unread, 0) ?? 0
 }
 
 export function useUnreadCountList() {
