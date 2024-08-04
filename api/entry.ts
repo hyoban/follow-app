@@ -1,12 +1,12 @@
 import { isAfter } from 'date-fns'
-import { eq, inArray } from 'drizzle-orm'
+import { and, eq, inArray, sql } from 'drizzle-orm'
 import { getDefaultStore } from 'jotai'
 
 import type { TabViewIndex } from '~/atom/layout'
 import { isLoadingAtom } from '~/atom/loading'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import { db } from '~/db'
-import { entries } from '~/db/schema'
+import { entries, feeds } from '~/db/schema'
 
 import { apiClient } from './client'
 import { syncFeeds } from './feed'
@@ -123,6 +123,50 @@ export async function flagEntryReadStatus({
     return
   }
 
+  // handle change in local db
+  if (view !== undefined) {
+    const entryListToUpdate = await db.select()
+      .from(entries)
+      .leftJoin(feeds, eq(entries.feedId, feeds.id))
+      .where(and(eq(feeds.view, view), eq(entries.read, false)))
+    const entryIdListToUpdate = entryListToUpdate.map(entry => entry.entries.id)
+
+    await db.update(entries)
+      .set({ read })
+      .where(inArray(entries.id, entryIdListToUpdate))
+    await db.update(feeds)
+      .set({ unread: 0 })
+      .where(eq(feeds.view, view))
+  }
+  else if (entryIdList.length > 0) {
+    await db.update(entries)
+      .set({ read })
+      .where(inArray(entries.id, entryIdList))
+
+    const feedListToUpdate = (await db.select()
+      .from(entries)
+      .where(inArray(entries.id, entryIdList)))
+      .map(entry => entry.feedId)
+    await Promise.all(
+      feedListToUpdate.map(feedId => db.update(feeds)
+        .set({ unread: read ? sql`${feeds.unread} - 1` : sql`${feeds.unread} + 1` })
+        .where(eq(feeds.id, feedId)),
+      ),
+    )
+  }
+  else if (feedIdList.length > 0) {
+    await db.update(entries)
+      .set({ read })
+      .where(inArray(entries.feedId, feedIdList))
+
+    await db.update(feeds)
+      .set({ unread: 0 })
+      .where(inArray(feeds.id, feedIdList))
+  }
+  else {
+    await syncFeeds()
+  }
+
   await Promise.all(
     [
       entryIdList.length > 0
@@ -142,8 +186,6 @@ export async function flagEntryReadStatus({
         }),
     ].flat(),
   )
-
-  await syncFeeds()
 }
 
 export async function loadEntryContent(

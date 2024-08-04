@@ -117,7 +117,7 @@ function EntryItem({ entry }: EntryItemProps) {
           href={`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : feed.id}` as any}
           asChild
         >
-          <Pressable>
+          <Pressable onLongPress={() => {}}>
             <Row px={15} py={12} gap={10}>
               {!options?.hideSiteIcon && <SiteImage feed={feed} />}
               <Dot show={!entry.read} />
