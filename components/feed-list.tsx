@@ -1,8 +1,9 @@
 import { Image } from 'expo-image'
-import { Link } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useMemo } from 'react'
 import { Pressable } from 'react-native'
+import ContextMenu from 'react-native-context-menu-view'
 import Animated, {
   Easing,
   Keyframe,
@@ -12,6 +13,7 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 
+import { flagEntryReadStatus } from '~/api/entry'
 import type { TabViewIndex } from '~/atom/layout'
 import { atomWithStorage } from '~/atom/storage'
 import { Iconify, Row, Text } from '~/components'
@@ -39,35 +41,70 @@ function FeedFolder({
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
   const { view, title } = useTabInfo()
+  const router = useRouter()
 
   return (
-    <Link
-      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title)}`}
-      asChild
+    <ContextMenuWrapper feedIdList={feedIdList}>
+      <Row gap={10} h={45} align="center" px={18}>
+        <AnimatedPressable
+          style={animatedStyle}
+          onPress={() => {
+            handleToggle(category)
+              .catch(console.error)
+            rotate.value = withSpring(
+              isExpanded ? '0deg' : '90deg',
+              { duration: 500, dampingRatio: 1 },
+            )
+          }}
+        >
+          <Iconify icon="mingcute:right-fill" />
+        </AnimatedPressable>
+        <Pressable
+          onPress={() => {
+            router.push(`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title)}`)
+          }}
+          style={{ flex: 1 }}
+        >
+          <Text>{category}</Text>
+        </Pressable>
+        {unread > 0 && (
+          <Text>{unread}</Text>
+        )}
+      </Row>
+      <Row h={1} bg="component" w="100%" />
+
+    </ContextMenuWrapper>
+  )
+}
+
+function ContextMenuWrapper({
+  feedIdList,
+  children,
+  ...rest
+}: React.ComponentProps<typeof ContextMenu> & {
+  feedIdList: string[]
+}) {
+  return (
+    <ContextMenu
+      actions={[
+        { title: 'Mark as Read', systemIcon: 'circlebadge.fill' },
+      ]}
+      onPress={(e) => {
+        switch (e.nativeEvent.index) {
+          case 0: {
+            flagEntryReadStatus({ feedId: feedIdList })
+              .catch(console.error)
+            break
+          }
+          default: {
+            break
+          }
+        }
+      }}
+      {...rest}
     >
-      <Pressable>
-        <Row gap={10} h={45} align="center">
-          <AnimatedPressable
-            style={animatedStyle}
-            onPress={() => {
-              handleToggle(category)
-                .catch(console.error)
-              rotate.value = withSpring(
-                isExpanded ? '0deg' : '90deg',
-                { duration: 500, dampingRatio: 1 },
-              )
-            }}
-          >
-            <Iconify icon="mingcute:right-fill" />
-          </AnimatedPressable>
-          <Text style={{ flex: 1 }}>{category}</Text>
-          {unread > 0 && (
-            <Text>{unread}</Text>
-          )}
-        </Row>
-        <Row h={1} bg="component" w="100%" />
-      </Pressable>
-    </Link>
+      {children}
+    </ContextMenu>
   )
 }
 
@@ -77,29 +114,34 @@ function FeedItem({
   feed: Feed
 }) {
   const { view, title } = useTabInfo()
+  const router = useRouter()
   return (
-    <Link
-      href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title)}`}
-      asChild
+    <ContextMenuWrapper
+      feedIdList={[feed.id]}
     >
-      <Pressable>
-        <Row gap={10} h={45} align="center">
-          {feed.image ? (
-            <Image
-              source={{ uri: feed.image }}
-              style={{ width: 24, height: 24, borderRadius: 1000 }}
-            />
-          ) : (
-            <SiteIcon source={feed.siteUrl} />
-          )}
-          <Text style={{ flex: 1 }}>{feed.title}</Text>
-          {feed.unread > 0 && (
-            <Text>{feed.unread}</Text>
-          )}
-        </Row>
-        <Row h={1} bg="component" w="100%" />
-      </Pressable>
-    </Link>
+      <Row gap={10} h={45} align="center" px={18}>
+        {feed.image ? (
+          <Image
+            source={{ uri: feed.image }}
+            style={{ width: 24, height: 24, borderRadius: 1000 }}
+          />
+        ) : (
+          <SiteIcon source={feed.siteUrl} />
+        )}
+        <Pressable
+          onPress={() => {
+            router.push(`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title)}`)
+          }}
+          style={{ flex: 1 }}
+        >
+          <Text>{feed.title}</Text>
+        </Pressable>
+        {feed.unread > 0 && (
+          <Text>{feed.unread}</Text>
+        )}
+      </Row>
+      <Row h={1} bg="component" w="100%" />
+    </ContextMenuWrapper>
   )
 }
 
@@ -199,7 +241,7 @@ export function FeedList({ view }: { view: TabViewIndex }) {
   return (
     <Animated.FlatList
       contentInsetAdjustmentBehavior="automatic"
-      style={{ width: '100%', paddingHorizontal: 18 }}
+      style={{ width: '100%' }}
       data={data}
       extraData={expandedSections}
       renderItem={({ item }) => {

@@ -1,7 +1,9 @@
 import { Tabs } from 'expo-router'
 import { useAtomValue } from 'jotai'
+import ContextMenu from 'react-native-context-menu-view'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
+import { flagEntryReadStatus } from '~/api/entry'
 import { syncFeedsEffect } from '~/api/feed'
 import { tabViewList } from '~/consts/view'
 import { useUnreadCountList } from '~/hooks/use-badge-count'
@@ -27,7 +29,27 @@ export default function TabLayout() {
               },
             },
             title: view.title,
-            tabBarIcon: ({ color }) => view.icon(color),
+            tabBarIcon: ({ color }) => (
+              <ContextMenu
+                actions={[
+                  { title: 'Mark as Read', systemIcon: 'circlebadge.fill' },
+                ]}
+                onPress={(e) => {
+                  switch (e.nativeEvent.index) {
+                    case 0: {
+                      flagEntryReadStatus({ view: view.view })
+                        .catch(console.error)
+                      break
+                    }
+                    default: {
+                      break
+                    }
+                  }
+                }}
+              >
+                {view.icon(color)}
+              </ContextMenu>
+            ),
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],
             tabBarShowLabel: false,
             tabBarStyle: styles.tabBar,

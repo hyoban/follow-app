@@ -2,13 +2,14 @@ import { isAfter } from 'date-fns'
 import { eq, inArray } from 'drizzle-orm'
 import { getDefaultStore } from 'jotai'
 
+import type { TabViewIndex } from '~/atom/layout'
 import { isLoadingAtom } from '~/atom/loading'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import { db } from '~/db'
-import type { Feed } from '~/db/schema'
-import { entries, feeds } from '~/db/schema'
+import { entries } from '~/db/schema'
 
 import { apiClient } from './client'
+import { syncFeeds } from './feed'
 
 type InferRequestType<T> = T extends (args: infer R, options: any | undefined) => Promise<unknown> ? NonNullable<R> : never
 type GetEntriesProps = InferRequestType<typeof apiClient.entries.$post>['json']
@@ -101,36 +102,48 @@ export async function fetchAndUpdateEntriesInDB(
   return await createOrUpdateEntriesInDB(entriesFromApi)
 }
 
-export async function flagEntryReadStatus(
-  entryId: string,
-  feed: Feed,
+function toArray(value: string | string[]) {
+  return Array.isArray(value) ? value : [value]
+}
+
+export async function flagEntryReadStatus({
+  entryId,
+  feedId,
+  view,
   read = true,
-) {
-  return await Promise.all(
+}: {
+  entryId?: string | string[]
+  feedId?: string | string[]
+  view?: TabViewIndex
+  read?: boolean
+}) {
+  const feedIdList = toArray(feedId ?? [])
+  const entryIdList = toArray(entryId ?? [])
+  if (feedIdList.length === 0 && entryIdList.length === 0 && view === undefined) {
+    return
+  }
+
+  await Promise.all(
     [
-      db.update(entries)
-        .set({
-          read,
-        })
-        .where(eq(entries.id, entryId)),
-      db.update(feeds)
-        .set({
-          unread: feed.unread > 0 ? read ? feed.unread - 1 : feed.unread + 1 : 0,
-        })
-        .where(eq(feeds.id, feed.id)),
-      read
-        ? apiClient.reads.$post({
-          json: {
-            entryIds: [entryId],
-          },
-        })
-        : apiClient.reads.$delete({
-          json: {
-            entryId,
-          },
+      entryIdList.length > 0
+        ? read
+          ? apiClient.reads.$post({
+            json: {
+              entryIds: entryIdList,
+            },
+          })
+          : entryIdList.map(entryId => apiClient.reads.$delete({
+            json: {
+              entryId,
+            },
+          }))
+        : apiClient.reads.all.$post({
+          json: view !== undefined ? { view } : { feedIdList },
         }),
-    ],
+    ].flat(),
   )
+
+  await syncFeeds()
 }
 
 export async function loadEntryContent(

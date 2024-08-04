@@ -70,7 +70,7 @@ export default function FeedDetail() {
             }
 
             if (entry && !entry.read) {
-              flagEntryReadStatus(entry.id, entry.feed)
+              flagEntryReadStatus({ entryId: entry.id })
                 .catch(console.error)
             }
           }}

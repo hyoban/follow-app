@@ -103,7 +103,7 @@ function EntryItem({ entry }: EntryItemProps) {
         onPress={(e) => {
           switch (e.nativeEvent.index) {
             case 0: {
-              flagEntryReadStatus(entry.id, feed, !entry.read)
+              flagEntryReadStatus({ entryId: entry.id, read: !entry.read })
                 .catch(console.error)
               break
             }
