@@ -5,6 +5,7 @@ import { Row } from '~/components'
 import { LayoutSwitch } from '~/components/layout-switch'
 import { LoadingIndicator } from '~/components/loading-indicator'
 import { SettingsLink } from '~/components/settings-link'
+import { UnreadFilter } from '~/components/unread-filter'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useTabInfo } from '~/hooks/use-tab-info'
 
@@ -25,8 +26,9 @@ export default function RootLayout() {
           headerLargeTitle: true,
           title,
           headerRight: () => (
-            <Row gap={18}>
+            <Row gap={18} style={styles.header}>
               <LoadingIndicator />
+              <UnreadFilter />
               <LayoutSwitch />
               <SettingsLink />
             </Row>

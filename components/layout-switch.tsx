@@ -14,7 +14,7 @@ export function LayoutSwitch() {
     viewLayoutMap[view] === 'detail'
       ? (
           <Iconify
-            icon="mingcute:folder-2-fill"
+            icon="mingcute:directory-fill"
             style={styles.icon}
             onPress={() => setViewLayoutMap((viewLayoutMap) => {
               const oldViewLayoutMap = viewLayoutMap

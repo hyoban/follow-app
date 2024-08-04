@@ -1,30 +1,30 @@
-import { useSetAtom } from 'jotai'
-import { Pressable } from 'react-native'
+import { useAtom, useAtomValue } from 'jotai'
 
-import { toggleUnreadOnlyAtom } from '~/atom/entry-list'
-import { useShowUnreadOnly } from '~/hooks/use-entry-list'
+import { showUnreadOnlyAtom } from '~/atom/entry-list'
+import { viewLayoutMapAtom } from '~/atom/layout'
+import { useTabInfo } from '~/hooks/use-tab-info'
 
 import { Iconify } from './icon'
 
-export function UnreadFilter(
-  { feedIdList }: { feedIdList: string[] },
-) {
-  const showUnreadOnly = useShowUnreadOnly(feedIdList)
-  const toggleUnreadOnly = useSetAtom(toggleUnreadOnlyAtom)
+export function UnreadFilter() {
+  const [showUnreadOnly, setUnreadOnly] = useAtom(showUnreadOnlyAtom)
+  const viewLayoutMap = useAtomValue(viewLayoutMapAtom)
+  const { view } = useTabInfo()
+  const hide = viewLayoutMap[view] === 'list'
 
-  if (feedIdList.length === 0) {
-    return null
-  }
-
-  return (
-    <Pressable
-      onPress={() => {
-        toggleUnreadOnly(feedIdList)
-      }}
-    >
-      {showUnreadOnly
-        ? <Iconify icon="mingcute:document-fill" />
-        : <Iconify icon="mingcute:document-line" />}
-    </Pressable>
-  )
+  return showUnreadOnly
+    ? (
+        <Iconify
+          icon="mingcute:document-fill"
+          style={{ opacity: hide ? 0 : 1 }}
+          onPress={() => { setUnreadOnly(i => !i) }}
+        />
+      )
+    : (
+        <Iconify
+          icon="mingcute:document-line"
+          style={{ opacity: hide ? 0 : 1 }}
+          onPress={() => { setUnreadOnly(i => !i) }}
+        />
+      )
 }

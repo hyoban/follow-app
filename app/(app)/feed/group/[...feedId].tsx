@@ -30,7 +30,7 @@ export default function Page() {
           headerBackTitle,
           headerTitleStyle: styles.highContrastText,
           headerStyle: styles.subtleBackground,
-          headerRight: () => <UnreadFilter feedIdList={feedIdList ?? []} />,
+          headerRight: () => <UnreadFilter />,
         }}
       />
       <Container>
