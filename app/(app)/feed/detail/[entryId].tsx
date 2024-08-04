@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams, useNavigation } from 'expo-router'
+import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type { DimensionValue } from 'react-native'
 import { ActivityIndicator, ScrollView } from 'react-native'
@@ -125,8 +126,16 @@ function WebViewAutoHeight({ html }: { html: string }) {
         }}
         originWhitelist={['*']}
         injectedJavaScript={`
+          // prevent links from opening in the webview
+          document.addEventListener('click', function(e) {
+            if (e.target.tagName === 'A') {
+              e.preventDefault()
+              window.ReactNativeWebView.postMessage(JSON.stringify({ external_url_open: e.target.href }))
+            }
+          })
+
           const postHeight = () => {
-            window.ReactNativeWebView.postMessage(document.body.scrollHeight + 10)
+            window.ReactNativeWebView.postMessage(JSON.stringify({ height: document.body.scrollHeight + 10 }))
           }
           const interval = setInterval(() => {
             postHeight()
@@ -136,7 +145,20 @@ function WebViewAutoHeight({ html }: { html: string }) {
           }, 1000)
         `}
         onMessage={(e) => {
-          setHeight(Number.parseInt(e.nativeEvent.data, 10))
+          let message: any = e.nativeEvent.data
+          try {
+            message = JSON.parse(message)
+          }
+          catch {
+            return
+          }
+          if ('object' == typeof message && message.external_url_open) {
+            WebBrowser.openBrowserAsync(message.external_url_open)
+              .catch(console.error)
+          }
+          else if ('object' == typeof message && message.height) {
+            setHeight(message.height)
+          }
         }}
         source={{
           baseUrl: '',
