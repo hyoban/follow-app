@@ -311,8 +311,7 @@ export function EntryList({
       <FlashList
         ref={flashListRef}
         contentInsetAdjustmentBehavior="automatic"
-        estimatedItemSize={100}
-        onEndReachedThreshold={2}
+        estimatedItemSize={80}
         data={data}
         renderItem={renderItem}
         keyExtractor={item => item.id}
