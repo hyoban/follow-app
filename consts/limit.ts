@@ -1,1 +1,1 @@
-export const FETCH_PAGE_SIZE = 50
+export const FETCH_PAGE_SIZE = 20

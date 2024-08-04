@@ -20,6 +20,8 @@ import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
 
+import { LoadingIndicator } from './loading-indicator'
+
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
 }
@@ -309,9 +311,10 @@ export function EntryList({
       <FlashList
         ref={flashListRef}
         contentInsetAdjustmentBehavior="automatic"
+        estimatedItemSize={100}
         data={data}
         renderItem={renderItem}
-        onEndReachedThreshold={10}
+        keyExtractor={item => item.id}
         onEndReached={() => {
           checkNotExistEntries(
             feedIdList,
@@ -325,6 +328,7 @@ export function EntryList({
             })
           setLimit(limit + FETCH_PAGE_SIZE)
         }}
+        ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
       />
     </FeedIdList.Provider>
   )
