@@ -2,7 +2,6 @@ import { Redirect, Stack } from 'expo-router'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { Row } from '~/components'
-import { LayoutSwitch } from '~/components/layout-switch'
 import { LoadingIndicator } from '~/components/loading-indicator'
 import { SettingsLink } from '~/components/settings-link'
 import { UnreadFilter } from '~/components/unread-filter'
@@ -33,7 +32,6 @@ export default function RootLayout() {
             <Row gap={18} style={styles.header}>
               <LoadingIndicator />
               <UnreadFilter />
-              <LayoutSwitch />
             </Row>
           ),
           headerStyle: styles.header,

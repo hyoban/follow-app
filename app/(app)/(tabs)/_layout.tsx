@@ -1,18 +1,33 @@
 import { Tabs } from 'expo-router'
-import { useAtomValue } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
+import { useState } from 'react'
 import ContextMenu from 'react-native-context-menu-view'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { flagEntryReadStatus } from '~/api/entry'
 import { syncFeedsEffect } from '~/api/feed'
+import type { TabViewIndex } from '~/atom/layout'
+import { viewLayoutMapAtom } from '~/atom/layout'
 import { tabViewList } from '~/consts/view'
 import { useUnreadCountList } from '~/hooks/use-badge-count'
 import type { ThemeColorKey } from '~/theme'
+
+const doublePressInterval = 500
 
 export default function TabLayout() {
   const { styles, theme } = useStyles(stylesheet)
   useAtomValue(syncFeedsEffect)
   const countList = useUnreadCountList()
+
+  const [lastPressTime, setLastPressTime] = useState<number | null>(null)
+  const [lastPressTab, setLastPressTab] = useState<string | null>(null)
+  const setViewLayoutMap = useSetAtom(viewLayoutMapAtom)
+  const onDoublePress = (view: TabViewIndex) => {
+    setViewLayoutMap((viewLayoutMap) => {
+      const oldViewLayoutMap = viewLayoutMap
+      return { ...oldViewLayoutMap, [view]: viewLayoutMap[view] === 'list' ? 'detail' : 'list' }
+    })
+  }
 
   return (
     <Tabs>
@@ -57,6 +72,21 @@ export default function TabLayout() {
             tabBarBadge: countList[view.view] > 0 ? countList[view.view] : undefined,
             tabBarBadgeStyle: {
               transform: [{ scale: 0.8 }],
+            },
+          }}
+          listeners={{
+            tabPress: (e) => {
+              const now = Date.now()
+              if (lastPressTab === view.name && now - (lastPressTime ?? 0) < doublePressInterval) {
+                e.preventDefault()
+                setLastPressTime(null)
+                setLastPressTab(null)
+                onDoublePress(view.view)
+              }
+              else {
+                setLastPressTime(now)
+                setLastPressTab(view.name)
+              }
             },
           }}
         />
