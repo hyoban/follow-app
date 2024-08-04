@@ -3,13 +3,15 @@ import { formatDistance } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
-import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
+import { useAtomValue } from 'jotai'
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
+import { showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
@@ -295,10 +297,17 @@ export function EntryList({
   )
 
   const lastItemPublishedAt = useRef<string>()
+  const flashListRef = useRef<FlashList<Entry & { feed: Feed }> | null>(null)
+  const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
+  useEffect(() => {
+    lastItemPublishedAt.current = undefined
+    flashListRef.current?.scrollToIndex({ index: 0 })
+  }, [showUnreadOnly])
 
   return (
     <FeedIdList.Provider value={{ feedIdList }}>
       <FlashList
+        ref={flashListRef}
         contentInsetAdjustmentBehavior="automatic"
         data={data}
         renderItem={renderItem}
