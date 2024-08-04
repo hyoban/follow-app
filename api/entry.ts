@@ -1,4 +1,3 @@
-import { isAfter } from 'date-fns'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { getDefaultStore } from 'jotai'
 
@@ -75,24 +74,14 @@ export async function createOrUpdateEntriesInDB(
 
 export async function checkNotExistEntries(
   feedIdList: string[],
-  end?: string,
   start?: string,
 ) {
   const store = getDefaultStore()
   store.set(isLoadingAtom, true)
-  let entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: FETCH_PAGE_SIZE })
+  const entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: FETCH_PAGE_SIZE })
   await createOrUpdateEntriesInDB(entriesFromApi)
-  while (
-    entriesFromApi.length > 0
-    && entriesFromApi.at(-1)?.publishedAt
-    && end
-    && isAfter(new Date(entriesFromApi.at(-1)!.publishedAt!), new Date(end))
-  ) {
-    const publishedAfter = entriesFromApi.at(-1)?.publishedAt
-    entriesFromApi = await getEntries({ feedIdList, publishedAfter, limit: FETCH_PAGE_SIZE })
-    await createOrUpdateEntriesInDB(entriesFromApi)
-  }
   store.set(isLoadingAtom, false)
+  return entriesFromApi.at(-1)?.publishedAt
 }
 
 export async function fetchAndUpdateEntriesInDB(

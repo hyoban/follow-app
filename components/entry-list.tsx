@@ -3,7 +3,7 @@ import { formatDistance } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
-import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
@@ -294,20 +294,7 @@ export function EntryList({
     [],
   )
 
-  const onceRef = useRef(false)
-
-  useEffect(() => {
-    if (data?.at(-1)?.publishedAt && !onceRef.current) {
-      onceRef.current = true
-      checkNotExistEntries(
-        feedIdList,
-        data?.at(-1)?.publishedAt,
-      )
-        .catch((error) => {
-          console.error(error)
-        })
-    }
-  }, [data, feedIdList])
+  const lastItemPublishedAt = useRef<string>()
 
   return (
     <FeedIdList.Provider value={{ feedIdList }}>
@@ -319,9 +306,11 @@ export function EntryList({
         onEndReached={() => {
           checkNotExistEntries(
             feedIdList,
-            data?.at(-1)?.publishedAt,
-            data?.at(-20)?.publishedAt,
+            lastItemPublishedAt.current,
           )
+            .then((publishedAt) => {
+              lastItemPublishedAt.current = publishedAt
+            })
             .catch((error) => {
               console.error(error)
             })
