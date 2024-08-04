@@ -1,6 +1,7 @@
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { getDefaultStore } from 'jotai'
 
+import { showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { isLoadingAtom } from '~/atom/loading'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
@@ -78,8 +79,16 @@ export async function checkNotExistEntries(
 ) {
   const store = getDefaultStore()
   store.set(isLoadingAtom, true)
-  const entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: FETCH_PAGE_SIZE })
+
+  const read = !store.get(showUnreadOnlyAtom)
+  const entriesFromApi = await getEntries({
+    feedIdList,
+    publishedAfter: start,
+    read,
+    limit: FETCH_PAGE_SIZE,
+  })
   await createOrUpdateEntriesInDB(entriesFromApi)
+
   store.set(isLoadingAtom, false)
   return entriesFromApi.at(-1)?.publishedAt
 }
