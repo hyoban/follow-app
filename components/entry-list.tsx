@@ -306,6 +306,20 @@ export function EntryList({
     flashListRef.current?.scrollToIndex({ index: 0 })
   }, [showUnreadOnly])
 
+  const load = useCallback((increaseLimit?: boolean) => {
+    checkNotExistEntries(
+      { feedIdList, start: lastItemPublishedAt.current },
+    )
+      .then((publishedAt) => {
+        lastItemPublishedAt.current = publishedAt
+      })
+      .catch((error) => {
+        console.error(error)
+      })
+    if (increaseLimit)
+      setLimit(limit => limit + FETCH_PAGE_SIZE)
+  }, [feedIdList])
+
   const [refreshing, setRefreshing] = useState(false)
 
   return (
@@ -334,18 +348,8 @@ export function EntryList({
         data={data}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-        onEndReached={() => {
-          checkNotExistEntries(
-            { feedIdList, start: lastItemPublishedAt.current },
-          )
-            .then((publishedAt) => {
-              lastItemPublishedAt.current = publishedAt
-            })
-            .catch((error) => {
-              console.error(error)
-            })
-          setLimit(limit + FETCH_PAGE_SIZE)
-        }}
+        onLoad={() => load()}
+        onEndReached={() => { load(true) }}
         ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
       />
     </FeedIdList.Provider>
