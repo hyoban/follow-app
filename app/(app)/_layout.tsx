@@ -23,14 +23,17 @@ export default function RootLayout() {
       <Stack.Screen
         name="(tabs)"
         options={{
-          headerLargeTitle: true,
           title,
+          headerLeft: () => (
+            <Row gap={18} style={styles.header}>
+              <SettingsLink />
+            </Row>
+          ),
           headerRight: () => (
             <Row gap={18} style={styles.header}>
               <LoadingIndicator />
               <UnreadFilter />
               <LayoutSwitch />
-              <SettingsLink />
             </Row>
           ),
           headerStyle: styles.header,
