@@ -9,7 +9,7 @@
     "build:dev": "eas build --profile development",
     "build:preview": "eas build --profile preview",
     "build:prod": "eas build --profile production",
-    "ios": "expo run:ios",
+    "ios": "expo run:ios --device",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
     "prebuild": "expo prebuild",
