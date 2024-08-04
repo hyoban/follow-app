@@ -42,7 +42,6 @@ function FeedFolder({
 
   return (
     <Link
-      href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}$backTitle=${encodeURIComponent(title)}`}
       href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title)}`}
       asChild
     >
