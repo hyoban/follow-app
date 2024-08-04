@@ -123,6 +123,26 @@ export async function flagEntryReadStatus({
     return
   }
 
+  await Promise.all(
+    [
+      entryIdList.length > 0
+        ? read
+          ? apiClient.reads.$post({
+            json: {
+              entryIds: entryIdList,
+            },
+          })
+          : entryIdList.map(entryId => apiClient.reads.$delete({
+            json: {
+              entryId,
+            },
+          }))
+        : apiClient.reads.all.$post({
+          json: view !== undefined ? { view } : { feedIdList },
+        }),
+    ].flat(),
+  )
+
   // handle change in local db
   if (view !== undefined) {
     const entryListToUpdate = await db.select()
@@ -166,26 +186,6 @@ export async function flagEntryReadStatus({
   else {
     await syncFeeds()
   }
-
-  await Promise.all(
-    [
-      entryIdList.length > 0
-        ? read
-          ? apiClient.reads.$post({
-            json: {
-              entryIds: entryIdList,
-            },
-          })
-          : entryIdList.map(entryId => apiClient.reads.$delete({
-            json: {
-              entryId,
-            },
-          }))
-        : apiClient.reads.all.$post({
-          json: view !== undefined ? { view } : { feedIdList },
-        }),
-    ].flat(),
-  )
 }
 
 export async function loadEntryContent(
