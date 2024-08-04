@@ -312,6 +312,7 @@ export function EntryList({
         ref={flashListRef}
         contentInsetAdjustmentBehavior="automatic"
         estimatedItemSize={100}
+        onEndReachedThreshold={2}
         data={data}
         renderItem={renderItem}
         keyExtractor={item => item.id}
