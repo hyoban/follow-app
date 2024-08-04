@@ -124,7 +124,17 @@ function WebViewAutoHeight({ html }: { html: string }) {
           display: height ? 'flex' : 'none',
         }}
         originWhitelist={['*']}
-        injectedJavaScript="window.ReactNativeWebView.postMessage(document.body.scrollHeight)"
+        injectedJavaScript={`
+          const postHeight = () => {
+            window.ReactNativeWebView.postMessage(document.body.scrollHeight + 10)
+          }
+          const interval = setInterval(() => {
+            postHeight()
+            if (document.readyState === 'complete') {
+              clearInterval(interval)
+            }
+          }, 1000)
+        `}
         onMessage={(e) => {
           setHeight(Number.parseInt(e.nativeEvent.data, 10))
         }}
