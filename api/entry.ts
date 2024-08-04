@@ -73,23 +73,34 @@ export async function createOrUpdateEntriesInDB(
   }
 }
 
-export async function checkNotExistEntries(
-  feedIdList: string[],
-  start?: string,
-) {
+export async function checkNotExistEntries({
+  feedIdList,
+  start,
+  end,
+  hideGlobalLoading,
+}: {
+  feedIdList: string[]
+  start?: string
+  end?: string
+  hideGlobalLoading?: boolean
+}) {
   const store = getDefaultStore()
-  store.set(isLoadingAtom, true)
+  if (!hideGlobalLoading)
+    store.set(isLoadingAtom, true)
 
   const readOnly = store.get(showUnreadOnlyAtom)
+  console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly)
   const entriesFromApi = await getEntries({
     feedIdList,
     publishedAfter: start,
+    publishedBefore: end,
     read: readOnly ? false : undefined,
     limit: FETCH_PAGE_SIZE,
   })
   await createOrUpdateEntriesInDB(entriesFromApi)
 
-  store.set(isLoadingAtom, false)
+  if (!hideGlobalLoading)
+    store.set(isLoadingAtom, false)
   return entriesFromApi.at(-1)?.publishedAt
 }
 

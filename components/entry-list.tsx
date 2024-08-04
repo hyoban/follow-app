@@ -306,9 +306,28 @@ export function EntryList({
     flashListRef.current?.scrollToIndex({ index: 0 })
   }, [showUnreadOnly])
 
+  const [refreshing, setRefreshing] = useState(false)
+
   return (
     <FeedIdList.Provider value={{ feedIdList }}>
       <FlashList
+        refreshing={refreshing}
+        onRefresh={() => {
+          setRefreshing(true)
+          checkNotExistEntries(
+            {
+              feedIdList,
+              end: data?.[0]?.publishedAt,
+              hideGlobalLoading: true,
+            },
+          )
+            .catch((error) => {
+              console.error(error)
+            })
+            .finally(() => {
+              setRefreshing(false)
+            })
+        }}
         ref={flashListRef}
         contentInsetAdjustmentBehavior="automatic"
         estimatedItemSize={80}
@@ -317,8 +336,7 @@ export function EntryList({
         keyExtractor={item => item.id}
         onEndReached={() => {
           checkNotExistEntries(
-            feedIdList,
-            lastItemPublishedAt.current,
+            { feedIdList, start: lastItemPublishedAt.current },
           )
             .then((publishedAt) => {
               lastItemPublishedAt.current = publishedAt
