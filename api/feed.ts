@@ -3,6 +3,7 @@ import { atom, getDefaultStore } from 'jotai'
 import { atomEffect } from 'jotai-effect'
 import { AppState } from 'react-native'
 
+import { isLoadingAtom } from '~/atom/loading'
 import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
 
@@ -19,16 +20,16 @@ export async function getFeeds() {
   }))
 }
 
-export const isSyncingFeedsAtom = atom(false)
 const appStateAtom = atom('active')
 export const syncFeedsEffect = atomEffect((get, set) => {
   const syncFeedsBackground = () => {
-    syncFeeds({ indicator: 'title' })
+    set(isLoadingAtom, true)
+    syncFeeds()
       .catch((error) => {
         console.error(error)
       })
       .finally(() => {
-        set(isSyncingFeedsAtom, false)
+        set(isLoadingAtom, false)
       })
   }
 
@@ -51,14 +52,10 @@ export const syncFeedsEffect = atomEffect((get, set) => {
   }
 })
 
-export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
-  const { indicator = 'spinner' } = props ?? {}
-
+export async function syncFeeds() {
   const store = getDefaultStore()
 
-  if (indicator === 'spinner') {
-    store.set(isSyncingFeedsAtom, true)
-  }
+  store.set(isLoadingAtom, true)
 
   const feedsFromApi = await getFeeds()
   const existFeedIds = feedsFromApi.map(feed => feed.feedId)
@@ -85,9 +82,7 @@ export async function syncFeeds(props?: { indicator?: 'title' | 'spinner' }) {
     db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
   ])
 
-  if (indicator === 'spinner') {
-    store.set(isSyncingFeedsAtom, false)
-  }
+  store.set(isLoadingAtom, false)
 }
 
 function needUpdate(data: any, dataInDB: any) {

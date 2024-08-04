@@ -12,7 +12,6 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 
-import { isSyncingFeedsAtom, syncFeeds } from '~/api/feed'
 import type { TabViewIndex } from '~/atom/layout'
 import { atomWithStorage } from '~/atom/storage'
 import { Iconify, Row, Text } from '~/components'
@@ -179,8 +178,6 @@ function isSingleCategory(feeds: Feed[]) {
 }
 
 export function FeedList({ view }: { view: TabViewIndex }) {
-  const refreshing = useAtomValue(isSyncingFeedsAtom)
-
   const { data: feeds } = useFeedList(view)
   const feedsGrouped = useMemo(
     () => groupBy(feeds ?? [], getFeedCategory),
@@ -233,8 +230,6 @@ export function FeedList({ view }: { view: TabViewIndex }) {
           </LayoutAnimationConfig>
         )
       }}
-      refreshing={refreshing}
-      onRefresh={syncFeeds}
     />
   )
 }

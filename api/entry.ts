@@ -1,6 +1,8 @@
 import { isAfter } from 'date-fns'
 import { eq, inArray } from 'drizzle-orm'
+import { getDefaultStore } from 'jotai'
 
+import { isLoadingAtom } from '~/atom/loading'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
@@ -75,7 +77,8 @@ export async function checkNotExistEntries(
   end?: string,
   start?: string,
 ) {
-  console.info('checkNotExistEntries', feedIdList.length, start, end)
+  const store = getDefaultStore()
+  store.set(isLoadingAtom, true)
   let entriesFromApi = await getEntries({ feedIdList, publishedAfter: start, limit: FETCH_PAGE_SIZE })
   await createOrUpdateEntriesInDB(entriesFromApi)
   while (
@@ -88,7 +91,7 @@ export async function checkNotExistEntries(
     entriesFromApi = await getEntries({ feedIdList, publishedAfter, limit: FETCH_PAGE_SIZE })
     await createOrUpdateEntriesInDB(entriesFromApi)
   }
-  console.info('checkNotExistEntries done')
+  store.set(isLoadingAtom, false)
 }
 
 export async function fetchAndUpdateEntriesInDB(
