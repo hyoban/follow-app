@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 patchedDependencies:
+  '@shopify/flash-list@1.6.4':
+    hash: 2xtigkna5zscwjfbskv5tdqlaq
+    path: patches/@shopify__flash-list@1.6.4.patch
   hono@4.5.1:
     hash: q3aeuaptngkxz7mmr7ddabp5zu
     path: patches/hono@4.5.1.patch
@@ -27,7 +30,7 @@ importers:
         version: 6.1.18(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
       '@shopify/flash-list':
         specifier: 1.6.4
-        version: 1.6.4(@babel/runtime@7.24.8)(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+        version: 1.6.4(patch_hash=2xtigkna5zscwjfbskv5tdqlaq)(@babel/runtime@7.24.8)(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
       date-fns:
         specifier: ^3.6.0
         version: 3.6.0
@@ -8294,7 +8297,7 @@ snapshots:
       component-type: 1.2.2
       join-component: 1.1.0
 
-  '@shopify/flash-list@1.6.4(@babel/runtime@7.24.8)(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)':
+  '@shopify/flash-list@1.6.4(patch_hash=2xtigkna5zscwjfbskv5tdqlaq)(@babel/runtime@7.24.8)(react-native@0.74.3(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)':
     dependencies:
       '@babel/runtime': 7.24.8
       react: 18.2.0

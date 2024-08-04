@@ -1,0 +1,16 @@
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+deleted file mode 100644
+index 81d937fa0996aa4340eeb790a53d781fe37c4ea0..0000000000000000000000000000000000000000
+diff --git a/dist/FlashList.js b/dist/FlashList.js
+index 4f33d6bc679ab1f4daafbacf73172dcb08dc0c1f..4484ad496d1b18b2513b773ffb8b258091c37ad3 100644
+--- a/dist/FlashList.js
++++ b/dist/FlashList.js
+@@ -217,7 +217,7 @@ var FlashList = /** @class */ (function (_super) {
+             if (_this.props.estimatedItemSize === undefined) {
+                 _this.itemSizeWarningTimeoutId = setTimeout(function () {
+                     var averageItemSize = Math.floor(_this.state.layoutProvider.averageItemSize);
+-                    console.warn(Warnings_1.default.estimatedItemSizeMissingWarning.replace("@size", averageItemSize.toString()));
++                    console.info(Warnings_1.default.estimatedItemSizeMissingWarning.replace("@size", averageItemSize.toString()));
+                 }, 1000);
+             }
+             _this.postLoadTimeoutId = setTimeout(function () {
