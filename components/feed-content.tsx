@@ -17,7 +17,7 @@ export function FeedContent({ html }: { html: string }) {
 
   return (
     <>
-      {!height && <ActivityIndicator />}
+      {height === 'auto' && <ActivityIndicator />}
       <WebView
         scrollEnabled={false}
         style={{
