@@ -68,7 +68,7 @@ export default function app({ config }: ConfigContext): ExpoConfig {
         },
       },
       supportsTablet: true,
-      bundleIdentifier: 'cc.hyoban.follow',
+      bundleIdentifier: 'com.yukihakarigoto.follow',
       userInterfaceStyle: 'automatic',
       infoPlist: {
         UIBackgroundModes: [
@@ -87,7 +87,7 @@ export default function app({ config }: ConfigContext): ExpoConfig {
           backgroundColor: '#111111',
         },
       },
-      package: 'cc.hyoban.follow',
+      package: 'com.yukihakarigoto.follow',
       userInterfaceStyle: 'automatic',
     },
     extra: {
