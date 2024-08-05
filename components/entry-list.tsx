@@ -315,13 +315,15 @@ export function EntryList({
   const [entryListToRefresh, setEntryListToRefresh] = useAtom(entryListToRefreshAtom)
   const [canLoadMore, setCanLoadMore] = useState(true)
 
-  const load = useCallback((increaseLimit?: boolean) => {
+  const load = useCallback((props?: { increaseLimit?: boolean, hideGlobalLoading?: boolean }) => {
+    const { increaseLimit, hideGlobalLoading } = props ?? {}
     setRefreshing(true)
     setEntryListToRefresh(false)
     checkNotExistEntries(
       {
         feedIdList,
         start: lastItemPublishedAt.current,
+        hideGlobalLoading,
       },
     )
       .then((publishedAt) => {
@@ -338,32 +340,34 @@ export function EntryList({
     if (increaseLimit)
       setLimit(limit => limit + FETCH_PAGE_SIZE)
   }, [feedIdList, setEntryListToRefresh])
+  const refresh = useCallback((props?: { increaseLimit?: boolean, hideGlobalLoading?: boolean }) => {
+    setCanLoadMore(false)
+    resetCursor()
+    setLimit(FETCH_PAGE_SIZE)
+    load(props)
+  }, [load, resetCursor])
 
   useEffect(() => {
     if (view === entryListToRefresh) {
-      setCanLoadMore(false)
-      resetCursor()
-      setLimit(FETCH_PAGE_SIZE)
-      load()
+      refresh()
     }
-  }, [entryListToRefresh, load, resetCursor, view])
+  }, [entryListToRefresh, refresh, view])
 
   return (
     <FeedIdList.Provider value={{ feedIdList }}>
       <FlashList
         refreshing={refreshing}
-        onRefresh={load}
+        onRefresh={() => { refresh({ hideGlobalLoading: true }) }}
         ref={flashListRef}
         contentInsetAdjustmentBehavior="automatic"
         estimatedItemSize={80}
         data={data}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-        // onLoad={() => load()}
         onEndReachedThreshold={0.5}
         onEndReached={() => {
           if (canLoadMore) {
-            load(true)
+            load({ increaseLimit: true })
           }
         }}
         ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
