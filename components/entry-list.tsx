@@ -1,5 +1,5 @@
 import { FlashList } from '@shopify/flash-list'
-import { formatDistance } from 'date-fns'
+import { formatDistanceToNowStrict } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
@@ -127,15 +127,16 @@ function EntryItem({ entry }: EntryItemProps) {
               <Dot show={!entry.read} />
               <Column gap={6} flex={1}>
                 <Row gap={6}>
-                  <Text size={12}>{feed?.title}</Text>
-                  <Text size={12}>
-                    {formatDistance(new Date(entry.publishedAt), new Date(), {
-                      addSuffix: true,
-                    })}
+                  <Text size={10}>
+                    {feed?.title}
+                  </Text>
+                  <Text size={10}>
+                    {formatDistanceToNowStrict(new Date(entry.publishedAt))}
                   </Text>
                 </Row>
                 <Row>
                   <Text
+                    size={16}
                     style={{ flex: 1, flexWrap: 'wrap' }}
                     weight={600}
                     numberOfLines={options?.noTruncation ? undefined : 2}
@@ -145,7 +146,7 @@ function EntryItem({ entry }: EntryItemProps) {
                 </Row>
                 {!options?.hideDescription && (
                   <Text
-                    size={14}
+                    size={12}
                     numberOfLines={options?.noTruncation ? undefined : 3}
                   >
                     {entry.description}
@@ -391,13 +392,11 @@ function EntryMedia({ entry, props }: Omit<EntryItemProps, 'props'> & { props?: 
         </Text>
         <Row align="center" gap={4}>
           <SiteImage feed={entry.feed} size={16} />
-          <Text size={14}>
+          <Text size={12}>
             {entry.feed.title}
           </Text>
-          <Text size={14}>
-            {formatDistance(new Date(entry.publishedAt), new Date(), {
-              addSuffix: true,
-            })}
+          <Text size={12}>
+            {formatDistanceToNowStrict(new Date(entry.publishedAt))}
           </Text>
         </Row>
       </Column>
