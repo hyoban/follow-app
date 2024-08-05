@@ -36,7 +36,7 @@ export function Text({
 const styleSheet = createStyleSheet(theme => ({
   text(variant?: VariantProps) {
     const {
-      size = 16,
+      size = 18,
       contrast = 'high',
       weight = 'regular',
       color,

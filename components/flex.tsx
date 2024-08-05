@@ -104,11 +104,11 @@ export function Flex({
 }
 
 export function Row(props: Omit<FlexProps, 'direction'>) {
-  return <Flex direction="row" {...props} />
+  return <Flex direction="row" bg="transparent" {...props} />
 }
 
 export function Column(props: Omit<FlexProps, 'direction'>) {
-  return <Flex direction="column" {...props} />
+  return <Flex direction="column" bg="transparent" {...props} />
 }
 
 export function Container({ style, ...props }: FlexProps) {

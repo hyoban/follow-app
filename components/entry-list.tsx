@@ -127,8 +127,8 @@ function EntryItem({ entry }: EntryItemProps) {
               <Dot show={!entry.read} />
               <Column gap={6} flex={1}>
                 <Row gap={6}>
-                  <Text size={10}>{feed?.title}</Text>
-                  <Text size={10}>
+                  <Text size={12}>{feed?.title}</Text>
+                  <Text size={12}>
                     {formatDistance(new Date(entry.publishedAt), new Date(), {
                       addSuffix: true,
                     })}
@@ -145,7 +145,7 @@ function EntryItem({ entry }: EntryItemProps) {
                 </Row>
                 {!options?.hideDescription && (
                   <Text
-                    size={12}
+                    size={14}
                     numberOfLines={options?.noTruncation ? undefined : 3}
                   >
                     {entry.description}
@@ -391,10 +391,10 @@ function EntryMedia({ entry, props }: Omit<EntryItemProps, 'props'> & { props?: 
         </Text>
         <Row align="center" gap={4}>
           <SiteImage feed={entry.feed} size={16} />
-          <Text size={12}>
+          <Text size={14}>
             {entry.feed.title}
           </Text>
-          <Text size={12}>
+          <Text size={14}>
             {formatDistance(new Date(entry.publishedAt), new Date(), {
               addSuffix: true,
             })}

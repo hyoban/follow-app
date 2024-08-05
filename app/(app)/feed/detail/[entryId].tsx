@@ -1,15 +1,17 @@
+import { formatDate } from 'date-fns'
+import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams, useNavigation } from 'expo-router'
-import * as WebBrowser from 'expo-web-browser'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import type { DimensionValue } from 'react-native'
-import { ActivityIndicator, ScrollView } from 'react-native'
+import { ActivityIndicator, Linking, ScrollView } from 'react-native'
 import PagerView from 'react-native-pager-view'
 import { useStyles } from 'react-native-unistyles'
-import WebView from 'react-native-webview'
+import useSWR from 'swr'
 
+import { apiClient } from '~/api/client'
 import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
-import { Container, Text } from '~/components'
-import { simpleCSS } from '~/consts/css'
+import { Column, Container, Iconify, Row, Text } from '~/components'
+import { FeedContent } from '~/components/feed-content'
+import type { Entry } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 
 function LazyComponent({
@@ -35,7 +37,7 @@ function LazyComponent({
   return placeholder || <></>
 }
 
-export default function FeedDetail() {
+export default function Page() {
   const { entryId, feedId } = useLocalSearchParams<{ entryId: string, feedId: string }>()
   const feedIdList = useMemo(() => feedId.split(','), [feedId])
   const { data: entryList } = useEntryList(feedIdList)
@@ -46,27 +48,31 @@ export default function FeedDetail() {
 
   const entryIdListToMarkAsRead = useRef<string[]>([])
   const navigation = useNavigation()
-  useEffect(() => {
-    const res = navigation.addListener('beforeRemove', () => {
-      flagEntryReadStatus({ entryId: entryIdListToMarkAsRead.current })
-        .catch(console.error)
-    })
-    return res
-  }, [navigation])
+  useEffect(
+    () => navigation.addListener(
+      'beforeRemove',
+      () => {
+        flagEntryReadStatus({ entryId: entryIdListToMarkAsRead.current })
+          .catch(console.error)
+      },
+    ),
+    [navigation],
+  )
 
   return (
     <>
-      <Stack.Screen options={{
-        headerTitle: '',
-        headerStyle: {
-          backgroundColor: theme.colors.gray2,
-        },
-        headerTitleStyle: {
-          color: theme.colors.gray12,
-        },
-      }}
+      <Stack.Screen
+        options={{
+          headerTitle: '',
+          headerStyle: {
+            backgroundColor: theme.colors.gray2,
+          },
+          headerTitleStyle: {
+            color: theme.colors.gray12,
+          },
+        }}
       />
-      <Container style={{ flex: 1, backgroundColor: theme.colors.gray1 }}>
+      <Container>
         <PagerView
           style={{ flex: 1 }}
           initialPage={entryIndex}
@@ -92,14 +98,7 @@ export default function FeedDetail() {
               currentKey={currentEntry?.id ?? ''}
               placeholder={<ActivityIndicator />}
             >
-              <ScrollView>
-                <Text size={20} weight={600} style={{ padding: 20 }}>
-                  {entry?.title}
-                </Text>
-                <WebViewAutoHeight
-                  html={entry?.content ?? ''}
-                />
-              </ScrollView>
+              <EntryDetail entry={entry} />
             </LazyComponent>
           ))}
         </PagerView>
@@ -108,78 +107,85 @@ export default function FeedDetail() {
   )
 }
 
-function WebViewAutoHeight({ html }: { html: string }) {
-  const [height, setHeight] = useState<DimensionValue>('auto')
+function EntryDetail({ entry }: { entry: Entry }) {
+  const { data } = useSWR(
+    ['entry-detail', entry.id],
+    () => apiClient.entries.$get({ query: { id: entry.id } }),
+  )
+  const { data: summary } = useSWR(
+    ['entry-summary', entry.id],
+    () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
+  )
 
-  if (!html) {
-    return <ActivityIndicator />
-  }
-
+  const readUserAvatars = Object.values(data?.data?.users ?? {}).map(i => i.image).filter(i => i !== null)
   return (
-    <>
-      {!height && <ActivityIndicator />}
-      <WebView
-        scrollEnabled={false}
-        style={{
-          height,
-          display: height ? 'flex' : 'none',
-        }}
-        originWhitelist={['*']}
-        injectedJavaScript={`
-          // prevent links from opening in the webview
-          document.addEventListener('click', function(e) {
-            if (e.target.tagName === 'A') {
-              e.preventDefault()
-              window.ReactNativeWebView.postMessage(JSON.stringify({ external_url_open: e.target.href }))
+    <ScrollView>
+      <Column gap={5} py={15}>
+        <Text
+          size={25}
+          weight={600}
+          style={{
+            textDecorationLine: 'underline',
+            marginBottom: 10,
+            paddingHorizontal: 15,
+          }}
+          onPress={() => {
+            if (entry?.url) {
+              Linking.openURL(entry.url)
+                .catch(console.error)
             }
-          })
-
-          const postHeight = () => {
-            window.ReactNativeWebView.postMessage(JSON.stringify({ height: document.body.scrollHeight + 10 }))
-          }
-          const interval = setInterval(() => {
-            postHeight()
-            if (document.readyState === 'complete') {
-              clearInterval(interval)
-            }
-          }, 1000)
-        `}
-        onMessage={(e) => {
-          let message: any = e.nativeEvent.data
-          try {
-            message = JSON.parse(message)
-          }
-          catch {
-            return
-          }
-          if ('object' == typeof message && message.external_url_open) {
-            WebBrowser.openBrowserAsync(message.external_url_open)
-              .catch(console.error)
-          }
-          else if ('object' == typeof message && message.height) {
-            setHeight(message.height)
-          }
-        }}
-        source={{
-          baseUrl: '',
-          html: `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My New Website</title>
-    <style>
-      ${simpleCSS}
-    </style>
-</head>
-<body>
-  <div>${html}</div>
-</body>
-</html>
-        `,
-        }}
-      />
-    </>
+          }}
+        >
+          {entry?.title}
+        </Text>
+        <Text style={{ paddingHorizontal: 15 }}>
+          {entry.author}
+        </Text>
+        <Row gap={5} px={15} align="center">
+          <Text>
+            {formatDate(entry.publishedAt, 'yyyy-MM-dd HH:mm')}
+          </Text>
+          {(data?.data?.entryReadHistories?.readCount !== undefined) && (
+            <>
+              <Iconify icon="mingcute:eye-2-line" />
+              <Text>
+                {data?.data?.entryReadHistories?.readCount}
+              </Text>
+            </>
+          )}
+        </Row>
+        {readUserAvatars.length > 0 && (
+          <Row mb={30} mx={15}>
+            {readUserAvatars
+              .slice(0, 20)
+              .map((image, index) => (
+                <Image
+                  key={image}
+                  source={{ uri: image }}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 10,
+                    position: 'absolute',
+                    left: 15 * index,
+                  }}
+                />
+              ))}
+          </Row>
+        )}
+        {summary?.data && (
+          <Column bg="component" mx={8} p={15} gap={15} style={{ borderWidth: 1, borderRadius: 10 }}>
+            <Row align="center" gap={10}>
+              <Iconify icon="mingcute:magic-2-fill" />
+              <Text>AI summary</Text>
+            </Row>
+            <Text>
+              {summary.data}
+            </Text>
+          </Column>
+        )}
+      </Column>
+      <FeedContent html={entry?.content ?? ''} />
+    </ScrollView>
   )
 }
