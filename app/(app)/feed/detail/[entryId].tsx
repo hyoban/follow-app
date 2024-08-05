@@ -108,8 +108,6 @@ export default function Page() {
 }
 
 function EntryDetail({ entry }: { entry: Entry }) {
-  const { theme } = useStyles()
-
   const { data } = useSWR(
     ['entry-detail', entry.id],
     () => apiClient.entries.$get({ query: { id: entry.id } }),
@@ -178,14 +176,8 @@ function EntryDetail({ entry }: { entry: Entry }) {
         {summary?.data && (
           <Column
             bg="subtle"
-            mx={8}
             p={15}
             gap={15}
-            style={{
-              borderWidth: 1,
-              borderRadius: 10,
-              borderColor: theme.colors.gray6,
-            }}
           >
             <Row align="center" gap={10}>
               <Iconify icon="mingcute:magic-2-fill" />
