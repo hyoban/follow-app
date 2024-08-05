@@ -301,10 +301,13 @@ export function EntryList({
   const lastItemPublishedAt = useRef<string>()
   const flashListRef = useRef<FlashList<Entry & { feed: Feed }> | null>(null)
   const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
-  useEffect(() => {
+  const resetCursor = useCallback(() => {
     lastItemPublishedAt.current = undefined
     flashListRef.current?.scrollToIndex({ index: 0 })
-  }, [showUnreadOnly])
+  }, [])
+  useEffect(() => {
+    resetCursor()
+  }, [resetCursor, showUnreadOnly])
 
   const load = useCallback((increaseLimit?: boolean) => {
     checkNotExistEntries(
@@ -327,11 +330,12 @@ export function EntryList({
       <FlashList
         refreshing={refreshing}
         onRefresh={() => {
+          resetCursor()
+          setLimit(FETCH_PAGE_SIZE)
           setRefreshing(true)
           checkNotExistEntries(
             {
               feedIdList,
-              end: data?.[0]?.publishedAt,
               hideGlobalLoading: true,
             },
           )
