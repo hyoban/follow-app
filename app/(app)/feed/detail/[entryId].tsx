@@ -122,13 +122,13 @@ function EntryDetail({ entry }: { entry: Entry }) {
 
   return (
     <ScrollView>
-      <Column gap={5} py={15}>
+      <Column gap={8} py={15}>
         <Text
-          size={25}
+          size={24}
           weight={600}
           style={{
             textDecorationLine: 'underline',
-            marginBottom: 10,
+            marginBottom: 8,
             paddingHorizontal: 15,
           }}
           onPress={() => {
