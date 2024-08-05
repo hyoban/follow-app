@@ -7,8 +7,6 @@ import { createStyleSheet, useStyles } from 'react-native-unistyles'
 import { flagEntryReadStatus } from '~/api/entry'
 import { syncFeedsEffect } from '~/api/feed'
 import { entryListToRefreshAtom } from '~/atom/entry-list'
-import type { TabViewIndex } from '~/atom/layout'
-import { viewLayoutMapAtom } from '~/atom/layout'
 import { tabViewList } from '~/consts/view'
 import { useUnreadCountList } from '~/hooks/use-badge-count'
 import type { ThemeColorKey } from '~/theme'
@@ -20,17 +18,9 @@ export default function TabLayout() {
   useAtomValue(syncFeedsEffect)
   const countList = useUnreadCountList()
 
-  const refreshEntryList = useSetAtom(entryListToRefreshAtom)
-
   const [lastPressTime, setLastPressTime] = useState<number | null>(null)
   const [lastPressTab, setLastPressTab] = useState<string | null>(null)
-  const setViewLayoutMap = useSetAtom(viewLayoutMapAtom)
-  const _toggleViewLayout = (view: TabViewIndex) => {
-    setViewLayoutMap((viewLayoutMap) => {
-      const oldViewLayoutMap = viewLayoutMap
-      return { ...oldViewLayoutMap, [view]: viewLayoutMap[view] === 'list' ? 'detail' : 'list' }
-    })
-  }
+  const refreshEntryList = useSetAtom(entryListToRefreshAtom)
 
   return (
     <Tabs>
