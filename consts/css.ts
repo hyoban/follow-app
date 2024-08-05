@@ -11,7 +11,14 @@ const fontFaceList = [
   .join(', ')
 
 // credit: https://github.com/kevquirk/simple.css/blob/main/simple.css
-export const simpleCSS = `
+export function simpleCSS({
+  accent,
+  accentHover,
+}: {
+  accent: string
+  accentHover: string
+}) {
+  return `
   @font-face {
     font-family: 'SN Pro';
     src: ${fontFaceList};
@@ -33,8 +40,8 @@ export const simpleCSS = `
     --text: #212121;
     --text-light: #585858;
     --border: #898EA4;
-    --accent: #0d47a1;
-    --accent-hover: #1266e2;
+    --accent: ${accent ?? '#0d47a1'};
+    --accent-hover: ${accentHover ?? '#1266e2'};
     --accent-text: var(--bg);
     --code: #d81b60;
     --preformatted: #444;
@@ -51,8 +58,6 @@ export const simpleCSS = `
       --accent-bg: #2b2b2b;
       --text: #dcdcdc;
       --text-light: #ababab;
-      --accent: #ffb300;
-      --accent-hover: #ffe099;
       --accent-text: var(--bg);
       --code: #f06292;
       --preformatted: #ccc;
@@ -609,7 +614,7 @@ export const simpleCSS = `
   }
   
   blockquote {
-    margin-inline-start: 2rem;
+    margin-inline-start: 0;
     margin-inline-end: 0;
     margin-block: 2rem;
     padding: 0.4rem 0.8rem;
@@ -734,3 +739,4 @@ export const simpleCSS = `
     margin: 2rem 0;
   }
 `
+}

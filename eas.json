@@ -8,7 +8,11 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_FOLLOW_API_URL": "https://api.follow.is",
+        "EXPO_PUBLIC_FOLLOW_LOGIN_URL": "https://web.follow.is/login"
+      }
     },
     "production": {}
   },

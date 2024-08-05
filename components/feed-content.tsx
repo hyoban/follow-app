@@ -2,12 +2,14 @@ import * as WebBrowser from 'expo-web-browser'
 import { useState } from 'react'
 import type { DimensionValue } from 'react-native'
 import { ActivityIndicator } from 'react-native'
+import { useStyles } from 'react-native-unistyles'
 import WebView from 'react-native-webview'
 
 import { simpleCSS } from '~/consts/css'
 
 export function FeedContent({ html }: { html: string }) {
   const [height, setHeight] = useState<DimensionValue>('auto')
+  const { theme } = useStyles()
 
   if (!html) {
     return <ActivityIndicator />
@@ -67,7 +69,10 @@ export function FeedContent({ html }: { html: string }) {
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <style>
-        ${simpleCSS}
+        ${simpleCSS({
+          accent: theme.colors.accent9,
+          accentHover: theme.colors.accent10,
+        })}
       </style>
   </head>
   <body>

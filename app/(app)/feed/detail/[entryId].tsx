@@ -108,6 +108,8 @@ export default function Page() {
 }
 
 function EntryDetail({ entry }: { entry: Entry }) {
+  const { theme } = useStyles()
+
   const { data } = useSWR(
     ['entry-detail', entry.id],
     () => apiClient.entries.$get({ query: { id: entry.id } }),
@@ -116,8 +118,8 @@ function EntryDetail({ entry }: { entry: Entry }) {
     ['entry-summary', entry.id],
     () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
   )
-
   const readUserAvatars = Object.values(data?.data?.users ?? {}).map(i => i.image).filter(i => i !== null)
+
   return (
     <ScrollView>
       <Column gap={5} py={15}>
@@ -174,7 +176,17 @@ function EntryDetail({ entry }: { entry: Entry }) {
           </Row>
         )}
         {summary?.data && (
-          <Column bg="component" mx={8} p={15} gap={15} style={{ borderWidth: 1, borderRadius: 10 }}>
+          <Column
+            bg="subtle"
+            mx={8}
+            p={15}
+            gap={15}
+            style={{
+              borderWidth: 1,
+              borderRadius: 10,
+              borderColor: theme.colors.gray6,
+            }}
+          >
             <Row align="center" gap={10}>
               <Iconify icon="mingcute:magic-2-fill" />
               <Text>AI summary</Text>
