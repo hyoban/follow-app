@@ -3,7 +3,7 @@ import { formatDistance } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
@@ -11,7 +11,7 @@ import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
-import { showUnreadOnlyAtom } from '~/atom/entry-list'
+import { entryListToRefreshAtom, showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
@@ -309,9 +309,20 @@ export function EntryList({
     resetCursor()
   }, [resetCursor, showUnreadOnly])
 
+  const [refreshing, setRefreshing] = useState(false)
+
+  const { view } = useTabInfo()
+  const [entryListToRefresh, setEntryListToRefresh] = useAtom(entryListToRefreshAtom)
+  const [canLoadMore, setCanLoadMore] = useState(true)
+
   const load = useCallback((increaseLimit?: boolean) => {
+    setRefreshing(true)
+    setEntryListToRefresh(false)
     checkNotExistEntries(
-      { feedIdList, start: lastItemPublishedAt.current },
+      {
+        feedIdList,
+        start: lastItemPublishedAt.current,
+      },
     )
       .then((publishedAt) => {
         lastItemPublishedAt.current = publishedAt
@@ -319,41 +330,42 @@ export function EntryList({
       .catch((error) => {
         console.error(error)
       })
+      .finally(() => {
+        setRefreshing(false)
+        if (!increaseLimit)
+          setCanLoadMore(true)
+      })
     if (increaseLimit)
       setLimit(limit => limit + FETCH_PAGE_SIZE)
-  }, [feedIdList])
+  }, [feedIdList, setEntryListToRefresh])
 
-  const [refreshing, setRefreshing] = useState(false)
+  useEffect(() => {
+    if (view === entryListToRefresh) {
+      setCanLoadMore(false)
+      resetCursor()
+      setLimit(FETCH_PAGE_SIZE)
+      load()
+    }
+  }, [entryListToRefresh, load, resetCursor, view])
 
   return (
     <FeedIdList.Provider value={{ feedIdList }}>
       <FlashList
         refreshing={refreshing}
-        onRefresh={() => {
-          resetCursor()
-          setLimit(FETCH_PAGE_SIZE)
-          setRefreshing(true)
-          checkNotExistEntries(
-            {
-              feedIdList,
-              hideGlobalLoading: true,
-            },
-          )
-            .catch((error) => {
-              console.error(error)
-            })
-            .finally(() => {
-              setRefreshing(false)
-            })
-        }}
+        onRefresh={load}
         ref={flashListRef}
         contentInsetAdjustmentBehavior="automatic"
         estimatedItemSize={80}
         data={data}
         renderItem={renderItem}
         keyExtractor={item => item.id}
-        onLoad={() => load()}
-        onEndReached={() => { load(true) }}
+        // onLoad={() => load()}
+        onEndReachedThreshold={0.5}
+        onEndReached={() => {
+          if (canLoadMore) {
+            load(true)
+          }
+        }}
         ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
       />
     </FeedIdList.Provider>
