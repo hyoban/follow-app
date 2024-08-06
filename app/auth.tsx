@@ -9,7 +9,7 @@ export default function Auth() {
   const router = useRouter()
   const searchParams = useLocalSearchParams()
   const { error, isLoading } = useSWR<void, Error, ['sign-in', string | string[] | null]>(
-    ['sign-in', searchParams?.token],
+    ['sign-in', searchParams?.token ?? null],
     ([_, token]) => {
       if (!token || Array.isArray(token))
         throw new Error('has not token')

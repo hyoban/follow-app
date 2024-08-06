@@ -15,6 +15,7 @@
     "prebuild": "expo prebuild",
     "prepare": "simple-git-hooks",
     "start": "expo start --dev-client",
+    "typecheck": "tsc",
     "web": "expo start --web"
   },
   "dependencies": {

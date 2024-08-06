@@ -3,7 +3,7 @@ import * as hono_utils_http_status from 'hono/utils/http-status';
 import * as hono from 'hono';
 import * as hono_types from 'hono/types';
 import * as drizzle_orm from 'drizzle-orm';
-import { InferInsertModel } from 'drizzle-orm';
+import type { InferInsertModel } from 'drizzle-orm';
 import * as drizzle_orm_pg_core from 'drizzle-orm/pg-core';
 import * as zod from 'zod';
 import { z } from 'zod';

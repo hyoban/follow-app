@@ -116,7 +116,9 @@ function EntryDetail({ entry }: { entry: Entry }) {
     ['entry-summary', entry.id],
     () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
   )
-  const readUserAvatars = Object.values(data?.data?.users ?? {}).map(i => i.image).filter(i => i !== null)
+  const readUserAvatars = Object.values(data?.data?.users ?? {})
+    .map(i => i.image)
+    .filter((i): i is string => i !== null)
 
   return (
     <ScrollView>

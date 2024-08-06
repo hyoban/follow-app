@@ -22,5 +22,8 @@
     { "rule": "prefer-const", "severity": "off" },
     { "rule": "unused-imports/no-unused-imports", "severity": "off" },
     { "rule": "tailwindcss/classnames-order", "severity": "off" }
-  ]
+  ],
+
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

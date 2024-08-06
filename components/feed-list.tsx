@@ -156,7 +156,7 @@ function groupBy<T>(array: T[], key: (item: T) => string) {
     if (!acc[group]) {
       acc[group] = []
     }
-    acc[group].push(item)
+    acc[group]?.push(item)
     return acc
   }, {} as Record<string, T[]>)
 }
@@ -266,10 +266,13 @@ export function FeedList({ view }: { view: TabViewIndex }) {
             : (
                 <FeedFolder
                   category={item}
-                  feedIdList={feedsGrouped[item].map(i => i.id)}
-                  unread={feedsGrouped[item].reduce((acc, sub) => acc + sub.unread, 0)}
+                  feedIdList={feedsGrouped[item]?.map(i => i.id) ?? []}
+                  unread={feedsGrouped[item]?.reduce((acc, sub) => acc + sub.unread, 0) ?? 0}
                 />
               )
+        }
+        if (!item[0]) {
+          return null
         }
         const category = getFeedCategory(item[0])
         const shouldShow = expandedSections.includes(category) || isSingleCategory(item)

@@ -45,7 +45,7 @@ export const apiFetch = ofetch.create({
 
 export const apiClient = hc<AppType>('', {
   fetch: async (
-    input: RequestInit | string | URL,
+    input: RequestInfo | URL,
     options = {},
   ) => await apiFetch(
     input.toString(),
