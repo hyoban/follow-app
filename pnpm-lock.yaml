@@ -49,9 +49,6 @@ importers:
       expo-dev-client:
         specifier: ~4.0.21
         version: 4.0.21(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
-      expo-dev-launcher:
-        specifier: ^4.0.22
-        version: 4.0.23(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
       expo-drizzle-studio-plugin:
         specifier: ^0.0.2
         version: 0.0.2(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
