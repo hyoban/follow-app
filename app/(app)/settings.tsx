@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import { Platform } from 'react-native'
 import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 
-import { Button, Column, Row, Text } from '~/components'
+import { Button, Column, Container, Row, Text } from '~/components'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useLogOut } from '~/hooks/use-log-out'
 import { accentColors, getAccentColor } from '~/theme'
@@ -59,40 +59,42 @@ export default function UserInfo() {
 
   return (
     <>
-      <Column flex={1} p={20}>
-        <Column flex={1} gap={20} align="stretch" w="100%">
-          <Row
-            gap={24}
-            align="center"
-          >
-            <Image
-              style={{
-                width: 96,
-                height: 96,
-                borderRadius: 48,
-              }}
-              source={user.image}
-            />
-            <Column gap={8}>
-              <Text weight="700">
-                {user.name}
-              </Text>
-              <Text>
-                {user.email}
-              </Text>
-            </Column>
-          </Row>
-          <Button
-            fullWidth
-            color="red"
-            onPress={logout}
-          >
-            <Text color="red">Logout</Text>
-          </Button>
-        </Column>
+      <Container>
+        <Column flex={1} p={20}>
+          <Column flex={1} gap={20} align="stretch" w="100%">
+            <Row
+              gap={24}
+              align="center"
+            >
+              <Image
+                style={{
+                  width: 96,
+                  height: 96,
+                  borderRadius: 48,
+                }}
+                source={user.image}
+              />
+              <Column gap={8}>
+                <Text weight="700">
+                  {user.name}
+                </Text>
+                <Text>
+                  {user.email}
+                </Text>
+              </Column>
+            </Row>
+            <Button
+              fullWidth
+              color="red"
+              onPress={logout}
+            >
+              <Text color="red">Logout</Text>
+            </Button>
+          </Column>
 
-        <ThemeSwitcher />
-      </Column>
+          <ThemeSwitcher />
+        </Column>
+      </Container>
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </>
   )
