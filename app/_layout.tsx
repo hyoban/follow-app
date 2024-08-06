@@ -25,8 +25,12 @@ TrackPlayer.registerPlaybackService(() => async () => {
   TrackPlayer.addEventListener(Event.RemoteSeek, ({ position }) => TrackPlayer.seekTo(position))
 })
 
-export default function Root() {
+function DrizzleStudio() {
   useDrizzleStudio(expoDb)
+  return null
+}
+
+export default function Root() {
   const { success, error } = useMigrations(db, migrations)
 
   useEffect(() => {
@@ -70,6 +74,9 @@ export default function Root() {
     )
   }
   return (
-    <Slot />
+    <>
+      {__DEV__ && <DrizzleStudio />}
+      <Slot />
+    </>
   )
 }
