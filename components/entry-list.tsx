@@ -10,14 +10,17 @@ import ContextMenu from 'react-native-context-menu-view'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
+import { apiClient } from '~/api/client'
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
 import { entryListToRefreshAtom, showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
+import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
+import { useQuerySubscription } from '~/hooks/use-query-subscription'
 import { useTabInfo } from '~/hooks/use-tab-info'
 
 import { LoadingIndicator } from './loading-indicator'
@@ -353,6 +356,37 @@ export function EntryList({
       refresh()
     }
   }, [entryListToRefresh, refresh, view])
+
+  const { data: latestData } = useQuerySubscription(
+    db.query.entries.findFirst({
+      where(fields, { inArray }) {
+        return inArray(fields.feedId, feedIdList ?? [])
+      },
+      orderBy(fields, { desc }) {
+        return [desc(fields.insertedAt)]
+      },
+    }),
+    ['latestData', { feedIdList }],
+  )
+
+  useEffect(() => {
+    ;(
+      // @ts-expect-error
+      apiClient.entries['check-new'].$get({
+        query: {
+          feedIdList,
+          insertedAfter: Date.parse(latestData?.insertedAt ?? (new Date()).toISOString()),
+        },
+      }) as Promise<{ data: { has_new: boolean, lastest_at?: string } }>
+    )
+      .then(({ data }) => {
+        console.info('check-new', data)
+        if (data.has_new) {
+          refresh()
+        }
+      })
+      .catch(console.error)
+  }, [])
 
   return (
     <FeedIdList.Provider value={{ feedIdList }}>

@@ -16,9 +16,7 @@ export function useQuerySubscription<
   query: T,
   key: SWRSubKey,
 ) {
-  function subscribe(key: SWRSubKey, { next }: SWRSubscriptionOptions<Awaited<T>, any>) {
-    console.info('subscribing to', key)
-
+  function subscribe(_key: SWRSubKey, { next }: SWRSubscriptionOptions<Awaited<T>, any>) {
     const entity = is(query, SQLiteRelationalQuery)
     // @ts-expect-error
       ? query.table
@@ -39,7 +37,6 @@ export function useQuerySubscription<
       const config = is(entity, SQLiteTable) ? getTableConfig(entity) : getViewConfig(entity)
 
       listener = addDatabaseChangeListener(({ tableName }) => {
-        console.info('change detected', tableName, config.name)
         if (config.name === tableName) {
           query.then((data) => { next(undefined, data) })
             .catch((error) => { next(error) })
