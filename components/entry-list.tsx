@@ -2,7 +2,7 @@ import { FlashList } from '@shopify/flash-list'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
-import { Link } from 'expo-router'
+import { Link, useFocusEffect } from 'expo-router'
 import { useAtom, useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
@@ -369,45 +369,81 @@ export function EntryList({
     ['latestData', { feedIdList }],
   )
 
-  useEffect(() => {
-    ;(
-      // @ts-expect-error
-      apiClient.entries['check-new'].$get({
-        query: {
-          feedIdList,
-          insertedAfter: Date.parse(latestData?.insertedAt ?? (new Date()).toISOString()),
-        },
-      }) as Promise<{ data: { has_new: boolean, lastest_at?: string } }>
-    )
-      .then(({ data }) => {
-        console.info('check-new', data)
-        if (data.has_new) {
-          refresh()
-        }
-      })
-      .catch(console.error)
-  }, [])
+  const [hasNew, setHasNew] = useState(false)
+
+  useFocusEffect(
+    useCallback(() => {
+      ;(
+        // @ts-expect-error
+        apiClient.entries['check-new'].$get({
+          query: {
+            feedIdList,
+            insertedAfter: Date.parse(latestData?.insertedAt ?? (new Date()).toISOString()),
+          },
+        }) as Promise<{ data: { has_new: boolean, lastest_at?: string } }>
+      )
+        .then(({ data }) => {
+          console.info('check-new', data)
+          if (data.has_new) {
+            setHasNew(true)
+          }
+        })
+        .catch(console.error)
+    }, [feedIdList, latestData?.insertedAt]),
+  )
+
+  const { theme } = useStyles()
 
   return (
-    <FeedIdList.Provider value={{ feedIdList }}>
-      <FlashList
-        refreshing={refreshing}
-        onRefresh={() => { refresh({ hideGlobalLoading: true }) }}
-        ref={flashListRef}
-        contentInsetAdjustmentBehavior="automatic"
-        estimatedItemSize={80}
-        data={data}
-        renderItem={renderItem}
-        keyExtractor={item => item.id}
-        onEndReachedThreshold={0.5}
-        onEndReached={() => {
-          if (canLoadMore) {
-            load({ increaseLimit: true })
-          }
-        }}
-        ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
-      />
-    </FeedIdList.Provider>
+    <>
+
+      <FeedIdList.Provider value={{ feedIdList }}>
+        <FlashList
+          refreshing={refreshing}
+          onRefresh={() => { refresh({ hideGlobalLoading: true }) }}
+          ref={flashListRef}
+          contentInsetAdjustmentBehavior="automatic"
+          estimatedItemSize={80}
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          onEndReachedThreshold={0.5}
+          onEndReached={() => {
+            if (canLoadMore) {
+              load({ increaseLimit: true })
+            }
+          }}
+          ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
+        />
+      </FeedIdList.Provider>
+      {hasNew && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            // justifyContent: 'center',
+            alignItems: 'center',
+            pointerEvents: 'box-none',
+          }}
+        >
+          <Pressable
+            onPress={() => {
+              refresh({ hideGlobalLoading: true })
+              setHasNew(false)
+            }}
+          >
+            <Row bg={theme.colors.accent9} style={{ borderRadius: 9999 }} mt={20}>
+              <Text size={12} weight="600" style={{ padding: 10 }}>
+                Refresh to see new entries
+              </Text>
+            </Row>
+          </Pressable>
+        </View>
+      )}
+    </>
   )
 }
 
