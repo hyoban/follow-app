@@ -383,7 +383,6 @@ export function EntryList({
         }) as Promise<{ data: { has_new: boolean, lastest_at?: string } }>
       )
         .then(({ data }) => {
-          console.info('check-new', data)
           if (data.has_new) {
             setHasNew(true)
           }
@@ -396,7 +395,6 @@ export function EntryList({
 
   return (
     <>
-
       <FeedIdList.Provider value={{ feedIdList }}>
         <FlashList
           refreshing={refreshing}
@@ -435,8 +433,9 @@ export function EntryList({
               setHasNew(false)
             }}
           >
-            <Row bg={theme.colors.accent9} style={{ borderRadius: 9999 }} mt={20}>
-              <Text size={12} weight="600" style={{ padding: 10 }}>
+            <Row bg={theme.colors.accent9} style={{ borderRadius: 9999 }} mt={20} p={10} gap={6} align="center">
+              <Iconify icon="mingcute:arrow-up-fill" size={14} />
+              <Text size={12} weight="600">
                 Refresh to see new entries
               </Text>
             </Row>
