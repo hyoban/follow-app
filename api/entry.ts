@@ -9,7 +9,6 @@ import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
 
 import { apiClient } from './client'
-import { syncFeeds } from './feed'
 
 type InferRequestType<T> = T extends (args: infer R, options: any | undefined) => Promise<unknown> ? NonNullable<R> : never
 type GetEntriesProps = InferRequestType<typeof apiClient.entries.$post>['json']
@@ -132,26 +131,6 @@ export async function flagEntryReadStatus({
     return
   }
 
-  await Promise.all(
-    [
-      entryIdList.length > 0
-        ? read
-          ? apiClient.reads.$post({
-            json: {
-              entryIds: entryIdList,
-            },
-          })
-          : entryIdList.map(entryId => apiClient.reads.$delete({
-            json: {
-              entryId,
-            },
-          }))
-        : apiClient.reads.all.$post({
-          json: view !== undefined ? { view } : { feedIdList },
-        }),
-    ].flat(),
-  )
-
   // handle change in local db
   if (view !== undefined) {
     const entryListToUpdate = await db.select()
@@ -192,9 +171,26 @@ export async function flagEntryReadStatus({
       .set({ unread: 0 })
       .where(inArray(feeds.id, feedIdList))
   }
-  else {
-    await syncFeeds()
-  }
+
+  await Promise.all(
+    [
+      entryIdList.length > 0
+        ? read
+          ? apiClient.reads.$post({
+            json: {
+              entryIds: entryIdList,
+            },
+          })
+          : entryIdList.map(entryId => apiClient.reads.$delete({
+            json: {
+              entryId,
+            },
+          }))
+        : apiClient.reads.all.$post({
+          json: view !== undefined ? { view } : { feedIdList },
+        }),
+    ].flat(),
+  )
 }
 
 export async function loadEntryContent(
