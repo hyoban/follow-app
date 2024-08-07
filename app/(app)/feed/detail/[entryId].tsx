@@ -3,6 +3,7 @@ import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { ActivityIndicator, Linking, ScrollView } from 'react-native'
+import { InAppBrowser } from 'react-native-inappbrowser-reborn'
 import PagerView from 'react-native-pager-view'
 import { useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
@@ -131,10 +132,16 @@ function EntryDetail({ entry }: { entry: Entry }) {
             marginBottom: 8,
             paddingHorizontal: 15,
           }}
-          onPress={() => {
+          onPress={async () => {
             if (entry?.url) {
-              Linking.openURL(entry.url)
-                .catch(console.error)
+              if (await InAppBrowser.isAvailable()) {
+                InAppBrowser.open(entry.url)
+                  .catch(console.error)
+              }
+              else {
+                Linking.openURL(entry.url)
+                  .catch(console.error)
+              }
             }
           }}
         >
