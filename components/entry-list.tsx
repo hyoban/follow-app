@@ -323,6 +323,7 @@ export function EntryList({
     const { increaseLimit, hideGlobalLoading } = props ?? {}
     setRefreshing(true)
     setEntryListToRefresh(false)
+    setHasNew(false)
     checkNotExistEntries(
       {
         feedIdList,
@@ -428,10 +429,7 @@ export function EntryList({
           }}
         >
           <Pressable
-            onPress={() => {
-              refresh({ hideGlobalLoading: true })
-              setHasNew(false)
-            }}
+            onPress={() => { refresh({ hideGlobalLoading: true }) }}
           >
             <Row bg={theme.colors.accent9} style={{ borderRadius: 9999 }} mt={20} p={10} gap={6} align="center">
               <Iconify icon="mingcute:arrow-up-fill" size={14} />
