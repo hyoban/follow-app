@@ -1,4 +1,3 @@
-import * as WebBrowser from 'expo-web-browser'
 import { useState } from 'react'
 import type { DimensionValue } from 'react-native'
 import { ActivityIndicator } from 'react-native'
@@ -6,6 +5,7 @@ import { useStyles } from 'react-native-unistyles'
 import WebView from 'react-native-webview'
 
 import { simpleCSS } from '~/consts/css'
+import { openExternalUrl } from '~/lib/utils'
 
 export function FeedContent({ html }: { html: string }) {
   const [height, setHeight] = useState<DimensionValue>('auto')
@@ -53,7 +53,7 @@ export function FeedContent({ html }: { html: string }) {
             return
           }
           if ('object' == typeof message && message.external_url_open) {
-            WebBrowser.openBrowserAsync(message.external_url_open)
+            openExternalUrl(message.external_url_open)
               .catch(console.error)
           }
           else if ('object' == typeof message && message.height) {

@@ -2,8 +2,7 @@ import { formatDate } from 'date-fns'
 import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { ActivityIndicator, Linking, ScrollView } from 'react-native'
-import { InAppBrowser } from 'react-native-inappbrowser-reborn'
+import { ActivityIndicator, ScrollView } from 'react-native'
 import PagerView from 'react-native-pager-view'
 import { useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
@@ -14,6 +13,7 @@ import { Column, Container, Iconify, Row, Text } from '~/components'
 import { FeedContent } from '~/components/feed-content'
 import type { Entry } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
+import { openExternalUrl } from '~/lib/utils'
 
 function LazyComponent({
   componentKey,
@@ -132,17 +132,9 @@ function EntryDetail({ entry }: { entry: Entry }) {
             marginBottom: 8,
             paddingHorizontal: 15,
           }}
-          onPress={async () => {
-            if (entry?.url) {
-              if (await InAppBrowser.isAvailable()) {
-                InAppBrowser.open(entry.url)
-                  .catch(console.error)
-              }
-              else {
-                Linking.openURL(entry.url)
-                  .catch(console.error)
-              }
-            }
+          onPress={() => {
+            openExternalUrl(entry.url)
+              .catch(console.error)
           }}
         >
           {entry?.title}
