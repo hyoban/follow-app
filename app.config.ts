@@ -72,6 +72,7 @@ export default function app({ config }: ConfigContext): ExpoConfig {
       infoPlist: {
         UIBackgroundModes: [
           'audio',
+          'fetch',
         ],
       },
     },

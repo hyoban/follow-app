@@ -37,6 +37,9 @@ importers:
       expo-av:
         specifier: ~14.0.6
         version: 14.0.6(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
+      expo-background-fetch:
+        specifier: ~12.0.1
+        version: 12.0.1(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
       expo-constants:
         specifier: ~16.0.1
         version: 16.0.2(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
@@ -70,6 +73,9 @@ importers:
       expo-system-ui:
         specifier: ~3.0.4
         version: 3.0.7(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
+      expo-task-manager:
+        specifier: ~11.8.2
+        version: 11.8.2(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
       expo-web-browser:
         specifier: ~13.0.3
         version: 13.0.3(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
@@ -3089,6 +3095,11 @@ packages:
     peerDependencies:
       expo: '*'
 
+  expo-background-fetch@12.0.1:
+    resolution: {integrity: sha512-8915rCoRKWBwCkhSSowv2+kH+QV6YYR7ES8r+yWAUPQ0vq+26NojeWAZtR0vCyTW+QLsQrYVV5Eh0brpZIMS7w==}
+    peerDependencies:
+      expo: '*'
+
   expo-constants@16.0.2:
     resolution: {integrity: sha512-9tNY3OVO0jfiMzl7ngb6IOyR5VFzNoN5OOazUWoeGfmMqVB5kltTemRvKraK9JRbBKIw+SOYLEmF0sEqgFZ6OQ==}
     peerDependencies:
@@ -3197,6 +3208,11 @@ packages:
 
   expo-system-ui@3.0.7:
     resolution: {integrity: sha512-KAs72F5JKhdIfPR9ZNVlRubTPK9uUuevPy5oYEp12xNEzSQcjZKvypH5NpwJuNWkXzrp3n3vZ+3pXsudA7J3KA==}
+    peerDependencies:
+      expo: '*'
+
+  expo-task-manager@11.8.2:
+    resolution: {integrity: sha512-Uhy3ol5gYeZOyeRFddYjLI1B2DGRH1gjp/YC8Hpn5p5MVENviySoKNF+wd98rRvOAokzrzElyDBHSTfX+C3tpg==}
     peerDependencies:
       expo: '*'
 
@@ -5799,6 +5815,9 @@ packages:
   unicorn-magic@0.1.0:
     resolution: {integrity: sha512-lRfVq8fE8gz6QMBuDM6a+LO3IAzTi05H6gCVaUpir2E1Rwpo4ZUog45KpNXKC/Mn3Yb9UDuHumeFTo9iV/D9FQ==}
     engines: {node: '>=18'}
+
+  unimodules-app-loader@4.6.0:
+    resolution: {integrity: sha512-FRNIlx7sLBDVPG117JnEBhnzZkTIgZTEwYW2rzrY9HdvLBTpRN+k0dxY50U/CAhFHW3zMD0OP5JAlnSQRhx5HA==}
 
   unique-filename@3.0.0:
     resolution: {integrity: sha512-afXhuC55wkAmZ0P18QsVE6kp8JaxrEokN2HGIoIVv2ijHQd419H0+6EigAFcIzXeMIkcIkNBpB3L/DXB3cTS/g==}
@@ -9907,6 +9926,11 @@ snapshots:
     dependencies:
       expo: 51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))
 
+  expo-background-fetch@12.0.1(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))):
+    dependencies:
+      expo: 51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))
+      expo-task-manager: 11.8.2(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9)))
+
   expo-constants@16.0.2(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))):
     dependencies:
       '@expo/config': 9.0.3
@@ -10064,6 +10088,11 @@ snapshots:
       expo: 51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))
     transitivePeerDependencies:
       - supports-color
+
+  expo-task-manager@11.8.2(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))):
+    dependencies:
+      expo: 51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))
+      unimodules-app-loader: 4.6.0
 
   expo-updates-interface@0.16.2(expo@51.0.24(@babel/core@7.24.9)(@babel/preset-env@7.24.8(@babel/core@7.24.9))):
     dependencies:
@@ -12883,6 +12912,8 @@ snapshots:
   unicode-property-aliases-ecmascript@2.1.0: {}
 
   unicorn-magic@0.1.0: {}
+
+  unimodules-app-loader@4.6.0: {}
 
   unique-filename@3.0.0:
     dependencies:
