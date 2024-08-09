@@ -1,5 +1,5 @@
 import type { PressableProps } from 'react-native'
-import { Pressable } from 'react-native'
+import { ActivityIndicator, Pressable } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import type { Color, Radius, ThemeColorKey } from '~/theme'
@@ -9,6 +9,7 @@ type VariantProps = {
   radius?: Radius
   fullWidth?: boolean
   variant?: 'solid' | 'outlined' | 'ghost'
+  isLoading?: boolean
 }
 
 type ButtonProps = Omit<PressableProps, 'style'> & VariantProps
@@ -19,6 +20,7 @@ export function Button({
   radius,
   fullWidth,
   variant,
+  isLoading,
   ...rest
 }: ButtonProps) {
   const { styles } = useStyles(styleSheet)
@@ -32,7 +34,7 @@ export function Button({
       )}
       {...rest}
     >
-      {children}
+      {isLoading ? <ActivityIndicator /> : children}
     </Pressable>
   )
 }

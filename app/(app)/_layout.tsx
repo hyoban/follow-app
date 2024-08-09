@@ -16,7 +16,7 @@ export default function RootLayout() {
   const { title } = useTabInfo()
 
   if (!user)
-    return <Redirect href="/sign-in" />
+    return <Redirect href="/auth" />
 
   return (
     <Stack>

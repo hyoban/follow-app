@@ -17,6 +17,6 @@ export function useLogOut() {
 
     await db.delete(users).where(eq(users.id, user.id))
     router.dismissAll()
-    router.push('/sign-in')
+    router.push('/auth')
   }, [router, user])
 }

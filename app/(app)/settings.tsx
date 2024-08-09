@@ -55,7 +55,7 @@ export default function UserInfo() {
   const { user } = useCurrentUser()
 
   if (!user)
-    return <Redirect href="/sign-in" />
+    return <Redirect href="/auth" />
 
   return (
     <>
