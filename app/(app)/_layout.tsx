@@ -1,6 +1,6 @@
 import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
@@ -25,7 +25,10 @@ TrackPlayer.registerPlaybackService(() => async () => {
 })
 
 export default function RootLayout() {
+  const onceRef = useRef(false)
   useEffect(() => {
+    if (onceRef.current)
+      return
     TrackPlayer.setupPlayer()
       .then(() => {
         TrackPlayer.updateOptions({
@@ -42,6 +45,9 @@ export default function RootLayout() {
           // Capabilities that will show up when the notification is in the compact form on Android
           compactCapabilities: [Capability.Play, Capability.Pause],
         })
+          .then(() => {
+            onceRef.current = true
+          })
           .catch(console.error)
       })
       .catch(console.error)
@@ -95,21 +101,22 @@ export default function RootLayout() {
         options={{
           title,
           headerLeft: () => (
-            <Row gap={18} style={styles.header}>
+            <Row gap={18}>
               <SettingsLink />
             </Row>
           ),
           headerRight: () => (
-            <Row gap={18} style={styles.header}>
+            <Row gap={18}>
               <LoadingIndicator />
               <UnreadFilter />
               <LayoutSwitch />
             </Row>
           ),
           headerTitleAlign: 'center',
-          headerStyle: styles.header,
           headerTitleStyle: styles.title,
           headerLargeTitleStyle: styles.title,
+          headerBlurEffect: 'regular',
+          headerTransparent: true,
         }}
       />
       <Stack.Screen
