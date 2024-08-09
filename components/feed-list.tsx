@@ -136,7 +136,7 @@ function FeedItem({
               ) : (
                 <SiteIcon source={feed.siteUrl} />
               )}
-              <Text style={{ flex: 1 }}>{feed.title}</Text>
+              <Text numberOfLines={1} style={{ flex: 1 }}>{feed.title}</Text>
 
               {feed.unread > 0 && (
                 <Text>{feed.unread}</Text>
