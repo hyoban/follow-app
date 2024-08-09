@@ -8,6 +8,7 @@ import { useAtom, useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
+import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
@@ -375,11 +376,13 @@ export function EntryList({
 
   useFocusEffect(
     useCallback(() => {
-      ;(
+      if (!feedIdList?.length) {
+        return
+      }(
         // @ts-expect-error
         apiClient.entries['check-new'].$get({
           query: {
-            feedIdList,
+            ...(feedIdList.length > 1 ? { feedIdList } : { feedId: feedIdList[0] }),
             insertedAfter: Date.parse(latestData?.insertedAt ?? (new Date()).toISOString()),
           },
         }) as Promise<{ data: { has_new: boolean, lastest_at?: string } }>
@@ -419,7 +422,9 @@ export function EntryList({
         />
       </FeedIdList.Provider>
       {hasNew && (
-        <View
+        <Animated.View
+          entering={FadeInUp}
+          exiting={FadeOutUp}
           style={{
             position: 'absolute',
             top: headerHeight,
@@ -429,6 +434,7 @@ export function EntryList({
             // justifyContent: 'center',
             alignItems: 'center',
             pointerEvents: 'box-none',
+            zIndex: 999,
           }}
         >
           <Pressable
@@ -441,7 +447,7 @@ export function EntryList({
               </Text>
             </Row>
           </Pressable>
-        </View>
+        </Animated.View>
       )}
     </>
   )
