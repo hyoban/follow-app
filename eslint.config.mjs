@@ -8,6 +8,11 @@ export default defineConfig(
     project: true,
   },
   {
+    rules: {
+      '@stylistic/jsx-one-expression-per-line': ['error', { allow: 'single-line' }],
+    },
+  },
+  {
     files: GLOB_TS_SRC,
     rules: {
       '@typescript-eslint/return-await': ['warn', 'always'],
