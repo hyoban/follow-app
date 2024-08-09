@@ -70,6 +70,7 @@
     "@types/react": "~18.2.45",
     "babel-plugin-inline-import": "^3.0.0",
     "drizzle-kit": "^0.23.0",
+    "eas-cli": "^10.2.2",
     "eslint": "^9.8.0",
     "eslint-config-hyoban": "^3.0.1",
     "hono": "^4.5.1",
