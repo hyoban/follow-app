@@ -1,3 +1,4 @@
+import { useHeaderHeight } from '@react-navigation/elements'
 import { FlashList } from '@shopify/flash-list'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { Video } from 'expo-av'
@@ -394,6 +395,8 @@ export function EntryList({
 
   const { theme } = useStyles()
 
+  const headerHeight = useHeaderHeight()
+
   return (
     <>
       <FeedIdList.Provider value={{ feedIdList }}>
@@ -419,7 +422,7 @@ export function EntryList({
         <View
           style={{
             position: 'absolute',
-            top: 0,
+            top: headerHeight,
             left: 0,
             right: 0,
             bottom: 0,
