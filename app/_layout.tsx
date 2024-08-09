@@ -1,5 +1,6 @@
 import '../theme/unistyles'
 
+import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import * as Notifications from 'expo-notifications'
@@ -8,6 +9,7 @@ import { useEffect } from 'react'
 import { View } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
+import { UnistylesRuntime } from 'react-native-unistyles'
 
 import { syncFeeds } from '~/api/feed'
 import { Text } from '~/components'
@@ -110,9 +112,9 @@ export default function Root() {
     )
   }
   return (
-    <>
+    <ThemeProvider value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}>
       {__DEV__ && <DrizzleStudio />}
       <Slot />
-    </>
+    </ThemeProvider>
   )
 }
