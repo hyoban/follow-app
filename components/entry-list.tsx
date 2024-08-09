@@ -309,7 +309,7 @@ export function EntryList({
   const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
   const resetCursor = useCallback(() => {
     lastItemPublishedAt.current = undefined
-    flashListRef.current?.scrollToIndex({ index: 0 })
+    flashListRef.current?.scrollToIndex({ index: 0, animated: true })
   }, [])
   useEffect(() => {
     resetCursor()
