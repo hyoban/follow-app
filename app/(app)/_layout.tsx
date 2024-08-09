@@ -36,6 +36,7 @@ export default function RootLayout() {
               <LayoutSwitch />
             </Row>
           ),
+          headerTitleAlign: 'center',
           headerStyle: styles.header,
           headerTitleStyle: styles.title,
           headerLargeTitleStyle: styles.title,
