@@ -139,9 +139,11 @@ function EntryDetail({ entry }: { entry: Entry }) {
         >
           {entry?.title}
         </Text>
-        <Text style={{ paddingHorizontal: 15 }}>
-          {entry.author}
-        </Text>
+        {entry.author && (
+          <Text style={{ paddingHorizontal: 15 }}>
+            {entry.author}
+          </Text>
+        )}
         <Row gap={5} px={15} align="center">
           <Text>
             {formatDate(entry.publishedAt, 'yyyy-MM-dd HH:mm')}
