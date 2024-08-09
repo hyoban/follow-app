@@ -1,45 +1,18 @@
 import '../theme/unistyles'
 
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
-import * as BackgroundFetch from 'expo-background-fetch'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import * as Notifications from 'expo-notifications'
 import { Slot } from 'expo-router'
-import * as TaskManager from 'expo-task-manager'
 import { useEffect } from 'react'
 import { View } from 'react-native'
+import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 
 import { syncFeeds } from '~/api/feed'
 import { Text } from '~/components'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
-
-const BACKGROUND_FETCH_TASK = 'background-fetch'
-
-// 1. Define the task by providing a name and the function that should be executed
-// Note: This needs to be called in the global scope (e.g outside of your React components)
-TaskManager.defineTask(BACKGROUND_FETCH_TASK, async () => {
-  await syncFeeds()
-  const unreadCount = (await db.query.feeds.findMany()).reduce((acc, feed) => acc + feed.unread, 0) ?? 0
-  Notifications.requestPermissionsAsync()
-    .then(() => Notifications.setBadgeCountAsync(unreadCount))
-    .catch(console.error)
-
-  // Be sure to return the successful result type!
-  return BackgroundFetch.BackgroundFetchResult.NewData
-})
-
-// 2. Register the task at some point in your app by providing the same name,
-// and some configuration options for how the background fetch should behave
-// Note: This does NOT need to be in the global scope and CAN be used in your React components!
-async function registerBackgroundFetchAsync() {
-  return await BackgroundFetch.registerTaskAsync(BACKGROUND_FETCH_TASK, {
-    minimumInterval: 60 * 15, // 15 minutes
-    stopOnTerminate: false, // android only,
-    startOnBoot: true, // android only
-  })
-}
 
 export const unstable_settings = {
   // Ensure that reloading on `/settings` keeps a back button present.
@@ -62,16 +35,37 @@ function DrizzleStudio() {
 
 export default function Root() {
   useEffect(() => {
+    const checkStatusAsync = async () => {
+      // BackgroundFetch event handler.
+      const onEvent = async (taskId: string) => {
+        console.info('[BackgroundFetch] task:', taskId)
+        // Do your background work...
+        await syncFeeds()
+        const unreadCount = (await db.query.feeds.findMany()).reduce((acc, feed) => acc + feed.unread, 0) ?? 0
+        Notifications.requestPermissionsAsync()
+          .then(() => Notifications.setBadgeCountAsync(unreadCount))
+          .catch(console.error)
+
+        // IMPORTANT:  You must signal to the OS that your task is complete.
+        BackgroundFetch.finish(taskId)
+      }
+
+      // Timeout callback is executed when your Task has exceeded its allowed running-time.
+      // You must stop what you're doing immediately BackgroundFetch.finish(taskId)
+      const onTimeout = async (taskId: string) => {
+        console.warn('[BackgroundFetch] TIMEOUT task:', taskId)
+        BackgroundFetch.finish(taskId)
+      }
+
+      // Initialize BackgroundFetch only once when component mounts.
+      const status = await BackgroundFetch.configure({ minimumFetchInterval: 15 }, onEvent, onTimeout)
+
+      console.info('[BackgroundFetch] configure status:', status)
+    }
+
     checkStatusAsync()
       .catch(console.error)
   }, [])
-
-  const checkStatusAsync = async () => {
-    const isRegistered = await TaskManager.isTaskRegisteredAsync(BACKGROUND_FETCH_TASK)
-    if (!isRegistered) {
-      await registerBackgroundFetchAsync()
-    }
-  }
 
   const { success, error } = useMigrations(db, migrations)
 

@@ -44,6 +44,7 @@ export default function app({ config }: ConfigContext): ExpoConfig {
           ],
         },
       ],
+      'react-native-background-fetch',
     ],
     experiments: {
       typedRoutes: true,
@@ -73,6 +74,10 @@ export default function app({ config }: ConfigContext): ExpoConfig {
         UIBackgroundModes: [
           'audio',
           'fetch',
+          'processing',
+        ],
+        BGTaskSchedulerPermittedIdentifiers: [
+          'com.transistorsoft.fetch',
         ],
       },
     },
