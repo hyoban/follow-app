@@ -1,12 +1,13 @@
 import * as Notifications from 'expo-notifications'
 import { Tabs } from 'expo-router'
-import { useAtomValue } from 'jotai'
+import { useAtom, useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import ContextMenu from 'react-native-context-menu-view'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { flagEntryReadStatus } from '~/api/entry'
 import { syncFeedsEffect } from '~/api/feed'
+import { viewLayoutMapAtom } from '~/atom/layout'
 import { tabViewList } from '~/consts/view'
 import { useUnreadCount, useUnreadCountList } from '~/hooks/use-badge-count'
 import type { ThemeColorKey } from '~/theme'
@@ -22,6 +23,8 @@ export default function TabLayout() {
       .then(() => Notifications.setBadgeCountAsync(unreadCount))
       .catch(console.error)
   }, [unreadCount])
+
+  const [viewLayoutMap, setViewLayoutMap] = useAtom(viewLayoutMapAtom)
 
   return (
     <Tabs>
@@ -41,13 +44,30 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => (
               <ContextMenu
                 actions={[
-                  { title: 'Mark as Read', systemIcon: 'circlebadge.fill' },
+                  {
+                    title: 'Mark as Read',
+                    systemIcon: 'circlebadge.fill',
+                  },
+                  {
+                    title: `Switch layout to ${viewLayoutMap[view.view] === 'detail' ? 'List' : 'Detail'}`,
+                    systemIcon: 'list.bullet',
+                  },
                 ]}
                 onPress={(e) => {
                   switch (e.nativeEvent.index) {
                     case 0: {
                       flagEntryReadStatus({ view: view.view })
                         .catch(console.error)
+                      break
+                    }
+                    case 1: {
+                      setViewLayoutMap((viewLayoutMap) => {
+                        const oldViewLayoutMap = viewLayoutMap
+                        return {
+                          ...oldViewLayoutMap,
+                          [view.view]: viewLayoutMap[view.view] === 'detail' ? 'list' : 'detail',
+                        }
+                      })
                       break
                     }
                     default: {

@@ -317,7 +317,7 @@ export function EntryList({
   useScrollToTop(
     useRef({
       scrollToTop: () => {
-        refresh()
+        refresh({ updateLimit: 'reset' })
       },
     }),
   )
@@ -327,8 +327,8 @@ export function EntryList({
 
   const [canLoadMore, setCanLoadMore] = useState(true)
 
-  const load = useCallback((props?: { increaseLimit?: boolean, hideGlobalLoading?: boolean }) => {
-    const { increaseLimit, hideGlobalLoading } = props ?? {}
+  const load = useCallback((props: { updateLimit: 'increase' | 'reset', hideGlobalLoading?: boolean }) => {
+    const { updateLimit, hideGlobalLoading } = props
     setHasNew(false)
     checkNotExistEntries(
       {
@@ -344,16 +344,17 @@ export function EntryList({
         console.error(error)
       })
       .finally(() => {
-        if (!increaseLimit)
+        if (updateLimit === 'reset') {
           setCanLoadMore(true)
+          setLimit(FETCH_PAGE_SIZE)
+        }
       })
-    if (increaseLimit)
+    if (updateLimit === 'increase')
       setLimit(limit => limit + FETCH_PAGE_SIZE)
   }, [feedIdList])
-  const refresh = useCallback((props?: { increaseLimit?: boolean, hideGlobalLoading?: boolean }) => {
+  const refresh = useCallback((props: { updateLimit: 'increase' | 'reset', hideGlobalLoading?: boolean }) => {
     setCanLoadMore(false)
     resetCursor()
-    setLimit(FETCH_PAGE_SIZE)
     load(props)
   }, [load, resetCursor])
 
@@ -409,7 +410,7 @@ export function EntryList({
           onEndReachedThreshold={0.5}
           onEndReached={() => {
             if (canLoadMore) {
-              load({ increaseLimit: true })
+              load({ updateLimit: 'increase' })
             }
           }}
           ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
@@ -432,7 +433,7 @@ export function EntryList({
           }}
         >
           <Pressable
-            onPress={() => { refresh() }}
+            onPress={() => { refresh({ updateLimit: 'reset' }) }}
           >
             <Row bg={theme.colors.accent9} style={{ borderRadius: 9999 }} mt={20} p={10} gap={6} align="center">
               <Iconify icon="mingcute:arrow-up-fill" size={14} />
