@@ -295,6 +295,7 @@ export function EntryList({
 }: {
   feedIdList: string[]
 }) {
+  const headerHeight = useHeaderHeight()
   const [limit, setLimit] = useState(FETCH_PAGE_SIZE)
   const { data: dataInDb } = useEntryList(feedIdList)
   const data = useMemo(() => dataInDb?.slice(0, limit), [dataInDb, limit])
@@ -309,13 +310,11 @@ export function EntryList({
   const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
   const resetCursor = useCallback(() => {
     lastItemPublishedAt.current = undefined
-    flashListRef.current?.scrollToIndex({ index: 0, animated: true })
-  }, [])
+    flashListRef.current?.scrollToOffset({ offset: -headerHeight, animated: true })
+  }, [headerHeight])
   useEffect(() => {
     resetCursor()
   }, [resetCursor, showUnreadOnly])
-
-  const [refreshing, setRefreshing] = useState(false)
 
   const { view } = useTabInfo()
   const [entryListToRefresh, setEntryListToRefresh] = useAtom(entryListToRefreshAtom)
@@ -323,7 +322,6 @@ export function EntryList({
 
   const load = useCallback((props?: { increaseLimit?: boolean, hideGlobalLoading?: boolean }) => {
     const { increaseLimit, hideGlobalLoading } = props ?? {}
-    setRefreshing(true)
     setEntryListToRefresh(false)
     setHasNew(false)
     checkNotExistEntries(
@@ -340,7 +338,6 @@ export function EntryList({
         console.error(error)
       })
       .finally(() => {
-        setRefreshing(false)
         if (!increaseLimit)
           setCanLoadMore(true)
       })
@@ -398,14 +395,11 @@ export function EntryList({
 
   const { theme } = useStyles()
 
-  const headerHeight = useHeaderHeight()
-
   return (
     <>
       <FeedIdList.Provider value={{ feedIdList }}>
         <FlashList
-          refreshing={refreshing}
-          onRefresh={() => { refresh({ hideGlobalLoading: true }) }}
+          scrollToOverflowEnabled
           ref={flashListRef}
           contentInsetAdjustmentBehavior="automatic"
           estimatedItemSize={80}
