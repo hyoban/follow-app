@@ -30,9 +30,10 @@ export default function Page() {
           headerTitle,
           headerBackTitle,
           headerTitleStyle: styles.highContrastText,
-          headerStyle: styles.subtleBackground,
+          headerBlurEffect: 'regular',
+          headerTransparent: true,
           headerRight: () => (
-            <Row gap={18} style={styles.subtleBackground}>
+            <Row gap={18}>
               <LoadingIndicator />
               <UnreadFilter />
             </Row>
