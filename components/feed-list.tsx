@@ -49,7 +49,7 @@ function FeedFolder({
     <>
       <ContextMenuWrapper feedIdList={feedIdList}>
         <Link
-          href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title)}`}
+          href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`}
           asChild
         >
           <Pressable onLongPress={() => {}}>
@@ -125,7 +125,7 @@ function FeedItem({
         feedIdList={[feed.id]}
       >
         <Link
-          href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title)}`}
+          href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`}
           asChild
         >
           <Pressable onLongPress={() => {}}>
