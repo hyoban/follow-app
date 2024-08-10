@@ -297,6 +297,9 @@ export function EntryList({
 }: {
   feedIdList: string[]
 }) {
+  const feedIdListRef = useRef(feedIdList)
+  feedIdListRef.current = feedIdList
+
   const headerHeight = useHeaderHeight()
   const [limit, setLimit] = useState(FETCH_PAGE_SIZE)
   const { data: dataInDb } = useEntryList(feedIdList)
@@ -332,7 +335,7 @@ export function EntryList({
     setHasNew(false)
     checkNotExistEntries(
       {
-        feedIdList,
+        feedIdList: feedIdListRef.current,
         start: lastItemPublishedAt.current,
         hideGlobalLoading,
       },
@@ -376,7 +379,8 @@ export function EntryList({
     useCallback(() => {
       if (!feedIdList?.length) {
         return
-      }(
+      };
+      (
         // @ts-expect-error
         apiClient.entries['check-new'].$get({
           query: {
@@ -393,6 +397,12 @@ export function EntryList({
         .catch(console.error)
     }, [feedIdList, latestData?.insertedAt]),
   )
+
+  useEffect(() => {
+    if (!lastItemPublishedAt.current && feedIdList.length > 0) {
+      refresh({ updateLimit: 'reset' })
+    }
+  }, [feedIdList.length, refresh])
 
   const { theme } = useStyles()
 

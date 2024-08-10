@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai'
+import { useMemo } from 'react'
 
 import { viewLayoutMapAtom } from '~/atom/layout'
 import { Container } from '~/components'
@@ -11,11 +12,12 @@ const viewIndex = 4
 export default function TabPage() {
   const viewLayoutMap = useAtomValue(viewLayoutMapAtom)
   const { data } = useFeedList(viewIndex)
+  const feedIdList = useMemo(() => data?.map(i => i.id) ?? [], [data])
   return (
     <>
       <Container>
         {viewLayoutMap[viewIndex] === 'list' && <FeedList view={viewIndex} />}
-        {viewLayoutMap[viewIndex] === 'detail' && (<EntryList feedIdList={data?.map(i => i.id) ?? []} />)}
+        {viewLayoutMap[viewIndex] === 'detail' && <EntryList feedIdList={feedIdList} />}
       </Container>
     </>
   )
