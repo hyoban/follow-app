@@ -1,3 +1,4 @@
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
 import { useEffect, useRef } from 'react'
@@ -11,9 +12,9 @@ import { LayoutSwitch } from '~/components/layout-switch'
 import { LoadingIndicator } from '~/components/loading-indicator'
 import { SettingsLink } from '~/components/settings-link'
 import { UnreadFilter } from '~/components/unread-filter'
+import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
 import { useCurrentUser } from '~/hooks/use-current-user'
-import { useTabInfo } from '~/hooks/use-tab-info'
 
 TrackPlayer.registerPlaybackService(() => async () => {
   TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())
@@ -89,7 +90,6 @@ export default function RootLayout() {
   const { styles } = useStyles(styleSheet)
 
   const { user } = useCurrentUser()
-  const { title } = useTabInfo()
 
   if (!user)
     return <Redirect href="/auth" />
@@ -98,8 +98,8 @@ export default function RootLayout() {
     <Stack>
       <Stack.Screen
         name="(tabs)"
-        options={{
-          title,
+        options={({ route }) => ({
+          title: tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))?.title,
           headerLeft: () => (
             <Row gap={18}>
               <SettingsLink />
@@ -117,7 +117,7 @@ export default function RootLayout() {
           headerLargeTitleStyle: styles.title,
           headerBlurEffect: 'regular',
           headerTransparent: true,
-        }}
+        })}
       />
       <Stack.Screen
         name="settings"
