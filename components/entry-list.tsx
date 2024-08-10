@@ -4,7 +4,7 @@ import { FlashList } from '@shopify/flash-list'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
-import { Link, useFocusEffect } from 'expo-router'
+import { Link, useFocusEffect, useRouter } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
@@ -25,6 +25,7 @@ import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useQuerySubscription } from '~/hooks/use-query-subscription'
 import { useTabInfo } from '~/hooks/use-tab-info'
+import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
 
 import { LoadingIndicator } from './loading-indicator'
 
@@ -449,26 +450,40 @@ export function EntryList({
 function EntryMedia({ entry, props }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
   const { isVideo } = props ?? {}
   const uri = entry.media?.find(media => media.type === 'photo')?.url
+  const { feedIdList } = useContext(FeedIdList)
+  const router = useRouter()
   return (
-    <Column>
-      <Image
-        source={{ uri: uri?.startsWith('http') ? uri.replace('http://', 'https://') : uri }}
-        style={{ width: '100%', aspectRatio: isVideo ? 16 / 9 : 1 }}
-      />
-      <Column p={10} gap={10}>
-        <Text weight="600">
-          {entry.title}
-        </Text>
-        <Row align="center" gap={4}>
-          <SiteImage feed={entry.feed} size={16} />
-          <Text size={12}>
-            {entry.feed.title}
+    <Pressable
+      onPress={() => {
+        if (isVideo && entry.url) {
+          openExternalUrl(getDeepLinkUrl(entry.url), { inApp: false })
+            .catch(console.error)
+        }
+        else {
+          router.push(`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : entry.feedId}` as any)
+        }
+      }}
+    >
+      <Column>
+        <Image
+          source={{ uri: uri?.startsWith('http') ? uri.replace('http://', 'https://') : uri }}
+          style={{ width: '100%', aspectRatio: isVideo ? 16 / 9 : 1 }}
+        />
+        <Column p={10} gap={10}>
+          <Text weight="600">
+            {entry.title}
           </Text>
-          <Text size={12}>
-            {formatDistanceToNowStrict(new Date(entry.publishedAt))}
-          </Text>
-        </Row>
+          <Row align="center" gap={4}>
+            <SiteImage feed={entry.feed} size={16} />
+            <Text size={12}>
+              {entry.feed.title}
+            </Text>
+            <Text size={12}>
+              {formatDistanceToNowStrict(new Date(entry.publishedAt))}
+            </Text>
+          </Row>
+        </Column>
       </Column>
-    </Column>
+    </Pressable>
   )
 }
