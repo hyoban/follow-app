@@ -1,18 +1,15 @@
 import * as Notifications from 'expo-notifications'
 import { Tabs } from 'expo-router'
-import { useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useState } from 'react'
+import { useAtomValue } from 'jotai'
+import { useEffect } from 'react'
 import ContextMenu from 'react-native-context-menu-view'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { flagEntryReadStatus } from '~/api/entry'
 import { syncFeedsEffect } from '~/api/feed'
-import { entryListToRefreshAtom } from '~/atom/entry-list'
 import { tabViewList } from '~/consts/view'
 import { useUnreadCount, useUnreadCountList } from '~/hooks/use-badge-count'
 import type { ThemeColorKey } from '~/theme'
-
-const doublePressInterval = 500
 
 export default function TabLayout() {
   const { styles, theme } = useStyles(stylesheet)
@@ -25,10 +22,6 @@ export default function TabLayout() {
       .then(() => Notifications.setBadgeCountAsync(unreadCount))
       .catch(console.error)
   }, [unreadCount])
-
-  const [lastPressTime, setLastPressTime] = useState<number | null>(null)
-  const [lastPressTab, setLastPressTab] = useState<string | null>(null)
-  const refreshEntryList = useSetAtom(entryListToRefreshAtom)
 
   return (
     <Tabs>
@@ -73,21 +66,6 @@ export default function TabLayout() {
             tabBarBadge: countList[view.view] > 0 ? '' : undefined,
             tabBarBadgeStyle: {
               transform: [{ scale: 0.4 }],
-            },
-          }}
-          listeners={{
-            tabPress: (e) => {
-              const now = Date.now()
-              if (lastPressTab === view.name && now - (lastPressTime ?? 0) < doublePressInterval) {
-                e.preventDefault()
-                setLastPressTime(null)
-                setLastPressTab(null)
-                refreshEntryList(view.view)
-              }
-              else {
-                setLastPressTime(now)
-                setLastPressTab(view.name)
-              }
             },
           }}
         />

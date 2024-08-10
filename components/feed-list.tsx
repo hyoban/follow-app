@@ -1,7 +1,9 @@
+import { useHeaderHeight } from '@react-navigation/elements'
+import { useScrollToTop } from '@react-navigation/native'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useMemo, useState } from 'react'
+import { useMemo, useRef } from 'react'
 import { Pressable } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import Animated, {
@@ -225,7 +227,18 @@ function isSingleCategory(feeds: Feed[]) {
 }
 
 export function FeedList({ view }: { view: TabViewIndex }) {
-  const [isRefreshing, setRefreshing] = useState(false)
+  const headerHeight = useHeaderHeight()
+  const ref = useRef<Animated.FlatList<unknown>>(null)
+  useScrollToTop(
+    useRef({
+      scrollToTop: () => {
+        ref.current?.scrollToOffset({ offset: -headerHeight, animated: true })
+        syncFeeds()
+          .catch(console.error)
+      },
+    }),
+  )
+
   const { data: feeds } = useFeedList(view)
   const feedsGrouped = useMemo(
     () => groupBy(feeds ?? [], getFeedCategory),
@@ -246,19 +259,12 @@ export function FeedList({ view }: { view: TabViewIndex }) {
 
   return (
     <Animated.FlatList
+      scrollToOverflowEnabled
       contentInsetAdjustmentBehavior="automatic"
+      ref={ref}
       style={{ width: '100%' }}
       data={data}
       extraData={expandedSections}
-      refreshing={isRefreshing}
-      onRefresh={() => {
-        setRefreshing(true)
-        syncFeeds({ hideLoading: true })
-          .catch(console.error)
-          .finally(() => {
-            setRefreshing(false)
-          })
-      }}
       renderItem={({ item }) => {
         if (typeof item === 'string') {
           return item === ''

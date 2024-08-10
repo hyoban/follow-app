@@ -1,10 +1,11 @@
 import { useHeaderHeight } from '@react-navigation/elements'
+import { useScrollToTop } from '@react-navigation/native'
 import { FlashList } from '@shopify/flash-list'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link, useFocusEffect } from 'expo-router'
-import { useAtom, useAtomValue } from 'jotai'
+import { useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
@@ -14,7 +15,7 @@ import { useStyles } from 'react-native-unistyles'
 
 import { apiClient } from '~/api/client'
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
-import { entryListToRefreshAtom, showUnreadOnlyAtom } from '~/atom/entry-list'
+import { showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
@@ -312,17 +313,22 @@ export function EntryList({
     lastItemPublishedAt.current = undefined
     flashListRef.current?.scrollToOffset({ offset: -headerHeight, animated: true })
   }, [headerHeight])
+  useScrollToTop(
+    useRef({
+      scrollToTop: () => {
+        resetCursor()
+        refresh()
+      },
+    }),
+  )
   useEffect(() => {
     resetCursor()
   }, [resetCursor, showUnreadOnly])
 
-  const { view } = useTabInfo()
-  const [entryListToRefresh, setEntryListToRefresh] = useAtom(entryListToRefreshAtom)
   const [canLoadMore, setCanLoadMore] = useState(true)
 
   const load = useCallback((props?: { increaseLimit?: boolean, hideGlobalLoading?: boolean }) => {
     const { increaseLimit, hideGlobalLoading } = props ?? {}
-    setEntryListToRefresh(false)
     setHasNew(false)
     checkNotExistEntries(
       {
@@ -343,19 +349,13 @@ export function EntryList({
       })
     if (increaseLimit)
       setLimit(limit => limit + FETCH_PAGE_SIZE)
-  }, [feedIdList, setEntryListToRefresh])
+  }, [feedIdList])
   const refresh = useCallback((props?: { increaseLimit?: boolean, hideGlobalLoading?: boolean }) => {
     setCanLoadMore(false)
     resetCursor()
     setLimit(FETCH_PAGE_SIZE)
     load(props)
   }, [load, resetCursor])
-
-  useEffect(() => {
-    if (view === entryListToRefresh) {
-      refresh()
-    }
-  }, [entryListToRefresh, refresh, view])
 
   const { data: latestData } = useQuerySubscription(
     db.query.entries.findFirst({
