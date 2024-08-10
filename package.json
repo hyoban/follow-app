@@ -10,8 +10,8 @@
     "build:preview": "eas build --profile preview",
     "build:prod": "eas build --profile production",
     "ios": "expo run:ios --device",
-    "lint": "eslint",
-    "lint:fix": "eslint --fix",
+    "lint": "eslint --flag unstable_ts_config",
+    "lint:fix": "eslint --flag unstable_ts_config --fix",
     "prebuild": "expo prebuild",
     "prepare": "simple-git-hooks",
     "start": "expo start --dev-client",
@@ -72,9 +72,10 @@
     "babel-plugin-inline-import": "^3.0.0",
     "drizzle-kit": "^0.23.0",
     "eas-cli": "^10.2.2",
-    "eslint": "^9.8.0",
-    "eslint-config-hyoban": "^3.0.1",
+    "eslint": "^9.9.0",
+    "eslint-config-hyoban": "^3.1.2",
     "hono": "^4.5.1",
+    "jiti": "^1.21.6",
     "lint-staged": "^15.2.7",
     "simple-git-hooks": "^2.11.1",
     "typescript": "~5.3.3"
@@ -89,7 +90,7 @@
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
-    "*": "eslint --fix"
+    "*": "eslint --flag unstable_ts_config --fix"
   },
   "expo": {
     "install": {
