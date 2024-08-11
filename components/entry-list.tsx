@@ -298,7 +298,9 @@ export function EntryList({
   feedIdList: string[]
 }) {
   const feedIdListRef = useRef(feedIdList)
-  feedIdListRef.current = feedIdList
+  useEffect(() => {
+    feedIdListRef.current = feedIdList
+  }, [feedIdList])
 
   const headerHeight = useHeaderHeight()
   const [limit, setLimit] = useState(FETCH_PAGE_SIZE)
@@ -354,7 +356,7 @@ export function EntryList({
       })
     if (updateLimit === 'increase')
       setLimit(limit => limit + FETCH_PAGE_SIZE)
-  }, [feedIdList])
+  }, [])
   const refresh = useCallback((props: { updateLimit: 'increase' | 'reset', hideGlobalLoading?: boolean }) => {
     setCanLoadMore(false)
     resetCursor()
