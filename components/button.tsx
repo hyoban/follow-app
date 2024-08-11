@@ -1,4 +1,4 @@
-import type { PressableProps } from 'react-native'
+import type { PressableProps, ViewProps } from 'react-native'
 import { ActivityIndicator, Pressable } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
@@ -9,34 +9,45 @@ import { Text } from './text'
 type VariantProps = {
   color?: Color
   radius?: Radius
-  fullWidth?: boolean
   variant?: 'solid' | 'outlined' | 'ghost'
   isLoading?: boolean
 }
 
-type ButtonProps = Omit<PressableProps, 'style'> & VariantProps
+type ButtonProps = Omit<PressableProps, 'style'> & VariantProps & { style?: ViewProps['style'] }
 
 export function Button({
   children,
   color,
   radius,
-  fullWidth,
   variant,
   isLoading,
+  style,
   ...rest
 }: ButtonProps) {
-  const { styles } = useStyles(styleSheet)
+  const { styles, theme } = useStyles(styleSheet)
   return (
     <Pressable
       style={({ pressed }) => (
-        styles.button(
-          pressed,
-          { color, radius, fullWidth, variant },
-        )
+        [
+          styles.button(
+            pressed,
+            { color, radius, variant, isLoading },
+          ),
+          style,
+        ]
       )}
       {...rest}
     >
-      {isLoading ? <ActivityIndicator /> : children}
+      {isLoading ? (
+        <ActivityIndicator
+          color={
+            isLoading ? theme.colors.grayA8
+              : variant === 'solid'
+                ? theme.colors.accentContrast
+                : undefined
+          }
+        />
+      ) : children}
     </Pressable>
   )
 }
@@ -58,7 +69,7 @@ export function TextButton({ title, ...rest }: TextButtonProps) {
 
 const styleSheet = createStyleSheet(theme => ({
   button(pressed: boolean, props?: VariantProps) {
-    const { color = 'gray', radius, fullWidth, variant } = props ?? {}
+    const { color = 'gray', radius, variant, isLoading } = props ?? {}
     if (variant === 'ghost') {
       return {}
     }
@@ -66,17 +77,13 @@ const styleSheet = createStyleSheet(theme => ({
     return {
       padding: theme.spacing[3],
       borderRadius: theme.radius[radius ?? 'medium'],
-      backgroundColor: pressed
-        ? theme.colors[`${color}${variant === 'solid' ? 10 : 5}` as ThemeColorKey]
-        : theme.colors[`${color}${variant === 'solid' ? 9 : 3}` as ThemeColorKey],
-      ...(
-        fullWidth
-          ? {
-              width: '100%',
-              alignItems: 'center',
-            }
-          : {}
-      ),
+      backgroundColor: isLoading
+        ? theme.colors.grayA3
+        : pressed
+          ? theme.colors[`${color}${variant === 'solid' ? 10 : 5}` as ThemeColorKey]
+          : theme.colors[`${color}${variant === 'solid' ? 9 : 3}` as ThemeColorKey],
+      alignItems: 'center',
+      alignSelf: 'flex-start',
     }
   },
 }))

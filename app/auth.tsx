@@ -86,8 +86,8 @@ export default function Auth() {
           <TextButton
             color="accent"
             variant="solid"
-            fullWidth
             radius="full"
+            style={{ width: '100%' }}
             onPress={async () => {
               await obtainAuthToken()
             }}

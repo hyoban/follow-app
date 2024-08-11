@@ -4,7 +4,7 @@ import { StatusBar } from 'expo-status-bar'
 import { Platform } from 'react-native'
 import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 
-import { Button, Column, Container, Row, Text } from '~/components'
+import { Button, Column, Container, Row, Text, TextButton } from '~/components'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useLogOut } from '~/hooks/use-log-out'
 import { accentColors, getAccentColor } from '~/theme'
@@ -83,15 +83,13 @@ export default function UserInfo() {
                 </Text>
               </Column>
             </Row>
-            <Button
-              fullWidth
+            <TextButton
               color="red"
               onPress={logout}
-            >
-              <Text color="red">Logout</Text>
-            </Button>
+              title="Sign out"
+              style={{ width: '100%' }}
+            />
           </Column>
-
           <ThemeSwitcher />
         </Column>
       </Container>
