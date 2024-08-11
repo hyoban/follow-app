@@ -5,30 +5,27 @@ import { MasonryFlashList } from '@shopify/flash-list'
 import { formatDistanceToNowStrict } from 'date-fns'
 import { Video } from 'expo-av'
 import { Image } from 'expo-image'
-import { Link, useFocusEffect, useRouter } from 'expo-router'
+import { Link, useRouter } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
-import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
-import { apiClient } from '~/api/client'
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
 import { showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
-import { db } from '~/db'
 import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
-import { useQuerySubscription } from '~/hooks/use-query-subscription'
 import { useTabInfo } from '~/hooks/use-tab-info'
 import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
 
 import { LoadingIndicator } from './loading-indicator'
+import { RefreshIndicator } from './refresh-indicator'
 
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
@@ -336,7 +333,6 @@ export function EntryList({
 
   const load = useCallback((props: { updateLimit: 'increase' | 'reset', hideGlobalLoading?: boolean }) => {
     const { updateLimit, hideGlobalLoading } = props
-    setHasNew(false)
     checkNotExistEntries(
       {
         feedIdList: feedIdListRef.current,
@@ -365,50 +361,12 @@ export function EntryList({
     load(props)
   }, [load, resetCursor])
 
-  const { data: latestData } = useQuerySubscription(
-    db.query.entries.findFirst({
-      where(fields, { inArray }) {
-        return inArray(fields.feedId, feedIdList ?? [])
-      },
-      orderBy(fields, { desc }) {
-        return [desc(fields.insertedAt)]
-      },
-    }),
-    ['latestData', { feedIdList }],
-  )
-
-  const [hasNew, setHasNew] = useState(false)
-
-  useFocusEffect(
-    useCallback(() => {
-      if (!feedIdList?.length || !lastItemPublishedAt.current) {
-        return
-      };
-      (
-        // @ts-expect-error
-        apiClient.entries['check-new'].$get({
-          query: {
-            ...(feedIdList.length > 1 ? { feedIdList } : { feedId: feedIdList[0] }),
-            insertedAfter: Date.parse(latestData?.insertedAt ?? (new Date()).toISOString()),
-          },
-        }) as Promise<{ data: { has_new: boolean, lastest_at?: string } }>
-      )
-        .then(({ data }) => {
-          if (data.has_new) {
-            setHasNew(true)
-          }
-        })
-        .catch(console.error)
-    }, [feedIdList, latestData?.insertedAt]),
-  )
-
   useEffect(() => {
     if (!lastItemPublishedAt.current && feedIdList.length > 0) {
       refresh({ updateLimit: 'reset' })
     }
   }, [feedIdList.length, refresh])
 
-  const { theme } = useStyles()
   const { view } = useTabInfo()
 
   return (
@@ -432,34 +390,10 @@ export function EntryList({
           ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
         />
       </FeedIdList.Provider>
-      {hasNew && (
-        <Animated.View
-          entering={FadeInUp}
-          exiting={FadeOutUp}
-          style={{
-            position: 'absolute',
-            top: headerHeight,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            // justifyContent: 'center',
-            alignItems: 'center',
-            pointerEvents: 'box-none',
-            zIndex: 999,
-          }}
-        >
-          <Pressable
-            onPress={() => { refresh({ updateLimit: 'reset' }) }}
-          >
-            <Row bg={theme.colors.accent9} style={{ borderRadius: 9999 }} mt={20} p={10} gap={6} align="center">
-              <Iconify icon="mingcute:arrow-up-fill" size={14} />
-              <Text size={12} weight="600">
-                Refresh to see new entries
-              </Text>
-            </Row>
-          </Pressable>
-        </Animated.View>
-      )}
+      <RefreshIndicator
+        feedIdList={feedIdList}
+        onRefresh={() => refresh({ updateLimit: 'reset' })}
+      />
     </>
   )
 }
