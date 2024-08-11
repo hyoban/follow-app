@@ -32,6 +32,7 @@ import { LoadingIndicator } from './loading-indicator'
 
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
+  index?: number
 }
 
 function getEntryItemPropsByView(view?: TabViewIndex): {
@@ -284,11 +285,11 @@ function AudioButton({ entry, children }: AudioButtonProps) {
   )
 }
 
-function RenderItem({ entry }: EntryItemProps) {
+function RenderItem({ entry, index }: EntryItemProps) {
   const { view } = useTabInfo()
   return view === 2 || view === 3
-    ? <EntryMedia entry={entry} props={{ isVideo: view === 3 }} />
-    : <EntryItem entry={entry} />
+    ? <EntryMedia entry={entry} props={{ isVideo: view === 3 }} index={index} />
+    : <EntryItem entry={entry} index={index} />
 }
 
 const FeedIdList = createContext<{ feedIdList: string[] }>({ feedIdList: [] })
@@ -309,7 +310,7 @@ export function EntryList({
   const data = useMemo(() => dataInDb?.slice(0, limit), [dataInDb, limit])
 
   const renderItem = useCallback(
-    ({ item }: { item: Entry & { feed: Feed } }) => <RenderItem entry={item} />,
+    ({ item, index }: { item: Entry & { feed: Feed }, index: number }) => <RenderItem entry={item} index={index} />,
     [],
   )
 
@@ -463,11 +464,12 @@ export function EntryList({
   )
 }
 
-function EntryMedia({ entry, props }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
+function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
   const { isVideo } = props ?? {}
   const media = entry.media?.find(media => media.type === 'photo')
   const { feedIdList } = useContext(FeedIdList)
   const router = useRouter()
+  const { theme } = useStyles()
   return (
     <Pressable
       onPress={() => {
@@ -479,17 +481,27 @@ function EntryMedia({ entry, props }: Omit<EntryItemProps, 'props'> & { props?: 
           router.push(`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : entry.feedId}` as any)
         }
       }}
+      style={isVideo ? {} : {
+        margin: 5,
+        marginLeft: index !== undefined ? index % 2 === 1 ? 5 : 10 : 5,
+        marginRight: index !== undefined ? index % 2 === 1 ? 10 : 5 : 5,
+        borderRadius: 5,
+        overflow: 'hidden',
+        backgroundColor: theme.colors.gray2,
+      }}
     >
       <Column>
-        <Image
-          source={{ uri: media?.url.startsWith('http') ? media.url.replace('http://', 'https://') : media?.url }}
-          style={{
-            width: '100%',
-            aspectRatio: (media?.height && media.width)
-              ? media.width / media.height
-              : isVideo ? 16 / 9 : 9 / 16,
-          }}
-        />
+        {media && (
+          <Image
+            source={{ uri: media?.url.startsWith('http') ? media.url.replace('http://', 'https://') : media?.url }}
+            style={{
+              width: '100%',
+              aspectRatio: (media?.height && media.width)
+                ? media.width / media.height
+                : isVideo ? 16 / 9 : 9 / 16,
+            }}
+          />
+        )}
         <Column p={10} gap={10}>
           {entry.title && (
             <Text weight="600" numberOfLines={1}>
@@ -498,7 +510,7 @@ function EntryMedia({ entry, props }: Omit<EntryItemProps, 'props'> & { props?: 
           )}
           <Row align="center" gap={4}>
             <SiteImage feed={entry.feed} size={16} />
-            <Text size={12}>
+            <Text size={12} numberOfLines={1}>
               {entry.feed.title}
             </Text>
             {isVideo && (
