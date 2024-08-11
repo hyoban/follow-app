@@ -379,7 +379,7 @@ export function EntryList({
 
   useFocusEffect(
     useCallback(() => {
-      if (!feedIdList?.length) {
+      if (!feedIdList?.length || !lastItemPublishedAt.current) {
         return
       };
       (
