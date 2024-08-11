@@ -491,17 +491,21 @@ function EntryMedia({ entry, props }: Omit<EntryItemProps, 'props'> & { props?: 
           }}
         />
         <Column p={10} gap={10}>
-          <Text weight="600">
-            {entry.title}
-          </Text>
+          {entry.title && (
+            <Text weight="600" numberOfLines={1}>
+              {entry.title}
+            </Text>
+          )}
           <Row align="center" gap={4}>
             <SiteImage feed={entry.feed} size={16} />
             <Text size={12}>
               {entry.feed.title}
             </Text>
-            <Text size={12}>
-              {formatDistanceToNowStrict(new Date(entry.publishedAt))}
-            </Text>
+            {isVideo && (
+              <Text size={12}>
+                {formatDistanceToNowStrict(new Date(entry.publishedAt))}
+              </Text>
+            )}
           </Row>
         </Column>
       </Column>
