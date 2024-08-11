@@ -15,6 +15,7 @@ import { FeedContent } from '~/components/feed-content'
 import { blurhash } from '~/consts/blur'
 import type { Entry } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
+import { useTabInfo } from '~/hooks/use-tab-info'
 import { openExternalUrl } from '~/lib/utils'
 
 function LazyComponent({
@@ -124,11 +125,12 @@ function EntryDetail({ entry }: { entry: Entry }) {
     .filter((i): i is string => i !== null)
 
   const mediaList = entry.media ?? []
+  const { view } = useTabInfo()
 
   return (
     <ScrollView>
       <Column gap={8}>
-        {mediaList.length > 0 && (
+        {(mediaList.length > 0 && view !== 5) && (
           <PagerView
             style={{
               width: '100%',
@@ -170,6 +172,7 @@ function EntryDetail({ entry }: { entry: Entry }) {
             textDecorationLine: 'underline',
             marginBottom: 8,
             paddingHorizontal: 15,
+            marginVertical: 15,
           }}
           onPress={() => {
             openExternalUrl(entry.url)
