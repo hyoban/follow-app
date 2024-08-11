@@ -464,6 +464,8 @@ export function EntryList({
   )
 }
 
+const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
+
 function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
   const { isVideo } = props ?? {}
   const media = entry.media?.find(media => media.type === 'photo')
@@ -500,6 +502,7 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
                 ? media.width / media.height
                 : isVideo ? 16 / 9 : 9 / 16,
             }}
+            placeholder={{ blurhash }}
           />
         )}
         <Column p={10} gap={10}>
