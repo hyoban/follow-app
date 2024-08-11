@@ -8,7 +8,7 @@ import { useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
 
 import { getSession, saveSessionToUserTable } from '~/api/session'
-import { Button, Column, Container, Text } from '~/components'
+import { Column, Container, Text, TextButton } from '~/components'
 import { commonStylesheet } from '~/theme/common'
 
 function obtainAuthToken() {
@@ -83,7 +83,9 @@ export default function Auth() {
           />
         </Column>
         <Column w="100%" gap={8} flex={1} pt={60}>
-          <Button
+          <TextButton
+            color="accent"
+            variant="solid"
             fullWidth
             radius="full"
             onPress={async () => {
@@ -91,9 +93,8 @@ export default function Auth() {
             }}
             disabled={isLoading}
             isLoading={isLoading}
-          >
-            <Text weight="bold">Sign in</Text>
-          </Button>
+            title="Sign in"
+          />
           <Text size={14} style={{ textAlign: 'center' }}>
             Use your personal account to sign in on web.follow.is
           </Text>

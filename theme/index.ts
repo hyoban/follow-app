@@ -129,6 +129,40 @@ const {
   yellowDarkA,
 } = allColors
 
+const contrastColors = {
+  grayContrast: '#fff',
+  mauveContrast: '#fff',
+  slateContrast: '#fff',
+  sageContrast: '#fff',
+  oliveContrast: '#fff',
+  sandContrast: '#fff',
+  amberContrast: '#21201c',
+  blueContrast: '#fff',
+  bronzeContrast: '#fff',
+  brownContrast: '#fff',
+  crimsonContrast: '#fff',
+  cyanContrast: '#fff',
+  goldContrast: '#fff',
+  grassContrast: '#fff',
+  greenContrast: '#fff',
+  indigoContrast: '#fff',
+  irisContrast: '#fff',
+  jadeContrast: '#fff',
+  limeContrast: '#1d211c',
+  mintContrast: '#1a211e',
+  orangeContrast: '#fff',
+  pinkContrast: '#fff',
+  plumContrast: '#fff',
+  purpleContrast: '#fff',
+  redContrast: '#fff',
+  rubyContrast: '#fff',
+  skyContrast: '#1c2024',
+  tealContrast: '#fff',
+  tomatoContrast: '#fff',
+  violetContrast: '#fff',
+  yellowContrast: '#21201c',
+}
+
 // @keep-sorted
 export const accentColors = [
   'amber',
@@ -173,6 +207,7 @@ type Accent = {
   accent10: string
   accent11: string
   accent12: string
+  accentContrast: string
 }
 
 type AccentA = {
@@ -198,19 +233,25 @@ export function getAccentColor(
   }
 
   const accent = Object.fromEntries(
-    Object.entries(allColors[accentColor]).map(([key, value]) => [key.replace(accentColor, 'accent'), value]),
+    Object.entries(allColors[accentColor])
+      .map(([key, value]) => [key.replace(accentColor, 'accent'), value])
+      .concat([['accentContrast', contrastColors[`${accentColor}Contrast`]]]),
   ) as Accent
 
   const accentA = Object.fromEntries(
-    Object.entries(allColors[`${accentColor}A`]).map(([key, value]) => [key.replace(`${accentColor}A`, 'accentA'), value]),
+    Object.entries(allColors[`${accentColor}A`])
+      .map(([key, value]) => [key.replace(`${accentColor}A`, 'accentA'), value]),
   ) as AccentA
 
   const accentDark = Object.fromEntries(
-    Object.entries(allColors[`${accentColor}Dark`]).map(([key, value]) => [key.replace(accentColor, 'accent'), value]),
+    Object.entries(allColors[`${accentColor}Dark`])
+      .map(([key, value]) => [key.replace(accentColor, 'accent'), value])
+      .concat([['accentContrast', contrastColors[`${accentColor}Contrast`]]]),
   ) as Accent
 
   const accentDarkA = Object.fromEntries(
-    Object.entries(allColors[`${accentColor}DarkA`]).map(([key, value]) => [key.replace(`${accentColor}A`, 'accentA'), value]),
+    Object.entries(allColors[`${accentColor}DarkA`])
+      .map(([key, value]) => [key.replace(`${accentColor}A`, 'accentA'), value]),
   ) as AccentA
 
   return { accent, accentA, accentDark, accentDarkA }
@@ -272,7 +313,7 @@ export const colors = [
   'violet',
   'yellow',
 ] as const
-export type Color = (typeof colors)[number]
+export type Color = (typeof colors)[number] | 'accent' | 'accentContrast'
 
 export const spacing = {
   1: 4,
@@ -374,6 +415,7 @@ export const lightTheme = {
     ...tomatoA,
     ...violetA,
     ...yellowA,
+    ...contrastColors,
   },
   spacing,
   radius,
@@ -447,6 +489,7 @@ export const darkTheme = {
     ...tomatoDarkA,
     ...violetDarkA,
     ...yellowDarkA,
+    ...contrastColors,
   },
   spacing,
   radius,

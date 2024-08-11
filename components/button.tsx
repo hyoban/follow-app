@@ -4,6 +4,8 @@ import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import type { Color, Radius, ThemeColorKey } from '~/theme'
 
+import { Text } from './text'
+
 type VariantProps = {
   color?: Color
   radius?: Radius
@@ -39,9 +41,24 @@ export function Button({
   )
 }
 
+type TextButtonProps = Omit<ButtonProps, 'children'> & { title: string }
+
+export function TextButton({ title, ...rest }: TextButtonProps) {
+  return (
+    <Button {...rest}>
+      <Text
+        contrast="low"
+        color={rest.variant === 'solid' ? 'accentContrast' : rest.color}
+      >
+        {title}
+      </Text>
+    </Button>
+  )
+}
+
 const styleSheet = createStyleSheet(theme => ({
   button(pressed: boolean, props?: VariantProps) {
-    const { color, radius, fullWidth, variant } = props ?? {}
+    const { color = 'gray', radius, fullWidth, variant } = props ?? {}
     if (variant === 'ghost') {
       return {}
     }
@@ -50,8 +67,8 @@ const styleSheet = createStyleSheet(theme => ({
       padding: theme.spacing[3],
       borderRadius: theme.radius[radius ?? 'medium'],
       backgroundColor: pressed
-        ? theme.colors[`${color ?? 'gray'}5` as ThemeColorKey]
-        : theme.colors[`${color ?? 'gray'}3` as ThemeColorKey],
+        ? theme.colors[`${color}${variant === 'solid' ? 10 : 5}` as ThemeColorKey]
+        : theme.colors[`${color}${variant === 'solid' ? 9 : 3}` as ThemeColorKey],
       ...(
         fullWidth
           ? {

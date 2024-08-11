@@ -39,15 +39,17 @@ const styleSheet = createStyleSheet(theme => ({
       size = 17,
       contrast = 'high',
       weight = 'regular',
-      color,
+      color = 'gray',
     } = variant ?? {}
 
     return {
       fontFamily: 'SN Pro',
       color: theme.colors[
-        contrast === 'high'
-          ? `${color ?? 'gray'}12` as ThemeColorKey
-          : `${color ?? 'gray'}11` as ThemeColorKey
+        color === 'accentContrast'
+          ? 'accentContrast'
+          : contrast === 'high'
+            ? `${color}12` as ThemeColorKey
+            : `${color}11` as ThemeColorKey
       ],
       fontSize: size,
       fontWeight: weight,
