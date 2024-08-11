@@ -50,6 +50,8 @@ export type MediaModel = {
   url: string
   type: 'photo' | 'video'
   preview_image_url?: string
+  width?: number
+  height?: number
 }
 
 export type AttachmentsModel = {
