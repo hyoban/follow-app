@@ -132,7 +132,7 @@ function EntryDetail({ entry }: { entry: Entry }) {
           <PagerView
             style={{
               width: '100%',
-              aspectRatio: Math.max(...mediaList.map(media => (media.width && media.height) ? media.width / media.height : 1)),
+              aspectRatio: Math.max(...mediaList.map(media => (media.width && media.height) ? media.width / media.height : 1), 1),
             }}
           >
             {mediaList.map(media => (
@@ -145,6 +145,7 @@ function EntryDetail({ entry }: { entry: Entry }) {
                         width: '100%',
                         aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
                       }}
+                      contentFit="contain"
                       placeholder={{ blurhash }}
                     />
                   )

@@ -393,7 +393,8 @@ export function EntryList({
 
 function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
   const { isVideo } = props ?? {}
-  const media = entry.media?.find(media => media.type === 'photo')
+  const media = entry.media?.find(media => media.type === 'photo' || media.type === 'video')
+  const mediaUrl = media?.type === 'photo' ? media.url : media?.preview_image_url
   const { feedIdList } = useContext(FeedIdList)
   const router = useRouter()
   const { theme } = useStyles()
@@ -421,7 +422,7 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
       <Column>
         {media && (
           <Image
-            source={{ uri: media?.url.startsWith('http') ? media.url.replace('http://', 'https://') : media?.url }}
+            source={{ uri: mediaUrl?.startsWith('http') ? mediaUrl.replace('http://', 'https://') : mediaUrl }}
             style={{
               width: '100%',
               aspectRatio: (media?.height && media.width)
