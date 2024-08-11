@@ -3,7 +3,6 @@ import { useScrollToTop } from '@react-navigation/native'
 import type { FlashList } from '@shopify/flash-list'
 import { MasonryFlashList } from '@shopify/flash-list'
 import { formatDistanceToNowStrict } from 'date-fns'
-import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Link, useRouter } from 'expo-router'
 import { useAtomValue } from 'jotai'
@@ -18,6 +17,7 @@ import { showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { SiteIcon } from '~/components/site-icon'
+import { blurhash } from '~/consts/blur'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
@@ -99,7 +99,7 @@ function Dot({ show, size = 8 }: { show: boolean, size?: number }) {
 
 function EntryItem({ entry }: EntryItemProps) {
   const { feed } = entry
-  const { view } = useTabInfo()
+  const { view, title } = useTabInfo()
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
   const { feedIdList } = useContext(FeedIdList)
   return (
@@ -124,7 +124,7 @@ function EntryItem({ entry }: EntryItemProps) {
         }}
       >
         <Link
-          href={`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : feed.id}` as any}
+          href={`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : feed.id}&title=${title}&view=${view}` as any}
           asChild
         >
           <Pressable onLongPress={() => {}}>
@@ -160,25 +160,18 @@ function EntryItem({ entry }: EntryItemProps) {
                 )}
                 {options?.imageNewLine && (
                   <Row gap={10}>
-                    {entry.media?.map((media, index) =>
-                      media.type === 'photo'
-                        ? (
-                            <Image
-                              key={index}
-                              source={{ uri: media.url }}
-                              style={{ width: 100, height: 100, borderRadius: 5 }}
-                            />
-                          )
-                        : media.type === 'video'
-                          ? (
-                              <Video
-                                key={index}
-                                style={{ width: 100, height: 100 }}
-                                source={{ uri: media.url }}
-                              />
-                            )
-                          : null,
-                    )}
+                    {entry.media?.map((media, index) => (
+                      <Image
+                        key={index}
+                        source={{ uri: media.type === 'photo' ? media.url : media.preview_image_url }}
+                        style={{
+                          width: 100,
+                          // height: 100,
+                          aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
+                          borderRadius: 5,
+                        }}
+                      />
+                    ))}
                   </Row>
                 )}
               </Column>
@@ -398,14 +391,13 @@ export function EntryList({
   )
 }
 
-const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj['
-
 function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
   const { isVideo } = props ?? {}
   const media = entry.media?.find(media => media.type === 'photo')
   const { feedIdList } = useContext(FeedIdList)
   const router = useRouter()
   const { theme } = useStyles()
+  const { title, view } = useTabInfo()
   return (
     <Pressable
       onPress={() => {
@@ -414,7 +406,7 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
             .catch(console.error)
         }
         else {
-          router.push(`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : entry.feedId}` as any)
+          router.push(`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : entry.feedId}&title=${title}&view=${view}` as any)
         }
       }}
       style={isVideo ? {} : {

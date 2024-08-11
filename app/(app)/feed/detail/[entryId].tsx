@@ -1,4 +1,5 @@
 import { formatDate } from 'date-fns'
+import { Video } from 'expo-av'
 import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams, useNavigation } from 'expo-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
@@ -11,6 +12,7 @@ import { apiClient } from '~/api/client'
 import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
 import { Column, Container, Iconify, Row, Text } from '~/components'
 import { FeedContent } from '~/components/feed-content'
+import { blurhash } from '~/consts/blur'
 import type { Entry } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { openExternalUrl } from '~/lib/utils'
@@ -121,9 +123,45 @@ function EntryDetail({ entry }: { entry: Entry }) {
     .map(i => i.image)
     .filter((i): i is string => i !== null)
 
+  const mediaList = entry.media ?? []
+
   return (
     <ScrollView>
-      <Column gap={8} py={15}>
+      <Column gap={8}>
+        {mediaList.length > 0 && (
+          <PagerView
+            style={{
+              width: '100%',
+              aspectRatio: Math.max(...mediaList.map(media => (media.width && media.height) ? media.width / media.height : 1)),
+            }}
+          >
+            {mediaList.map(media => (
+              media.type === 'photo'
+                ? (
+                    <Image
+                      key={media.url}
+                      source={{ uri: media.url }}
+                      style={{
+                        width: '100%',
+                        aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
+                      }}
+                      placeholder={{ blurhash }}
+                    />
+                  )
+                : (
+                    <Video
+                      key={media.url}
+                      source={{ uri: media.url }}
+                      style={{
+                        width: '100%',
+                        aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
+                      }}
+                      useNativeControls
+                    />
+                  )
+            ))}
+          </PagerView>
+        )}
         <Text
           size={24}
           weight={600}
