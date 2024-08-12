@@ -1,3 +1,4 @@
+import { isBefore, subMinutes } from 'date-fns'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { getDefaultStore } from 'jotai'
 
@@ -89,13 +90,24 @@ export async function checkNotExistEntries({
 
   const readOnly = store.get(showUnreadOnlyAtom)
   console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly)
-  const entriesFromApi = await getEntries({
+  let entriesFromApi = await getEntries({
     feedIdList,
     publishedAfter: start,
-    publishedBefore: end,
     read: readOnly ? false : undefined,
     limit: FETCH_PAGE_SIZE,
   })
+  if (end && entriesFromApi.at(-1)?.publishedAt) {
+    while (isBefore(subMinutes(end, 1), entriesFromApi.at(-1)!.publishedAt)) {
+      console.info('fetch next page', entriesFromApi.at(-1)!.publishedAt)
+      entriesFromApi = entriesFromApi.concat(await getEntries({
+        feedIdList,
+        publishedAfter: entriesFromApi.at(-1)!.publishedAt,
+        read: readOnly ? false : undefined,
+        limit: FETCH_PAGE_SIZE,
+      }))
+    }
+  }
+  console.info('entriesFromApi', entriesFromApi.length)
   await createOrUpdateEntriesInDB(entriesFromApi)
 
   if (!hideGlobalLoading)

@@ -330,6 +330,7 @@ export function EntryList({
       {
         feedIdList: feedIdListRef.current,
         start: lastItemPublishedAt.current,
+        end: data?.at(-1)?.publishedAt,
         hideGlobalLoading,
       },
     )
@@ -347,7 +348,7 @@ export function EntryList({
       })
     if (updateLimit === 'increase')
       setLimit(limit => limit + FETCH_PAGE_SIZE)
-  }, [])
+  }, [data])
   const refresh = useCallback((props: { updateLimit: 'increase' | 'reset', hideGlobalLoading?: boolean }) => {
     setCanLoadMore(false)
     resetCursor()
