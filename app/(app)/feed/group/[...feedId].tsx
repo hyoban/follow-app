@@ -1,4 +1,5 @@
 import { Stack, useLocalSearchParams } from 'expo-router'
+import { Platform } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
 import { Container, Row } from '~/components'
@@ -31,7 +32,10 @@ export default function Page() {
           headerBackTitle,
           headerTitleStyle: styles.highContrastText,
           headerBlurEffect: 'regular',
-          headerTransparent: true,
+          headerTransparent: Platform.select({
+            ios: true,
+            android: false,
+          }),
           headerRight: () => (
             <Row gap={18}>
               <LoadingIndicator />

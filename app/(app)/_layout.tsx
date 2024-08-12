@@ -2,6 +2,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
 import { useEffect, useRef } from 'react'
+import { Platform } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
@@ -114,7 +115,10 @@ export default function RootLayout() {
           headerTitleStyle: styles.title,
           headerLargeTitleStyle: styles.title,
           headerBlurEffect: 'regular',
-          headerTransparent: true,
+          headerTransparent: Platform.select({
+            ios: true,
+            android: false,
+          }),
         })}
       />
       <Stack.Screen
