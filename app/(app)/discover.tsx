@@ -76,34 +76,38 @@ export default function DiscoverPage() {
 
   return (
     <>
-      <ScrollView>
-        <Container p={10} gap={10}>
-          <Text>Any URL or Keyword</Text>
-          <TextInput
-            enterKeyHint="search"
-            style={{
-              backgroundColor: theme.colors.gray3,
-              color: theme.colors.gray12,
-              borderRadius: 8,
-              minHeight: 40,
-              padding: 10,
-            }}
-            value={keyword}
-            onChangeText={setKeyword}
-            onSubmitEditing={() => {
-              trigger()
-                .catch(console.error)
-            }}
-          />
-          {isMutating ? <ActivityIndicator />
-            : (
-                <>
-                  <Text>{`Found ${data?.data.length ?? 0} feeds`}</Text>
-                  {data && data.data.length > 0 && data.data.map(item => <DiscoverItem key={item.feed.id} item={item} />)}
-                </>
-              )}
-        </Container>
-      </ScrollView>
+      <Container>
+        <ScrollView style={{ flex: 1 }}>
+          <Column p={12} gap={12}>
+            <Text>Any URL or Keyword</Text>
+            <TextInput
+              enterKeyHint="search"
+              style={{
+                backgroundColor: theme.colors.gray3,
+                color: theme.colors.gray12,
+                borderRadius: 8,
+                minHeight: 40,
+                padding: 10,
+              }}
+              value={keyword}
+              onChangeText={setKeyword}
+              onSubmitEditing={() => {
+                trigger()
+                  .catch(console.error)
+              }}
+            />
+            {isMutating ? <ActivityIndicator />
+              : data
+                ? (
+                    <>
+                      <Text>{`Found ${data?.data.length ?? 0} feeds`}</Text>
+                      {data.data.map(item => <DiscoverItem key={item.feed.id} item={item} />)}
+                    </>
+                  )
+                : null}
+          </Column>
+        </ScrollView>
+      </Container>
       <StatusBar style={Platform.OS === 'ios' ? 'light' : 'auto'} />
     </>
   )
