@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications'
-import { Tabs } from 'expo-router'
+import { Tabs, useRouter } from 'expo-router'
 import { useAtom, useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import ContextMenu from 'react-native-context-menu-view'
@@ -25,6 +25,7 @@ export default function TabLayout() {
   }, [unreadCount])
 
   const [viewLayoutMap, setViewLayoutMap] = useAtom(viewLayoutMapAtom)
+  const router = useRouter()
 
   return (
     <Tabs>
@@ -52,6 +53,10 @@ export default function TabLayout() {
                     title: `Switch layout to ${viewLayoutMap[view.view] === 'detail' ? 'List' : 'Detail'}`,
                     systemIcon: 'list.bullet',
                   },
+                  {
+                    title: 'Add Feed',
+                    systemIcon: 'plus',
+                  },
                 ]}
                 onPress={(e) => {
                   switch (e.nativeEvent.index) {
@@ -68,6 +73,10 @@ export default function TabLayout() {
                           [view.view]: viewLayoutMap[view.view] === 'detail' ? 'list' : 'detail',
                         }
                       })
+                      break
+                    }
+                    case 2: {
+                      router.push('/discover')
                       break
                     }
                     default: {

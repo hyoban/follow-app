@@ -130,6 +130,15 @@ export default function RootLayout() {
           headerTitleStyle: styles.title,
         }}
       />
+      <Stack.Screen
+        name="discover"
+        options={{
+          presentation: 'modal',
+          title: 'Discover',
+          headerStyle: styles.header,
+          headerTitleStyle: styles.title,
+        }}
+      />
     </Stack>
   )
 }

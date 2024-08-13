@@ -16,7 +16,6 @@ import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
 import { showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
-import { SiteIcon } from '~/components/site-icon'
 import { blurhash } from '~/consts/blur'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import type { Entry, Feed } from '~/db/schema'
@@ -26,6 +25,7 @@ import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
 
 import { LoadingIndicator } from './loading-indicator'
 import { RefreshIndicator } from './refresh-indicator'
+import { SiteImage } from './site-image'
 
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
@@ -64,19 +64,6 @@ function getEntryItemPropsByView(view?: TabViewIndex): {
       return {}
     }
   }
-}
-
-function SiteImage({ feed, size = 24 }: { feed: Feed, size?: number }) {
-  return feed?.image
-    ? (
-        <Image
-          source={{ uri: feed.image }}
-          style={{ width: size, height: size, borderRadius: size / 4 }}
-        />
-      )
-    : (
-        <SiteIcon source={feed?.siteUrl} />
-      )
 }
 
 function Dot({ show, size = 8 }: { show: boolean, size?: number }) {
