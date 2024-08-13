@@ -404,6 +404,8 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
     <Pressable
       onPress={() => {
         if (isVideo && entry.url) {
+          flagEntryReadStatus({ entryId: entry.id })
+            .catch(console.error)
           openExternalUrl(getDeepLinkUrl(entry.url), { inApp: false })
             .catch(console.error)
         }
