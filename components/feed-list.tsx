@@ -4,7 +4,7 @@ import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useMemo, useRef } from 'react'
-import { Pressable } from 'react-native'
+import { Alert, Pressable } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import Animated, {
   Easing,
@@ -14,6 +14,7 @@ import Animated, {
   useSharedValue,
   withSpring,
 } from 'react-native-reanimated'
+import { useStyles } from 'react-native-unistyles'
 
 import { flagEntryReadStatus } from '~/api/entry'
 import { syncFeeds } from '~/api/feed'
@@ -84,21 +85,28 @@ function FeedFolder({
 
 function ContextMenuWrapper({
   feedIdList,
+  feed,
   children,
   ...rest
 }: React.ComponentProps<typeof ContextMenu> & {
   feedIdList: string[]
+  feed?: Feed
 }) {
   return (
     <ContextMenu
       actions={[
         { title: 'Mark as Read', systemIcon: 'circlebadge.fill' },
-      ]}
+      ].concat(
+        feed?.errorAt ? [{ title: 'Show Error', systemIcon: 'exclamationmark.triangle.fill' }] : [],
+      )}
       onPress={(e) => {
         switch (e.nativeEvent.index) {
           case 0: {
-            flagEntryReadStatus({ feedId: feedIdList })
-              .catch(console.error)
+            flagEntryReadStatus({ feedId: feedIdList }).catch(console.error)
+            break
+          }
+          case 1: {
+            Alert.alert('Error', feed?.errorMessage ?? 'Unknown error')
             break
           }
           default: {
@@ -119,10 +127,12 @@ function FeedItem({
   feed: Feed
 }) {
   const { view, title } = useTabInfo()
+  const { theme } = useStyles()
   return (
     <>
       <ContextMenuWrapper
         feedIdList={[feed.id]}
+        feed={feed}
       >
         <Link
           href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`}
@@ -138,8 +148,25 @@ function FeedItem({
               ) : (
                 <SiteIcon source={feed.siteUrl} />
               )}
-              <Text numberOfLines={1} style={{ flex: 1 }}>{feed.title}</Text>
-
+              <Row flex={1} align="center" gap={4}>
+                <Text
+                  numberOfLines={1}
+                  style={{
+                    ...(
+                      feed.errorAt
+                        ? {
+                            color: theme.colors.red10,
+                          }
+                        : {}
+                    ),
+                  }}
+                >
+                  {feed.title}
+                </Text>
+                {feed.errorAt && (
+                  <Iconify icon="mingcute:wifi-off-line" color={theme.colors.red10} />
+                )}
+              </Row>
               {feed.unread > 0 && (
                 <Text>{feed.unread}</Text>
               )}
