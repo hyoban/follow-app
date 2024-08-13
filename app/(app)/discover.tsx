@@ -6,6 +6,7 @@ import { useStyles } from 'react-native-unistyles'
 import useSWRMutation from 'swr/mutation'
 
 import { apiClient } from '~/api/client'
+import { syncFeeds } from '~/api/feed'
 import { Column, Container, Iconify, Row, Text, TextButton } from '~/components'
 import { SiteImage } from '~/components/site-image'
 import { useTabInfo } from '~/hooks/use-tab-info'
@@ -17,7 +18,7 @@ function FollowButton({ item }: { item: DiscoverList[number] }) {
   const { view } = useTabInfo()
   const [isFollowing, setIsFollowing] = useState(false)
   const router = useRouter()
-  if (view === undefined)
+  if (view === undefined || item.isSubscribed)
     return null
   return (
     <Row align="center" gap={10}>
@@ -30,9 +31,8 @@ function FollowButton({ item }: { item: DiscoverList[number] }) {
         onPress={() => {
           setIsFollowing(true)
           apiClient.subscriptions.$post({ json: { url: item.feed.url, view } })
-            .then(() => {
-              router.back()
-            })
+            .then(() => syncFeeds())
+            .then(() => { router.back() })
             .catch(console.error)
             .finally(() => {
               setIsFollowing(false)
