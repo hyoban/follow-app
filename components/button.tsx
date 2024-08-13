@@ -11,6 +11,7 @@ type VariantProps = {
   radius?: Radius
   variant?: 'solid' | 'outlined' | 'ghost'
   isLoading?: boolean
+  size?: 'small' | 'medium' | 'large'
 }
 
 type ButtonProps = Omit<PressableProps, 'style'> & VariantProps & { style?: ViewProps['style'] }
@@ -21,6 +22,7 @@ export function Button({
   radius,
   variant,
   isLoading,
+  size,
   style,
   ...rest
 }: ButtonProps) {
@@ -31,7 +33,7 @@ export function Button({
         [
           styles.button(
             pressed,
-            { color, radius, variant, isLoading },
+            { color, radius, variant, isLoading, size },
           ),
           style,
         ]
@@ -69,19 +71,21 @@ export function TextButton({ title, ...rest }: TextButtonProps) {
 
 const styleSheet = createStyleSheet(theme => ({
   button(pressed: boolean, props?: VariantProps) {
-    const { color = 'gray', radius, variant, isLoading } = props ?? {}
+    const { color = 'gray', radius, variant, isLoading, size = 'medium' } = props ?? {}
     if (variant === 'ghost') {
       return {}
     }
 
     return {
-      padding: theme.spacing[3],
+      height: size === 'medium' ? 40 : size === 'large' ? 48 : 32,
+      paddingHorizontal: size === 'medium' ? theme.spacing[3] : size === 'large' ? theme.spacing[4] : theme.spacing[2],
       borderRadius: theme.radius[radius ?? 'medium'],
       backgroundColor: isLoading
         ? theme.colors.grayA3
         : pressed
           ? theme.colors[`${color}${variant === 'solid' ? 10 : 5}` as ThemeColorKey]
           : theme.colors[`${color}${variant === 'solid' ? 9 : 3}` as ThemeColorKey],
+      justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'flex-start',
     }

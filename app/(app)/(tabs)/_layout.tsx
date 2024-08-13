@@ -76,7 +76,7 @@ export default function TabLayout() {
                       break
                     }
                     case 2: {
-                      router.push('/discover')
+                      router.push(`/discover?view=${view.view}`)
                       break
                     }
                     default: {

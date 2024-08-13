@@ -1,3 +1,4 @@
+import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { useState } from 'react'
 import { ActivityIndicator, Platform, ScrollView, TextInput } from 'react-native'
@@ -5,13 +6,45 @@ import { useStyles } from 'react-native-unistyles'
 import useSWRMutation from 'swr/mutation'
 
 import { apiClient } from '~/api/client'
-import { Column, Container, Iconify, Row, Text } from '~/components'
+import { Column, Container, Iconify, Row, Text, TextButton } from '~/components'
 import { SiteImage } from '~/components/site-image'
+import { useTabInfo } from '~/hooks/use-tab-info'
 
 type InferResponseType<T> = T extends (args: any, options: any | undefined) => Promise<infer R> ? NonNullable<R> : never
 type DiscoverList = InferResponseType<typeof apiClient.discover.$post>['data']
 
-function DiscoverItem({ item }: { item: DiscoverList[number] }) {
+function FollowButton({ item }: { item: DiscoverList[number] }) {
+  const { view } = useTabInfo()
+  const [isFollowing, setIsFollowing] = useState(false)
+  const router = useRouter()
+  if (view === undefined)
+    return null
+  return (
+    <Row align="center" gap={10}>
+      <TextButton
+        title="Follow"
+        variant="solid"
+        color="accent"
+        size="small"
+        isLoading={isFollowing}
+        onPress={() => {
+          setIsFollowing(true)
+          apiClient.subscriptions.$post({ json: { url: item.feed.url, view } })
+            .then(() => {
+              router.back()
+            })
+            .catch(console.error)
+            .finally(() => {
+              setIsFollowing(false)
+            })
+        }}
+      />
+      <Text>{item.subscriptionCount} Followers</Text>
+    </Row>
+  )
+}
+
+function DiscoverItem({ item, children }: { item: DiscoverList[number], children?: React.ReactNode }) {
   const { theme } = useStyles()
   return (
     <Column
@@ -62,6 +95,7 @@ function DiscoverItem({ item }: { item: DiscoverList[number] }) {
           {item.feed.url}
         </Text>
       </Row>
+      {children}
     </Column>
   )
 }
@@ -101,7 +135,11 @@ export default function DiscoverPage() {
                 ? (
                     <>
                       <Text>{`Found ${data?.data.length ?? 0} feeds`}</Text>
-                      {data.data.map(item => <DiscoverItem key={item.feed.id} item={item} />)}
+                      {data.data.map(item => (
+                        <DiscoverItem key={item.feed.id} item={item}>
+                          <FollowButton item={item} />
+                        </DiscoverItem>
+                      ))}
                     </>
                   )
                 : null}
