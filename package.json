@@ -8,6 +8,7 @@
     "android": "expo run:android",
     "build:dev": "eas build --profile development",
     "build:preview": "eas build --profile preview",
+    "build:preview:local": "eas build --profile preview --local",
     "build:prod": "eas build --profile production",
     "ios": "expo run:ios --device",
     "lint": "eslint --flag unstable_ts_config",
