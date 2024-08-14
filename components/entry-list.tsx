@@ -322,6 +322,8 @@ export function EntryList({
       },
     )
       .then((publishedAt) => {
+        if (!publishedAt)
+          return
         lastItemPublishedAt.current = publishedAt
       })
       .catch((error) => {
