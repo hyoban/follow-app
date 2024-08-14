@@ -99,12 +99,16 @@ export async function checkNotExistEntries({
   if (end && entriesFromApi.at(-1)?.publishedAt) {
     while (isBefore(subMinutes(end, 1), entriesFromApi.at(-1)!.publishedAt)) {
       console.info('fetch next page', entriesFromApi.at(-1)!.publishedAt)
-      entriesFromApi = entriesFromApi.concat(await getEntries({
+      const newEntries = await getEntries({
         feedIdList,
         publishedAfter: entriesFromApi.at(-1)!.publishedAt,
         read: readOnly ? false : undefined,
         limit: FETCH_PAGE_SIZE,
-      }))
+      })
+      if (newEntries.length === 0) {
+        break
+      }
+      entriesFromApi = entriesFromApi.concat(newEntries)
     }
   }
   console.info('entriesFromApi', entriesFromApi.length)
