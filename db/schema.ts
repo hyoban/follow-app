@@ -12,6 +12,8 @@ export const users = sqliteTable('users', {
   sessionToken: text('session_token'),
 })
 
+export type User = typeof users.$inferSelect
+
 export const feeds = sqliteTable('feeds', {
   id: text('id').primaryKey(),
   url: text('url').notNull().unique(),
