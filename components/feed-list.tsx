@@ -17,7 +17,7 @@ import Animated, {
 import { useStyles } from 'react-native-unistyles'
 
 import { flagEntryReadStatus } from '~/api/entry'
-import { syncFeeds } from '~/api/feed'
+import { deleteFeed, syncFeeds } from '~/api/feed'
 import type { TabViewIndex } from '~/atom/layout'
 import { atomWithStorage } from '~/atom/storage'
 import { Iconify, Row, Text } from '~/components'
@@ -96,6 +96,7 @@ function ContextMenuWrapper({
     <ContextMenu
       actions={[
         { title: 'Mark as Read', systemIcon: 'circlebadge.fill' },
+        { title: 'Delete', systemIcon: 'trash.fill' },
       ].concat(
         feed?.errorAt ? [{ title: 'Show Error', systemIcon: 'exclamationmark.triangle.fill' }] : [],
       )}
@@ -106,6 +107,25 @@ function ContextMenuWrapper({
             break
           }
           case 1: {
+            Alert.alert('Delete', 'Are you sure you want to delete this feed?', [
+              {
+                text: 'Cancel',
+                style: 'cancel',
+              },
+              {
+                text: 'Delete',
+                style: 'destructive',
+                onPress: () => {
+                  Promise.all(
+                    feedIdList.map(i => deleteFeed(i)),
+                  )
+                    .catch(console.error)
+                },
+              },
+            ])
+            break
+          }
+          case 2: {
             Alert.alert('Error', feed?.errorMessage ?? 'Unknown error')
             break
           }

@@ -9,6 +9,14 @@ import { entries, feeds } from '~/db/schema'
 
 import { apiClient } from './client'
 
+export async function deleteFeed(feedId: string) {
+  await Promise.all([
+    apiClient.subscriptions.$delete({ json: { feedId } }),
+    db.delete(entries).where(eq(entries.feedId, feedId)),
+    db.delete(feeds).where(eq(feeds.id, feedId)),
+  ])
+}
+
 export async function getFeeds() {
   const subscriptions = await apiClient.subscriptions.$get({ query: {} })
   const reads = await apiClient.reads.$get({ query: {} })
