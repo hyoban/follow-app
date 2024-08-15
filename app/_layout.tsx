@@ -9,7 +9,7 @@ import { Slot } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
-import { AppState } from 'react-native'
+import { AppState, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import { SWRConfig } from 'swr'
@@ -36,9 +36,11 @@ export default function Root() {
   const { theme } = useStyles()
 
   useEffect(() => {
-    void NavigationBar.setPositionAsync('absolute')
-    void NavigationBar.setBackgroundColorAsync(theme.colors.gray2)
-    void NavigationBar.setButtonStyleAsync(UnistylesRuntime.colorScheme === 'light' ? 'dark' : 'light')
+    if (Platform.OS === 'android') {
+      void NavigationBar.setPositionAsync('absolute')
+      void NavigationBar.setBackgroundColorAsync(theme.colors.gray2)
+      void NavigationBar.setButtonStyleAsync(UnistylesRuntime.colorScheme === 'light' ? 'dark' : 'light')
+    }
   }, [theme.colors.gray2])
 
   const [fontLoaded, loadFontError] = useFonts({
