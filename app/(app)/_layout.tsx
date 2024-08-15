@@ -95,7 +95,7 @@ export default function RootLayout() {
     return <Redirect href="/auth" />
 
   return (
-    <Stack>
+    <Stack screenOptions={{ animation: 'ios' }}>
       <Stack.Screen
         name="(tabs)"
         options={({ route }) => ({
