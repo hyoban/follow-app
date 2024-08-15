@@ -3,8 +3,10 @@ import '../theme/unistyles'
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
+import { useFonts } from 'expo-font'
 import * as NavigationBar from 'expo-navigation-bar'
 import { Slot } from 'expo-router'
+import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
 import { AppState } from 'react-native'
@@ -26,6 +28,9 @@ function DrizzleStudio() {
   return null
 }
 
+SplashScreen.preventAutoHideAsync()
+  .catch(console.error)
+
 export default function Root() {
   const { success, error } = useMigrations(db, migrations)
   const { theme } = useStyles()
@@ -35,6 +40,36 @@ export default function Root() {
     void NavigationBar.setBackgroundColorAsync(theme.colors.gray2)
     void NavigationBar.setButtonStyleAsync(UnistylesRuntime.colorScheme === 'light' ? 'dark' : 'light')
   }, [theme.colors.gray2])
+
+  const [fontLoaded, loadFontError] = useFonts({
+    'SNPro-Black': ('./font/sn-pro/SNPro-Black.otf'),
+    'SNPro-BlackItalic': ('./font/sn-pro/SNPro-BlackItalic.otf'),
+    'SNPro-Bold': ('./font/sn-pro/SNPro-Bold.otf'),
+    'SNPro-BoldItalic': ('./font/sn-pro/SNPro-BoldItalic.otf'),
+    'SNPro-Heavy': ('./font/sn-pro/SNPro-Heavy.otf'),
+    'SNPro-HeavyItalic': ('./font/sn-pro/SNPro-HeavyItalic.otf'),
+    'SNPro-Light': ('./font/sn-pro/SNPro-Light.otf'),
+    'SNPro-LightItalic': ('./font/sn-pro/SNPro-LightItalic.otf'),
+    'SNPro-Medium': ('./font/sn-pro/SNPro-Medium.otf'),
+    'SNPro-MediumItalic': ('./font/sn-pro/SNPro-MediumItalic.otf'),
+    'SNPro-Regular': ('./font/sn-pro/SNPro-Regular.otf'),
+    'SNPro-RegularItalic': ('./font/sn-pro/SNPro-RegularItalic.otf'),
+    'SNPro-Semibold': ('./font/sn-pro/SNPro-Semibold.otf'),
+    'SNPro-SemiboldItalic': ('./font/sn-pro/SNPro-SemiboldItalic.otf'),
+    'SNPro-Thin': ('./font/sn-pro/SNPro-Thin.otf'),
+    'SNPro-ThinItalic': ('./font/sn-pro/SNPro-ThinItalic.otf'),
+  })
+
+  useEffect(() => {
+    if (fontLoaded || loadFontError) {
+      SplashScreen.hideAsync()
+        .catch(console.error)
+    }
+  }, [fontLoaded, loadFontError])
+
+  if (!fontLoaded && !loadFontError) {
+    return null
+  }
 
   if (error) {
     return (
