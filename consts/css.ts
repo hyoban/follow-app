@@ -14,9 +14,11 @@ const fontFaceList = [
 export function simpleCSS({
   accent,
   accentHover,
+  theme,
 }: {
   accent: string
   accentHover: string
+  theme: 'light' | 'dark'
 }) {
   return `
   @font-face {
@@ -50,7 +52,8 @@ export function simpleCSS({
   }
   
   /* Dark theme */
-  @media (prefers-color-scheme: dark) {
+  ${theme === 'dark'
+? `
     :root,
     ::backdrop {
       color-scheme: dark;
@@ -68,7 +71,8 @@ export function simpleCSS({
     video {
       opacity: 0.8;
     }
-  }
+  `
+: ''}
   
   /* Reset box-sizing */
   *, *::before, *::after {

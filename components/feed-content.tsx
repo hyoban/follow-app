@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { DimensionValue } from 'react-native'
 import { ActivityIndicator } from 'react-native'
-import { useStyles } from 'react-native-unistyles'
+import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import WebView from 'react-native-webview'
 
 import { simpleCSS } from '~/consts/css'
@@ -72,6 +72,7 @@ export function FeedContent({ html }: { html: string }) {
         ${simpleCSS({
           accent: theme.colors.accent9,
           accentHover: theme.colors.accent10,
+          theme: UnistylesRuntime.colorScheme === 'dark' ? 'dark' : 'light',
         })}
       </style>
   </head>
