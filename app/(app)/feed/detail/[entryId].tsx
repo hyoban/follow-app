@@ -58,7 +58,6 @@ export default function Page() {
           horizontal
           pagingEnabled
           data={entryList ?? []}
-          style={{ flex: 1 }}
           initialNumToRender={1}
           initialScrollIndex={initialPage ?? 0}
           windowSize={3}
@@ -87,7 +86,6 @@ export default function Page() {
               <EntryDetail entry={item} />
             </View>
           )}
-          contentContainerStyle={{ alignItems: 'center' }}
         />
       </Container>
     </>
@@ -117,7 +115,7 @@ function EntryDetail({ entry }: { entry: Entry }) {
 
   const users = readHistories?.entryReadHistories?.userIds.map(id => readHistories?.users[id]).filter(item => !!item)
 
-  const readUserAvatars = users?.map(i => i.image).filter((i): i is string => i !== null) ?? []
+  const readUserAvatars = users?.map(i => i?.image).filter((i): i is string => i !== null) ?? []
 
   const mediaList = entry.media ?? []
   const { view } = useTabInfo()

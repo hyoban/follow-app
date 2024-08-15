@@ -76,7 +76,7 @@ export function FeedContent({ html }: { html: string }) {
       </style>
   </head>
   <body>
-    <div>${/<\/?[a-z][\s\S]*>/i.test(html) ? html : `<p>${html}</p>`}</div>
+    <main>${html}</main>
   </body>
   </html>
           `,
