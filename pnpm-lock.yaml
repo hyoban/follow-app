@@ -61,6 +61,9 @@ importers:
       expo-linking:
         specifier: ~6.3.1
         version: 6.3.1(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
+      expo-navigation-bar:
+        specifier: ~3.0.7
+        version: 3.0.7(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
       expo-notifications:
         specifier: ~0.28.15
         version: 0.28.15(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
@@ -3719,6 +3722,11 @@ packages:
   expo-modules-core@1.12.21:
     resolution: {integrity: sha512-UQxRljqPcowS1+bECW9tnuVGfvWL18GAKPiKMnu9sZwJssAN9FU/JhED50DJzdzICLR0hL17FZAgV4rbMG3IWQ==}
 
+  expo-navigation-bar@3.0.7:
+    resolution: {integrity: sha512-KCNHyZ58zoN4xdy7D1lUdJvveCYNVQHGSX4M6xO/SZypvI6GZbLzKSN6Lx4GDGEFxG6Kb+EAckZl48tSiNeGYQ==}
+    peerDependencies:
+      expo: '*'
+
   expo-notifications@0.28.15:
     resolution: {integrity: sha512-T303dw2akcG4w8HBKI7+Y1v5kFxYy53DjlBSLBMo5f22vnLTHWaa8oOhmpwGRGU4uiX56Bw4q0wywCTSgbEamQ==}
     peerDependencies:
@@ -7040,8 +7048,8 @@ snapshots:
 
   '@babel/helper-builder-binary-assignment-operator-visitor@7.24.7':
     dependencies:
-      '@babel/traverse': 7.24.8
-      '@babel/types': 7.24.9
+      '@babel/traverse': 7.25.3
+      '@babel/types': 7.25.2
     transitivePeerDependencies:
       - supports-color
 
@@ -7601,7 +7609,7 @@ snapshots:
   '@babel/plugin-transform-modules-amd@7.24.7(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
-      '@babel/helper-module-transforms': 7.24.9(@babel/core@7.25.2)
+      '@babel/helper-module-transforms': 7.25.2(@babel/core@7.25.2)
       '@babel/helper-plugin-utils': 7.24.8
     transitivePeerDependencies:
       - supports-color
@@ -7619,7 +7627,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.25.2
       '@babel/helper-hoist-variables': 7.24.7
-      '@babel/helper-module-transforms': 7.24.9(@babel/core@7.25.2)
+      '@babel/helper-module-transforms': 7.25.2(@babel/core@7.25.2)
       '@babel/helper-plugin-utils': 7.24.8
       '@babel/helper-validator-identifier': 7.24.7
     transitivePeerDependencies:
@@ -7628,7 +7636,7 @@ snapshots:
   '@babel/plugin-transform-modules-umd@7.24.7(@babel/core@7.25.2)':
     dependencies:
       '@babel/core': 7.25.2
-      '@babel/helper-module-transforms': 7.24.9(@babel/core@7.25.2)
+      '@babel/helper-module-transforms': 7.25.2(@babel/core@7.25.2)
       '@babel/helper-plugin-utils': 7.24.8
     transitivePeerDependencies:
       - supports-color
@@ -7840,9 +7848,9 @@ snapshots:
 
   '@babel/preset-env@7.24.8(@babel/core@7.25.2)':
     dependencies:
-      '@babel/compat-data': 7.24.9
+      '@babel/compat-data': 7.25.2
       '@babel/core': 7.25.2
-      '@babel/helper-compilation-targets': 7.24.8
+      '@babel/helper-compilation-targets': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
       '@babel/helper-validator-option': 7.24.8
       '@babel/plugin-bugfix-firefox-class-in-computed-class-key': 7.24.7(@babel/core@7.25.2)
@@ -7936,7 +7944,7 @@ snapshots:
     dependencies:
       '@babel/core': 7.25.2
       '@babel/helper-plugin-utils': 7.24.8
-      '@babel/types': 7.24.9
+      '@babel/types': 7.25.2
       esutils: 2.0.3
 
   '@babel/preset-react@7.24.7(@babel/core@7.25.2)':
@@ -11673,6 +11681,14 @@ snapshots:
     dependencies:
       invariant: 2.2.4
 
+  expo-navigation-bar@3.0.7(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))):
+    dependencies:
+      '@react-native/normalize-colors': 0.74.85
+      debug: 4.3.6(supports-color@8.1.1)
+      expo: 51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))
+    transitivePeerDependencies:
+      - supports-color
+
   expo-notifications@0.28.15(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))):
     dependencies:
       '@expo/image-utils': 0.5.1
@@ -13605,7 +13621,7 @@ snapshots:
   postcss-load-config@4.0.2(postcss@8.4.39)(ts-node@10.9.2(@types/node@20.14.11)(typescript@5.3.3)):
     dependencies:
       lilconfig: 3.1.2
-      yaml: 2.4.5
+      yaml: 2.5.0
     optionalDependencies:
       postcss: 8.4.39
       ts-node: 10.9.2(@types/node@20.14.11)(typescript@5.3.3)

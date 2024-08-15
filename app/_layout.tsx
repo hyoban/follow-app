@@ -3,11 +3,13 @@ import '../theme/unistyles'
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
+import * as NavigationBar from 'expo-navigation-bar'
 import { Slot } from 'expo-router'
+import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
 import { AppState } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { UnistylesRuntime } from 'react-native-unistyles'
+import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
@@ -26,6 +28,13 @@ function DrizzleStudio() {
 
 export default function Root() {
   const { success, error } = useMigrations(db, migrations)
+  const { theme } = useStyles()
+
+  useEffect(() => {
+    void NavigationBar.setPositionAsync('absolute')
+    void NavigationBar.setBackgroundColorAsync(theme.colors.gray2)
+    void NavigationBar.setButtonStyleAsync(UnistylesRuntime.colorScheme === 'light' ? 'dark' : 'light')
+  }, [theme.colors.gray2])
 
   if (error) {
     return (
