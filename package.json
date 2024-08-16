@@ -16,6 +16,7 @@
     "prebuild": "expo prebuild",
     "prepare": "simple-git-hooks",
     "start": "expo start --dev-client",
+    "svgr": "svgr --out-dir components/icons --filename-case kebab --native --typescript --jsx-runtime automatic --memo --template icon-template.js -- icons/mgc && eslint --flag unstable_ts_config --fix components/icons",
     "typecheck": "tsc",
     "web": "expo start --web"
   },
@@ -74,6 +75,9 @@
   "devDependencies": {
     "@babel/core": "^7.25.2",
     "@hono/node-server": "^1.12.0",
+    "@svgr/babel-plugin-remove-jsx-attribute": "^8.0.0",
+    "@svgr/cli": "^8.1.0",
+    "@svgr/plugin-jsx": "^8.1.0",
     "@types/react": "~18.2.79",
     "babel-plugin-inline-import": "^3.0.0",
     "drizzle-kit": "^0.23.2",
