@@ -1,4 +1,7 @@
 module.exports = {
+  replaceAttrValues: {
+    '#10161F': 'currentColor',
+  },
   plugins: ['@svgr/plugin-jsx'],
   jsx: {
     babelConfig: {
