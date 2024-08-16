@@ -37,7 +37,7 @@ interface EntryReadHistories {
 }
 
 interface EntryFooterNavBarProps {
-  entry: Entry
+  entry?: Entry
   readHistories?: EntryReadHistories
 }
 
@@ -151,9 +151,13 @@ function EntryFooterNavBar({ readHistories, entry }: EntryFooterNavBarProps) {
 
   useEffect(() => {
     inMounted.value = true
-  }, [])
+  }, [inMounted])
 
-  const users = readHistories?.entryReadHistories?.userIds.map(id => readHistories?.users[id]).filter(item => !!item) ?? []
+  const users = readHistories?.entryReadHistories?.userIds.map(id => readHistories?.users[id]).filter((i): i is Omit<User, 'emailVerified'> => i !== null)
+
+  if (!entry) {
+    return null
+  }
 
   return showFooter && (
     <Animated.View
@@ -197,7 +201,7 @@ export default function Page() {
   const { data: entryList } = useEntryList(feedIdList)
   const { theme } = useStyles()
   const initialPage = entryList?.findIndex(i => i.id === entryId)
-  const currentEntry = entryList?.find(i => i.id === entryId)!
+  const currentEntry = entryList?.find(i => i.id === entryId)
 
   const entryIdListToMarkAsRead = useRef<string[]>([])
   const navigation = useNavigation()
@@ -219,7 +223,7 @@ export default function Page() {
           .catch(console.error)
       },
     ),
-    [navigation],
+    [navigation, setShowFooter],
   )
 
   return (
@@ -248,8 +252,8 @@ export default function Page() {
           viewabilityConfig={{ itemVisiblePercentThreshold: 70 }}
           getItemLayout={(_data, index) => ({ length: UnistylesRuntime.screen.width, offset: UnistylesRuntime.screen.width * index, index })}
           onViewableItemsChanged={({ viewableItems }) => {
-            const index = viewableItems.at(0)?.index!
-            if (index !== undefined) {
+            const index = viewableItems.at(0)?.index
+            if (index != null) {
               const entry = entryList?.[index]
               if (entry) {
                 router.setParams({ entryId: entry.id })
