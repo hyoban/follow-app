@@ -17,6 +17,7 @@ import { ViewActions } from '~/components/view-actions'
 import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
 import { useCurrentUser } from '~/hooks/use-current-user'
+import { getFontFamily } from '~/lib/utils'
 
 TrackPlayer.registerPlaybackService(() => async () => {
   TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())
@@ -147,7 +148,7 @@ const styleSheet = createStyleSheet(theme => ({
   },
   title: {
     color: theme.colors.gray12,
-    fontFamily: 'SN Pro',
+    fontFamily: getFontFamily('bold'),
     fontWeight: 'bold',
   },
 }))
