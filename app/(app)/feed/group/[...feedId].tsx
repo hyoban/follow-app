@@ -4,7 +4,6 @@ import { useStyles } from 'react-native-unistyles'
 
 import { Container, Row } from '~/components'
 import { EntryList } from '~/components/entry-list'
-import { LoadingIndicator } from '~/components/loading-indicator'
 import { UnreadFilter } from '~/components/unread-filter'
 import { commonStylesheet } from '~/theme/common'
 
@@ -38,7 +37,6 @@ export default function Page() {
           }),
           headerRight: () => (
             <Row gap={18}>
-              <LoadingIndicator />
               <UnreadFilter />
             </Row>
           ),

@@ -1,6 +1,7 @@
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
+import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import { Platform } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
@@ -8,8 +9,8 @@ import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeeds } from '~/api/feed'
+import { isLoadingAtom } from '~/atom/loading'
 import { Row } from '~/components'
-import { LoadingIndicator } from '~/components/loading-indicator'
 import { SettingsLink } from '~/components/settings-link'
 import { UnreadFilter } from '~/components/unread-filter'
 import { ViewActions } from '~/components/view-actions'
@@ -81,6 +82,7 @@ export default function RootLayout() {
   }, [])
 
   const { styles } = useStyles(styleSheet)
+  const isLoading = useAtomValue(isLoadingAtom)
 
   const { user } = useCurrentUser()
 
@@ -92,9 +94,9 @@ export default function RootLayout() {
       <Stack.Screen
         name="(tabs)"
         options={({ route }) => {
-          const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))!
+          const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))
           return {
-            title: view.title,
+            title: isLoading ? 'Updating ...' : view?.title,
             headerLeft: () => (
               <Row gap={18}>
                 <SettingsLink />
@@ -102,9 +104,8 @@ export default function RootLayout() {
             ),
             headerRight: () => (
               <Row gap={18}>
-                <LoadingIndicator />
                 <UnreadFilter />
-                <ViewActions view={view.view} />
+                {view?.view !== undefined && <ViewActions view={view.view} />}
               </Row>
             ),
             headerTitleAlign: 'center',

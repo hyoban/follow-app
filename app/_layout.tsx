@@ -82,11 +82,7 @@ export default function Root() {
   }
 
   if (!success) {
-    return (
-      <SafeAreaView>
-        <Text>Migration is in progress...</Text>
-      </SafeAreaView>
-    )
+    return null
   }
 
   return (
