@@ -7,7 +7,7 @@ import { Image } from 'expo-image'
 import { Link, useRouter } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Pressable, View } from 'react-native'
+import { Platform, Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
@@ -296,7 +296,10 @@ export function EntryList({
   const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
   const resetCursor = useCallback(() => {
     lastItemPublishedAt.current = undefined
-    flashListRef.current?.scrollToOffset({ offset: -headerHeight, animated: true })
+    flashListRef.current?.scrollToOffset({
+      offset: Platform.select({ ios: -headerHeight, android: 0 }) ?? 0,
+      animated: true,
+    })
   }, [headerHeight])
   useScrollToTop(
     useRef({

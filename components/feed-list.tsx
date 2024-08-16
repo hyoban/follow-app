@@ -4,7 +4,7 @@ import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useMemo, useRef } from 'react'
-import { Alert, Pressable } from 'react-native'
+import { Alert, Platform, Pressable } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import Animated, {
   Easing,
@@ -279,7 +279,10 @@ export function FeedList({ view }: { view: TabViewIndex }) {
   useScrollToTop(
     useRef({
       scrollToTop: () => {
-        ref.current?.scrollToOffset({ offset: -headerHeight, animated: true })
+        ref.current?.scrollToOffset({
+          offset: Platform.select({ ios: -headerHeight, android: 0 }) ?? 0,
+          animated: true,
+        })
         syncFeeds()
           .catch(console.error)
       },

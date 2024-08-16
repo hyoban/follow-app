@@ -1,5 +1,5 @@
 import { useHeaderHeight } from '@react-navigation/elements'
-import { Pressable } from 'react-native'
+import { Platform, Pressable } from 'react-native'
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
@@ -59,7 +59,7 @@ export function RefreshIndicator({
       exiting={FadeOutUp}
       style={{
         position: 'absolute',
-        top: headerHeight,
+        top: Platform.select({ ios: headerHeight, android: 0 }) ?? 0,
         left: 0,
         right: 0,
         bottom: 0,
