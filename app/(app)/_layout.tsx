@@ -1,7 +1,7 @@
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { Platform } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
@@ -25,35 +25,27 @@ TrackPlayer.registerPlaybackService(() => async () => {
   TrackPlayer.addEventListener(Event.RemoteSeek, ({ position }) => TrackPlayer.seekTo(position))
 })
 
-export default function RootLayout() {
-  const onceRef = useRef(false)
-  useEffect(() => {
-    if (onceRef.current)
-      return
-    TrackPlayer.setupPlayer()
-      .then(() => {
-        TrackPlayer.updateOptions({
-          // Media controls capabilities
-          capabilities: [
-            Capability.Play,
-            Capability.Pause,
-            Capability.SkipToNext,
-            Capability.SkipToPrevious,
-            Capability.Stop,
-            Capability.SeekTo,
-          ],
+TrackPlayer.setupPlayer()
+  .then(() => {
+    TrackPlayer.updateOptions({
+      // Media controls capabilities
+      capabilities: [
+        Capability.Play,
+        Capability.Pause,
+        Capability.SkipToNext,
+        Capability.SkipToPrevious,
+        Capability.Stop,
+        Capability.SeekTo,
+      ],
 
-          // Capabilities that will show up when the notification is in the compact form on Android
-          compactCapabilities: [Capability.Play, Capability.Pause],
-        })
-          .then(() => {
-            onceRef.current = true
-          })
-          .catch(console.error)
-      })
+      // Capabilities that will show up when the notification is in the compact form on Android
+      compactCapabilities: [Capability.Play, Capability.Pause],
+    })
       .catch(console.error)
-  }, [])
+  })
+  .catch(console.error)
 
+export default function RootLayout() {
   useEffect(() => {
     const checkStatusAsync = async () => {
       // BackgroundFetch event handler.
