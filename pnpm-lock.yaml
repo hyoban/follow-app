@@ -43,6 +43,9 @@ importers:
       expo-background-fetch:
         specifier: ~12.0.1
         version: 12.0.1(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
+      expo-clipboard:
+        specifier: ~6.0.3
+        version: 6.0.3(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
       expo-constants:
         specifier: ~16.0.2
         version: 16.0.2(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
@@ -70,6 +73,9 @@ importers:
       expo-router:
         specifier: ~3.5.21
         version: 3.5.21(7xxew5iozu56e3xiy7vm2zqzoy)
+      expo-sharing:
+        specifier: ~12.0.1
+        version: 12.0.1(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
       expo-sqlite:
         specifier: ~14.0.6
         version: 14.0.6(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
@@ -3654,6 +3660,11 @@ packages:
     peerDependencies:
       expo: '*'
 
+  expo-clipboard@6.0.3:
+    resolution: {integrity: sha512-RIKDsuHkYfaspifbFpVC8sBVFKR05L7Pj7mU2/XkbrW9m01OBNvdpGraXEMsTFCx97xMGsZpEw9pPquL4j4xVg==}
+    peerDependencies:
+      expo: '*'
+
   expo-constants@16.0.2:
     resolution: {integrity: sha512-9tNY3OVO0jfiMzl7ngb6IOyR5VFzNoN5OOazUWoeGfmMqVB5kltTemRvKraK9JRbBKIw+SOYLEmF0sEqgFZ6OQ==}
     peerDependencies:
@@ -3751,6 +3762,11 @@ packages:
         optional: true
       react-native-reanimated:
         optional: true
+
+  expo-sharing@12.0.1:
+    resolution: {integrity: sha512-wBT+WeXwapj/9NWuLJO01vi9bdlchYu/Q/xD8slL/Ls4vVYku8CPqzkTtDFcjLrjtlJqyeHsdQXwKLvORmBIew==}
+    peerDependencies:
+      expo: '*'
 
   expo-splash-screen@0.27.5:
     resolution: {integrity: sha512-9rdZuLkFCfgJBxrheUsOEOIW6Rp+9NVlpSE0hgXQwbTCLTncf00IHSE8/L2NbFyeDLNjof1yZBppaV7tXHRUzA==}
@@ -4699,24 +4715,28 @@ packages:
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-arm64-musl@1.19.0:
     resolution: {integrity: sha512-vSCKO7SDnZaFN9zEloKSZM5/kC5gbzUjoJQ43BvUpyTFUX7ACs/mDfl2Eq6fdz2+uWhUh7vf92c4EaaP4udEtA==}
     engines: {node: '>= 12.0.0'}
     cpu: [arm64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-linux-x64-gnu@1.19.0:
     resolution: {integrity: sha512-0AFQKvVzXf9byrXUq9z0anMGLdZJS+XSDqidyijI5njIwj6MdbvX2UZK/c4FfNmeRa2N/8ngTffoIuOUit5eIQ==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [glibc]
 
   lightningcss-linux-x64-musl@1.19.0:
     resolution: {integrity: sha512-SJoM8CLPt6ECCgSuWe+g0qo8dqQYVcPiW2s19dxkmSI5+Uu1GIRzyKA0b7QqmEXolA+oSJhQqCmJpzjY4CuZAg==}
     engines: {node: '>= 12.0.0'}
     cpu: [x64]
     os: [linux]
+    libc: [musl]
 
   lightningcss-win32-x64-msvc@1.19.0:
     resolution: {integrity: sha512-C+VuUTeSUOAaBZZOPT7Etn/agx/MatzJzGRkeV+zEABmPuntv1zihncsi+AyGmjkkzq3wVedEy7h0/4S84mUtg==}
@@ -11589,6 +11609,10 @@ snapshots:
       expo: 51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))
       expo-task-manager: 11.8.2(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2)))
 
+  expo-clipboard@6.0.3(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))):
+    dependencies:
+      expo: 51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))
+
   expo-constants@16.0.2(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))):
     dependencies:
       '@expo/config': 9.0.3
@@ -11730,6 +11754,10 @@ snapshots:
       - react-native
       - supports-color
       - typescript
+
+  expo-sharing@12.0.1(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))):
+    dependencies:
+      expo: 51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))
 
   expo-splash-screen@0.27.5(expo-modules-autolinking@1.11.1)(expo@51.0.27(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))):
     dependencies:
