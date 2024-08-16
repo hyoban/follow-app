@@ -1,22 +1,195 @@
 import { formatDate } from 'date-fns'
 import { Video } from 'expo-av'
+import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-router'
+import * as Sharing from 'expo-sharing'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
-import { FlatList, ScrollView, View } from 'react-native'
+import { FlatList, Pressable, View } from 'react-native'
 import PagerView from 'react-native-pager-view'
-import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
+import Animated, { FadeIn, runOnJS, SlideInDown, SlideOutDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
 
 import { apiClient } from '~/api/client'
 import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
+import { showFooterAtom } from '~/atom/entry-list'
 import { Column, Container, Iconify, Row, Text } from '~/components'
 import { FeedContent } from '~/components/feed-content'
 import { blurhash } from '~/consts/blur'
+import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
 import type { Entry, User } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
 import { openExternalUrl } from '~/lib/utils'
+
+const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
+interface EntryReadHistories {
+  users: Record<string, Omit<User, 'emailVerified'>>
+  entryReadHistories: {
+    entryId: string
+    userIds: string[]
+    readCount: number
+  } | null
+}
+
+interface EntryFooterNavBarProps {
+  entry: Entry
+  readHistories?: EntryReadHistories
+}
+
+const stylesheet = createStyleSheet((theme, runtime) => ({
+  footerContainer: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: theme.colors.gray1,
+    borderTopColor: theme.colors.gray4,
+    borderTopWidth: 1,
+    // fix animation
+    zIndex: 9999,
+  },
+  userAvatar: ({ index }: { index: number }) => ({
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    borderColor: theme.colors.gray10,
+    borderWidth: runtime.hairlineWidth,
+    backgroundColor: theme.colors.gray2,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    transform: [{ translateX: -10 * index }],
+  }),
+  toolbarButton: ({ pressed }: { pressed: boolean }) => ({
+    padding: theme.spacing[1],
+    borderRadius: 6,
+    backgroundColor: pressed ? theme.colors.gray3 : theme.colors.gray4,
+  }),
+}))
+
+function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> }) {
+  const { styles } = useStyles(stylesheet)
+  const readUserAvatars = users?.map(i => i?.image).filter((i): i is string => i !== null) ?? []
+
+  return (
+    <AnimatedPressable
+      entering={FadeIn}
+      onPress={() => {
+        // TODO: open bottom sheet or modal of users which can navigate user profile route
+      }}
+    >
+      {readUserAvatars.length > 0 && (
+        <Animated.View style={{ flexDirection: 'row' }} entering={FadeIn}>
+          {readUserAvatars
+            .slice(0, READ_USER_AVATAR_COUNT)
+            .map((image, index) => (
+              <View key={image} style={styles.userAvatar({ index })}>
+                <Image
+                  style={{ height: '100%', width: '100%' }}
+                  source={{ uri: image }}
+                />
+              </View>
+            ))}
+          {readUserAvatars.length > 6 && (
+            <View style={styles.userAvatar({ index: READ_USER_AVATAR_COUNT })}>
+              <Text size={12}>+{readUserAvatars.length - READ_USER_AVATAR_COUNT}</Text>
+            </View>
+          )}
+        </Animated.View>
+      )}
+    </AnimatedPressable>
+  )
+}
+
+function EntryToolsbar({ entry }: { entry: Entry }) {
+  const { styles } = useStyles(stylesheet)
+  return (
+    <Row gap={8} align="center">
+      <Pressable
+        style={styles.toolbarButton}
+        onPress={() => {
+          Clipboard.setStringAsync(entry.url!).catch(console.error)
+        }}
+      >
+        <Iconify icon="mingcute:link-line" />
+      </Pressable>
+      <Pressable
+        style={styles.toolbarButton}
+        onPress={() => {
+          openExternalUrl(entry.url)
+            .catch(console.error)
+        }}
+      >
+        <Iconify icon="mingcute:world-2-line" />
+      </Pressable>
+      <Pressable
+        style={styles.toolbarButton}
+        onPress={async () => {
+          if (await Sharing.isAvailableAsync()) {
+            await Sharing.shareAsync(entry.url!)
+              .catch(console.error)
+          }
+        }}
+      >
+        <Iconify icon="mingcute:share-3-line" />
+      </Pressable>
+    </Row>
+  )
+}
+
+function EntryFooterNavBar({ readHistories, entry }: EntryFooterNavBarProps) {
+  const { styles } = useStyles(stylesheet)
+  const { bottom } = useSafeAreaInsets()
+
+  const inMounted = useSharedValue(false)
+  const showFooter = useAtomValue(showFooterAtom)
+
+  useEffect(() => {
+    inMounted.value = true
+  }, [])
+
+  const users = readHistories?.entryReadHistories?.userIds.map(id => readHistories?.users[id]).filter(item => !!item) ?? []
+
+  return showFooter && (
+    <Animated.View
+      style={[styles.footerContainer, { paddingBottom: bottom }]}
+      entering={inMounted.value ? SlideInDown.duration(800) : undefined}
+      exiting={SlideOutDown.duration(800)}
+      collapsable={false}
+    >
+      <Row
+        justify="space-between"
+        align="center"
+        px={16}
+        pt={8}
+        gap={8}
+        h={44}
+      >
+        <Row
+          h="100%"
+          align="center"
+          justify="flex-start"
+          flex={1}
+        >
+          <EntryReadUsers key={entry.id} users={users} />
+        </Row>
+        <Row
+          h="100%"
+          align="center"
+          justify="flex-end"
+          flex={1}
+        >
+          <EntryToolsbar entry={entry} />
+        </Row>
+      </Row>
+    </Animated.View>
+  )
+}
 
 export default function Page() {
   const { entryId, feedId } = useLocalSearchParams<{ entryId: string, feedId: string }>()
@@ -24,15 +197,24 @@ export default function Page() {
   const { data: entryList } = useEntryList(feedIdList)
   const { theme } = useStyles()
   const initialPage = entryList?.findIndex(i => i.id === entryId)
+  const currentEntry = entryList?.find(i => i.id === entryId)!
 
   const entryIdListToMarkAsRead = useRef<string[]>([])
   const navigation = useNavigation()
   const router = useRouter()
 
+  const setShowFooter = useSetAtom(showFooterAtom)
+
+  const { data: readHistories } = useSWR(
+    ['entry-read-histories', entryId],
+    () => apiClient.entries['read-histories'][entryId]?.$get?.().then(res => res.data as EntryReadHistories),
+  )
+
   useEffect(
     () => navigation.addListener(
       'beforeRemove',
       () => {
+        setShowFooter(true)
         flagEntryReadStatus({ entryId: entryIdListToMarkAsRead.current })
           .catch(console.error)
       },
@@ -53,7 +235,7 @@ export default function Page() {
           },
         }}
       />
-      <Container>
+      <Container style={{ position: 'relative' }}>
         <FlatList
           horizontal
           pagingEnabled
@@ -63,7 +245,7 @@ export default function Page() {
           windowSize={3}
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => item.id}
-          viewabilityConfig={{ itemVisiblePercentThreshold: 30 }}
+          viewabilityConfig={{ itemVisiblePercentThreshold: 70 }}
           getItemLayout={(_data, index) => ({ length: UnistylesRuntime.screen.width, offset: UnistylesRuntime.screen.width * index, index })}
           onViewableItemsChanged={({ viewableItems }) => {
             const index = viewableItems.at(0)?.index!
@@ -71,6 +253,7 @@ export default function Page() {
               const entry = entryList?.[index]
               if (entry) {
                 router.setParams({ entryId: entry.id })
+                setShowFooter(true)
                 if (!entry.content) {
                   loadEntryContent(entry.id)
                     .catch(console.error)
@@ -83,16 +266,17 @@ export default function Page() {
           }}
           renderItem={({ item }) => (
             <View style={{ width: UnistylesRuntime.screen.width }}>
-              <EntryDetail entry={item} />
+              <EntryDetail entry={item} readHistories={readHistories} />
             </View>
           )}
         />
+        <EntryFooterNavBar readHistories={readHistories} entry={currentEntry} />
       </Container>
     </>
   )
 }
 
-function EntryDetail({ entry }: { entry: Entry }) {
+function EntryDetail({ entry, readHistories }: { entry: Entry, readHistories?: EntryReadHistories }) {
   const { data: summary } = useSWR(
     ['entry-summary', entry.id],
     () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
@@ -101,27 +285,36 @@ function EntryDetail({ entry }: { entry: Entry }) {
     },
   )
 
-  const { data: readHistories } = useSWR(
-    ['entry-read-histories', entry.id],
-    () => apiClient.entries['read-histories'][entry.id]?.$get?.().then(res => res.data as {
-      users: Record<string, Omit<User, 'emailVerified'>>
-      entryReadHistories: {
-        entryId: string
-        userIds: string[]
-        readCount: number
-      } | null
-    }),
-  )
-
-  const users = readHistories?.entryReadHistories?.userIds.map(id => readHistories?.users[id]).filter(item => !!item)
-
-  const readUserAvatars = users?.map(i => i?.image).filter((i): i is string => i !== null) ?? []
-
   const mediaList = entry.media ?? []
   const { view } = useTabInfo()
+  const [showFooter, setShowFooter] = useAtom(showFooterAtom)
+  const lastOffsetY = useSharedValue(0)
+
+  const scrollHandler = useAnimatedScrollHandler({
+    onScroll: (event) => {
+      const currentOffsetY = event.contentOffset.y
+      const diff = currentOffsetY - lastOffsetY.value
+
+      // Already reach top or scroll up a while
+      if (diff < -5 || currentOffsetY <= 10) {
+        runOnJS(setShowFooter)(true)
+      }
+      else {
+        if (currentOffsetY > 0 && diff > 10 && showFooter) {
+          runOnJS(setShowFooter)(false)
+        }
+      }
+
+      lastOffsetY.value = currentOffsetY
+    },
+  })
 
   return (
-    <ScrollView>
+    <Animated.ScrollView
+      scrollEventThrottle={8}
+      showsVerticalScrollIndicator={false}
+      onScroll={scrollHandler}
+    >
       <Column gap={8}>
         {(mediaList.length > 0 && view !== 5) && (
           <PagerView
@@ -183,34 +376,11 @@ function EntryDetail({ entry }: { entry: Entry }) {
           <Text>
             {formatDate(entry.publishedAt, 'yyyy-MM-dd HH:mm')}
           </Text>
-          {(readHistories?.entryReadHistories?.readCount !== undefined) && (
-            <>
-              <Iconify icon="mingcute:eye-2-line" />
-              <Text>
-                {readHistories?.entryReadHistories?.readCount}
-              </Text>
-            </>
-          )}
+          <Iconify icon="mingcute:eye-2-line" />
+          <Text>
+            {readHistories?.entryReadHistories?.readCount ?? 0}
+          </Text>
         </Row>
-        {readUserAvatars.length > 0 && (
-          <Row mb={30} mx={15}>
-            {readUserAvatars
-              .slice(0, 20)
-              .map((image, index) => (
-                <Image
-                  key={image}
-                  source={{ uri: image }}
-                  style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 10,
-                    position: 'absolute',
-                    left: 15 * index,
-                  }}
-                />
-              ))}
-          </Row>
-        )}
         {summary?.data && (
           <Column
             bg="subtle"
@@ -228,6 +398,6 @@ function EntryDetail({ entry }: { entry: Entry }) {
         )}
       </Column>
       <FeedContent html={entry?.content ?? ''} />
-    </ScrollView>
+    </Animated.ScrollView>
   )
 }

@@ -104,6 +104,7 @@ export function simpleCSS({
     display: grid;
     grid-template-columns: 1fr min(45rem, 90%) 1fr;
     margin: 0;
+    padding-bottom: 50px;
   }
   body > * {
     grid-column: 2;
