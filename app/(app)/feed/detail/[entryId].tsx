@@ -4,7 +4,7 @@ import * as Clipboard from 'expo-clipboard'
 import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-router'
 import * as Sharing from 'expo-sharing'
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import PagerView from 'react-native-pager-view'
@@ -146,12 +146,19 @@ function EntryFooterNavBar({ readHistories, entry }: EntryFooterNavBarProps) {
   const { styles } = useStyles(stylesheet)
   const { bottom } = useSafeAreaInsets()
 
+  const inMounted = useSharedValue(false)
+  const showFooter = useAtomValue(showFooterAtom)
+
+  useEffect(() => {
+    inMounted.value = true
+  }, [])
+
   const users = readHistories?.entryReadHistories?.userIds.map(id => readHistories?.users[id]).filter(item => !!item) ?? []
 
-  return (
+  return showFooter && (
     <Animated.View
       style={[styles.footerContainer, { paddingBottom: bottom }]}
-      entering={SlideInDown.duration(800)}
+      entering={inMounted.value ? SlideInDown.duration(800) : undefined}
       exiting={SlideOutDown.duration(800)}
       collapsable={false}
     >
@@ -196,7 +203,7 @@ export default function Page() {
   const navigation = useNavigation()
   const router = useRouter()
 
-  const [showFooter, setShowFooter] = useAtom(showFooterAtom)
+  const setShowFooter = useSetAtom(showFooterAtom)
 
   const { data: readHistories } = useSWR(
     ['entry-read-histories', entryId],
@@ -263,7 +270,7 @@ export default function Page() {
             </View>
           )}
         />
-        {showFooter && <EntryFooterNavBar readHistories={readHistories} entry={currentEntry} />}
+        <EntryFooterNavBar readHistories={readHistories} entry={currentEntry} />
       </Container>
     </>
   )
