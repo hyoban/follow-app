@@ -12,6 +12,7 @@ import { Row } from '~/components'
 import { LoadingIndicator } from '~/components/loading-indicator'
 import { SettingsLink } from '~/components/settings-link'
 import { UnreadFilter } from '~/components/unread-filter'
+import { ViewActions } from '~/components/view-actions'
 import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
 import { useCurrentUser } from '~/hooks/use-current-user'
@@ -90,28 +91,32 @@ export default function RootLayout() {
     <Stack screenOptions={{ animation: 'ios' }}>
       <Stack.Screen
         name="(tabs)"
-        options={({ route }) => ({
-          title: tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))?.title,
-          headerLeft: () => (
-            <Row gap={18}>
-              <SettingsLink />
-            </Row>
-          ),
-          headerRight: () => (
-            <Row gap={18}>
-              <LoadingIndicator />
-              <UnreadFilter />
-            </Row>
-          ),
-          headerTitleAlign: 'center',
-          headerTitleStyle: styles.title,
-          headerLargeTitleStyle: styles.title,
-          headerBlurEffect: 'regular',
-          headerTransparent: Platform.select({
-            ios: true,
-            android: false,
-          }),
-        })}
+        options={({ route }) => {
+          const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))!
+          return {
+            title: view.title,
+            headerLeft: () => (
+              <Row gap={18}>
+                <SettingsLink />
+              </Row>
+            ),
+            headerRight: () => (
+              <Row gap={18}>
+                <LoadingIndicator />
+                <UnreadFilter />
+                <ViewActions view={view.view} />
+              </Row>
+            ),
+            headerTitleAlign: 'center',
+            headerTitleStyle: styles.title,
+            headerLargeTitleStyle: styles.title,
+            headerBlurEffect: 'regular',
+            headerTransparent: Platform.select({
+              ios: true,
+              android: false,
+            }),
+          }
+        }}
       />
       <Stack.Screen
         name="settings"

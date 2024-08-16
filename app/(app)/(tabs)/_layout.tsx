@@ -1,13 +1,10 @@
 import * as Notifications from 'expo-notifications'
-import { Tabs, useRouter } from 'expo-router'
-import { useAtom, useAtomValue } from 'jotai'
+import { Tabs } from 'expo-router'
+import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
-import ContextMenu from 'react-native-context-menu-view'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import { flagEntryReadStatus } from '~/api/entry'
 import { syncFeedsEffect } from '~/api/feed'
-import { viewLayoutMapAtom } from '~/atom/layout'
 import { tabViewList } from '~/consts/view'
 import { useUnreadCount, useUnreadCountList } from '~/hooks/use-badge-count'
 import type { ThemeColorKey } from '~/theme'
@@ -24,9 +21,6 @@ export default function TabLayout() {
       .catch(console.error)
   }, [unreadCount])
 
-  const [viewLayoutMap, setViewLayoutMap] = useAtom(viewLayoutMapAtom)
-  const router = useRouter()
-
   return (
     <Tabs>
       {tabViewList.map(view => (
@@ -42,52 +36,7 @@ export default function TabLayout() {
               },
             },
             title: view.title,
-            tabBarIcon: ({ color }) => (
-              <ContextMenu
-                actions={[
-                  {
-                    title: 'Mark as Read',
-                    systemIcon: 'circlebadge.fill',
-                  },
-                  {
-                    title: `Switch layout to ${viewLayoutMap[view.view] === 'detail' ? 'List' : 'Detail'}`,
-                    systemIcon: 'list.bullet',
-                  },
-                  {
-                    title: 'Add Feed',
-                    systemIcon: 'plus',
-                  },
-                ]}
-                onPress={(e) => {
-                  switch (e.nativeEvent.index) {
-                    case 0: {
-                      flagEntryReadStatus({ view: view.view })
-                        .catch(console.error)
-                      break
-                    }
-                    case 1: {
-                      setViewLayoutMap((viewLayoutMap) => {
-                        const oldViewLayoutMap = viewLayoutMap
-                        return {
-                          ...oldViewLayoutMap,
-                          [view.view]: viewLayoutMap[view.view] === 'detail' ? 'list' : 'detail',
-                        }
-                      })
-                      break
-                    }
-                    case 2: {
-                      router.push(`/discover?view=${view.view}`)
-                      break
-                    }
-                    default: {
-                      break
-                    }
-                  }
-                }}
-              >
-                {view.icon(color)}
-              </ContextMenu>
-            ),
+            tabBarIcon: ({ color }) => view.icon(color),
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],
             tabBarShowLabel: false,
             tabBarStyle: styles.tabBar,
