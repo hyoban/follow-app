@@ -17,4 +17,10 @@ export default defineConfig(
       '@typescript-eslint/return-await': ['warn', 'always'],
     },
   },
+  {
+    files: ['components/icons/*.tsx'],
+    rules: {
+      'unused-imports/no-unused-vars': 'off',
+    },
+  },
 )
