@@ -16,7 +16,7 @@
     "prebuild": "expo prebuild",
     "prepare": "simple-git-hooks",
     "start": "expo start --dev-client",
-    "svgr": "svgr --out-dir components/icons --filename-case kebab --native --typescript --jsx-runtime automatic --memo --template icon-template.js -- icons/mgc && eslint --flag unstable_ts_config --fix components/icons",
+    "svgr": "svgr --out-dir components/icons --filename-case kebab --native --typescript --jsx-runtime automatic --memo --template icon-template.js --index-template icon-index-template.js -- icons/mgc && eslint --flag unstable_ts_config --fix components/icons",
     "typecheck": "tsc",
     "web": "expo start --web"
   },
