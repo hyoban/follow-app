@@ -88,7 +88,7 @@ module.exports = function babel(api) {
     presets: ['babel-preset-expo'],
     plugins: [
       [
-        'react-native-iconify/plugin',
+        './babel-iconify.js',
         {
           collections: {
             mgc: getCollection(path.resolve(__dirname, './icons/mgc')),

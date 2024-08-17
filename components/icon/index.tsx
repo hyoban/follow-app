@@ -1,5 +1,6 @@
-import { Iconify as Icon } from 'react-native-iconify'
 import { useStyles } from 'react-native-unistyles'
+
+import { Iconify as Icon } from './iconify'
 
 type IconProps = React.ComponentProps<typeof Icon> & { variant?: 'accent' | 'gray' }
 
