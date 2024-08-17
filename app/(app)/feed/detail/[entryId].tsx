@@ -22,7 +22,7 @@ import { Column, Container, Iconify, Row, Text } from '~/components'
 import { FeedContent } from '~/components/feed-content'
 import { blurhash } from '~/consts/blur'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
-import type { Entry, User } from '~/db/schema'
+import type { Entry, Feed, User } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
 import { openExternalUrl } from '~/lib/utils'
@@ -39,7 +39,7 @@ interface EntryReadHistories {
 }
 
 interface EntryFooterNavBarProps {
-  entry?: Entry
+  entry?: Entry & { feed: Feed }
   readHistories?: EntryReadHistories
 }
 
@@ -108,7 +108,7 @@ function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> 
   )
 }
 
-function EntryToolsbar({ entry }: { entry: Entry }) {
+function EntryToolsbar({ entry }: { entry: Entry & { feed: Feed } }) {
   const { styles } = useStyles(stylesheet)
   if (!entry.url) {
     return null
@@ -130,7 +130,7 @@ function EntryToolsbar({ entry }: { entry: Entry }) {
       <Pressable
         style={styles.toolbarButton}
         onPress={() => {
-          openExternalUrl(entry.url)
+          openExternalUrl(entry.url, { inApp: entry.feed.view !== 1 })
             .catch(console.error)
         }}
       >
@@ -289,7 +289,7 @@ export default function Page() {
   )
 }
 
-function EntryDetail({ entry, readHistories }: { entry: Entry, readHistories?: EntryReadHistories }) {
+function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, readHistories?: EntryReadHistories }) {
   const { data: summary } = useSWR(
     ['entry-summary', entry.id],
     () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
@@ -411,7 +411,7 @@ function EntryDetail({ entry, readHistories }: { entry: Entry, readHistories?: E
               marginVertical: 15,
             }}
             onPress={() => {
-              openExternalUrl(entry.url)
+              openExternalUrl(entry.url, { inApp: entry.feed.view !== 1 })
                 .catch(console.error)
             }}
             onLongPress={() => {}}
