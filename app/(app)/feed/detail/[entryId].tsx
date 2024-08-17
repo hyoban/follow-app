@@ -414,6 +414,7 @@ function EntryDetail({ entry, readHistories }: { entry: Entry, readHistories?: E
               openExternalUrl(entry.url)
                 .catch(console.error)
             }}
+            onLongPress={() => {}}
           >
             {entry?.title}
           </Text>

@@ -53,7 +53,7 @@ function FeedFolder({
           href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`}
           asChild
         >
-          <Pressable onLongPress={() => {}}>
+          <Pressable onLongPress={() => {}} delayLongPress={250}>
             <Row gap={10} h={45} align="center" px={18}>
               <AnimatedPressable
                 style={animatedStyle}
@@ -158,7 +158,7 @@ function FeedItem({
           href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`}
           asChild
         >
-          <Pressable onLongPress={() => {}}>
+          <Pressable onLongPress={() => {}} delayLongPress={250}>
             <Row gap={10} h={45} align="center" px={18}>
               {feed.image ? (
                 <Image
