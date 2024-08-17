@@ -348,8 +348,14 @@ export function EntryList({
     load(props)
   }, [load, resetCursor])
 
+  const onceRef = useRef(false)
   useEffect(() => {
-    if (!lastItemPublishedAt.current && feedIdList.length > 0) {
+    if (
+      !lastItemPublishedAt.current
+      && feedIdList.length > 0
+      && !onceRef.current
+    ) {
+      onceRef.current = true
       refresh({ updateLimit: 'reset' })
     }
   }, [feedIdList.length, refresh])
