@@ -7,6 +7,7 @@ import * as Sharing from 'expo-sharing'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
+import ContextMenu from 'react-native-context-menu-view'
 import PagerView from 'react-native-pager-view'
 import Animated, { FadeIn, runOnJS, SlideInDown, SlideOutDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
@@ -363,22 +364,60 @@ function EntryDetail({ entry, readHistories }: { entry: Entry, readHistories?: E
             ))}
           </PagerView>
         )}
-        <Text
-          size={24}
-          weight={600}
-          style={{
-            textDecorationLine: 'underline',
-            marginBottom: 8,
-            paddingHorizontal: 15,
-            marginVertical: 15,
-          }}
-          onPress={() => {
-            openExternalUrl(entry.url)
-              .catch(console.error)
+        <ContextMenu
+          actions={
+            entry.url
+              ? [
+                  { title: 'Copy Link', systemIcon: 'doc.on.doc' },
+                  { title: 'Open Link', systemIcon: 'safari' },
+                  { title: 'Open Link in Browser', systemIcon: 'safari' },
+                  { title: 'Share', systemIcon: 'square.and.arrow.up' },
+                ]
+              : []
+          }
+          onPress={(e) => {
+            switch (e.nativeEvent.name) {
+              case 'Copy Link': {
+                Clipboard.setStringAsync(entry.url!)
+                  .then(() => {
+                    Toast.show('Copied to clipboard', { type: 'success' })
+                  })
+                  .catch(console.error)
+
+                break
+              }
+              case 'Open Link in Browser': case 'Open Link': {
+                openExternalUrl(entry.url, { inApp: e.nativeEvent.name === 'Open Link' })
+                  .catch(console.error)
+
+                break
+              }
+              case 'Share': {
+                Sharing.shareAsync(entry.url!)
+                  .catch(console.error)
+
+                break
+              }
+            }
           }}
         >
-          {entry?.title}
-        </Text>
+          <Text
+            size={24}
+            weight={600}
+            style={{
+              textDecorationLine: 'underline',
+              marginBottom: 8,
+              paddingHorizontal: 15,
+              marginVertical: 15,
+            }}
+            onPress={() => {
+              openExternalUrl(entry.url)
+                .catch(console.error)
+            }}
+          >
+            {entry?.title}
+          </Text>
+        </ContextMenu>
         {entry.author && (
           <Text style={{ paddingHorizontal: 15 }}>
             {entry.author}
