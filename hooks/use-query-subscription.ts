@@ -36,10 +36,16 @@ export function useQuerySubscription<
     if (is(entity, SQLiteTable) || is(entity, SQLiteView)) {
       const config = is(entity, SQLiteTable) ? getTableConfig(entity) : getViewConfig(entity)
 
+      let queryTimeout: NodeJS.Timeout | undefined
       listener = addDatabaseChangeListener(({ tableName }) => {
         if (config.name === tableName) {
-          query.then((data) => { next(undefined, data) })
-            .catch((error) => { next(error) })
+          if (queryTimeout) {
+            clearTimeout(queryTimeout)
+          }
+          queryTimeout = setTimeout(() => {
+            query.then((data) => { next(undefined, data) })
+              .catch((error) => { next(error) })
+          }, 0)
         }
       })
     }
