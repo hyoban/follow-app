@@ -11,19 +11,17 @@ export function FeedContent({ html }: { html: string }) {
   const [height, setHeight] = useState<DimensionValue>('auto')
   const { theme } = useStyles()
 
-  if (!html || height === 'auto') {
-    return <ActivityIndicator style={{ marginVertical: 10 }} />
-  }
-
   return (
-    <WebView
-      scrollEnabled={false}
-      style={{
-        height,
-        display: height ? 'flex' : 'none',
-      }}
-      originWhitelist={['*']}
-      injectedJavaScript={`
+    <>
+      {(!html || height === 'auto') && <ActivityIndicator style={{ marginVertical: 10 }} />}
+      <WebView
+        scrollEnabled={false}
+        style={{
+          height,
+          display: height ? 'flex' : 'none',
+        }}
+        originWhitelist={['*']}
+        injectedJavaScript={`
             // prevent links from opening in the webview
             document.addEventListener('click', function(e) {
               if (e.target.tagName === 'A') {
@@ -42,25 +40,25 @@ export function FeedContent({ html }: { html: string }) {
               }
             }, 1000)
           `}
-      onMessage={(e) => {
-        let message: any = e.nativeEvent.data
-        try {
-          message = JSON.parse(message)
-        }
-        catch {
-          return
-        }
-        if ('object' == typeof message && message.external_url_open) {
-          openExternalUrl(message.external_url_open)
-            .catch(console.error)
-        }
-        else if ('object' == typeof message && message.height) {
-          setHeight(message.height)
-        }
-      }}
-      source={{
-        baseUrl: '',
-        html: `
+        onMessage={(e) => {
+          let message: any = e.nativeEvent.data
+          try {
+            message = JSON.parse(message)
+          }
+          catch {
+            return
+          }
+          if ('object' == typeof message && message.external_url_open) {
+            openExternalUrl(message.external_url_open)
+              .catch(console.error)
+          }
+          else if ('object' == typeof message && message.height) {
+            setHeight(message.height)
+          }
+        }}
+        source={{
+          baseUrl: '',
+          html: `
   <!DOCTYPE html>
   <html lang="en">
   <head>
@@ -79,7 +77,9 @@ export function FeedContent({ html }: { html: string }) {
   </body>
   </html>
           `,
-      }}
-    />
+        }}
+      />
+    </>
+
   )
 }
