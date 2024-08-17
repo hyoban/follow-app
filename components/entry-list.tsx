@@ -23,7 +23,6 @@ import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
 import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
 
-import { LoadingIndicator } from './loading-indicator'
 import { RefreshIndicator } from './refresh-indicator'
 import { SiteImage } from './site-image'
 
@@ -314,14 +313,13 @@ export function EntryList({
 
   const [canLoadMore, setCanLoadMore] = useState(true)
 
-  const load = useCallback((props: { updateLimit: 'increase' | 'reset', hideGlobalLoading?: boolean }) => {
-    const { updateLimit, hideGlobalLoading } = props
+  const load = useCallback((props: { updateLimit: 'increase' | 'reset' }) => {
+    const { updateLimit } = props
     checkNotExistEntries(
       {
         feedIdList: feedIdListRef.current,
         start: lastItemPublishedAt.current,
         end: data?.at(-1)?.publishedAt,
-        hideGlobalLoading,
       },
     )
       .then((publishedAt) => {
@@ -373,7 +371,6 @@ export function EntryList({
               load({ updateLimit: 'increase' })
             }
           }}
-          ListFooterComponent={() => <LoadingIndicator style={{ marginVertical: 10 }} />}
         />
       </FeedIdList.Provider>
       <RefreshIndicator

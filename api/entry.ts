@@ -4,7 +4,6 @@ import { getDefaultStore } from 'jotai'
 
 import { showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
-import { isLoadingAtom } from '~/atom/loading'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
@@ -77,16 +76,12 @@ export async function checkNotExistEntries({
   feedIdList,
   start,
   end,
-  hideGlobalLoading,
 }: {
   feedIdList: string[]
   start?: string
   end?: string
-  hideGlobalLoading?: boolean
 }) {
   const store = getDefaultStore()
-  if (!hideGlobalLoading)
-    store.set(isLoadingAtom, true)
 
   const readOnly = store.get(showUnreadOnlyAtom)
   console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly)
@@ -114,8 +109,6 @@ export async function checkNotExistEntries({
   console.info('entriesFromApi', entriesFromApi.length)
   await createOrUpdateEntriesInDB(entriesFromApi)
 
-  if (!hideGlobalLoading)
-    store.set(isLoadingAtom, false)
   return entriesFromApi.at(-1)?.publishedAt
 }
 

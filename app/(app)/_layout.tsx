@@ -9,7 +9,7 @@ import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeeds } from '~/api/feed'
-import { isLoadingAtom } from '~/atom/loading'
+import { isUpdatingFeedAtom } from '~/atom/loading'
 import { Row } from '~/components'
 import { SettingsLink } from '~/components/settings-link'
 import { UnreadFilter } from '~/components/unread-filter'
@@ -83,7 +83,7 @@ export default function RootLayout() {
   }, [])
 
   const { styles } = useStyles(styleSheet)
-  const isLoading = useAtomValue(isLoadingAtom)
+  const isUpdating = useAtomValue(isUpdatingFeedAtom)
 
   const { user } = useCurrentUser()
 
@@ -97,7 +97,7 @@ export default function RootLayout() {
         options={({ route }) => {
           const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))
           return {
-            title: isLoading ? 'Updating ...' : view?.title,
+            title: isUpdating ? 'Updating...' : view?.title,
             headerLeft: () => (
               <Row gap={18}>
                 <SettingsLink />

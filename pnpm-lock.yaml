@@ -145,6 +145,9 @@ importers:
       react-native-svg:
         specifier: 15.2.0
         version: 15.2.0(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+      react-native-toast-notifications:
+        specifier: ^3.4.0
+        version: 3.4.0(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
       react-native-track-player:
         specifier: ^4.1.1
         version: 4.1.1(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
@@ -5740,6 +5743,12 @@ packages:
 
   react-native-svg@15.2.0:
     resolution: {integrity: sha512-R0E6IhcJfVLsL0lRmnUSm72QO+mTqcAOM5Jb8FVGxJqX3NfJMlMP0YyvcajZiaRR8CqQUpEoqrY25eyZb006kw==}
+    peerDependencies:
+      react: '*'
+      react-native: '*'
+
+  react-native-toast-notifications@3.4.0:
+    resolution: {integrity: sha512-ZvB//jLhRiBRemtcH7vGP1maiKCikqtW4aDqo+QYvEIOcX0y3GrjxRayVAqI4oh0qJgd/26DkbM8COobj+0MEQ==}
     peerDependencies:
       react: '*'
       react-native: '*'
@@ -13918,6 +13927,11 @@ snapshots:
     dependencies:
       css-select: 5.1.0
       css-tree: 1.1.3
+      react: 18.2.0
+      react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0)
+
+  react-native-toast-notifications@3.4.0(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
+    dependencies:
       react: 18.2.0
       react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0)
 

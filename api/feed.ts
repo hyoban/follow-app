@@ -4,7 +4,7 @@ import { atomEffect } from 'jotai-effect'
 import { AppState } from 'react-native'
 
 import type { TabViewIndex } from '~/atom/layout'
-import { isLoadingAtom } from '~/atom/loading'
+import { isUpdatingFeedAtom } from '~/atom/loading'
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
 import { entries, feeds } from '~/db/schema'
@@ -46,13 +46,9 @@ export async function getFeeds(): Promise<Feed[]> {
 const appStateAtom = atom('active')
 export const syncFeedsEffect = atomEffect((get, set) => {
   const syncFeedsBackground = () => {
-    set(isLoadingAtom, true)
     syncFeeds()
       .catch((error) => {
         console.error(error)
-      })
-      .finally(() => {
-        set(isLoadingAtom, false)
       })
   }
 
@@ -75,11 +71,10 @@ export const syncFeedsEffect = atomEffect((get, set) => {
   }
 })
 
-export async function syncFeeds({ hideLoading }: { hideLoading?: boolean } = {}) {
+export async function syncFeeds() {
   const store = getDefaultStore()
 
-  if (!hideLoading)
-    store.set(isLoadingAtom, true)
+  store.set(isUpdatingFeedAtom, true)
 
   const feedsFromApi = await getFeeds()
   const existFeedIds = feedsFromApi.map(feed => feed.id)
@@ -106,8 +101,7 @@ export async function syncFeeds({ hideLoading }: { hideLoading?: boolean } = {})
     db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
   ])
 
-  if (!hideLoading)
-    store.set(isLoadingAtom, false)
+  store.set(isUpdatingFeedAtom, false)
 }
 
 function needUpdate(data: any, dataInDB: any) {
