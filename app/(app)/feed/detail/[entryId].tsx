@@ -108,6 +108,9 @@ function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> 
 
 function EntryToolsbar({ entry }: { entry: Entry }) {
   const { styles } = useStyles(stylesheet)
+  if (!entry.url) {
+    return null
+  }
   return (
     <Row gap={8} align="center">
       <Pressable
@@ -130,8 +133,8 @@ function EntryToolsbar({ entry }: { entry: Entry }) {
       <Pressable
         style={styles.toolbarButton}
         onPress={async () => {
-          if (entry.url && await Sharing.isAvailableAsync()) {
-            await Sharing.shareAsync(entry.url)
+          if (await Sharing.isAvailableAsync()) {
+            await Sharing.shareAsync(entry.url!)
               .catch(console.error)
           }
         }}
