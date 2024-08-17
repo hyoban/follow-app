@@ -1,0 +1,37 @@
+diff --git a/plugin/index.js b/plugin/index.js
+index d1bf47af8c0685c3a22775273cdfc8f7650e5dff..7ed9fb1829e54403e832324ec9c476b538adcd28 100644
+--- a/plugin/index.js
++++ b/plugin/index.js
+@@ -1,7 +1,7 @@
+ const { locate } = require('@iconify/json');
+ const { stringToIcon, getIconData } = require('@iconify/utils');
+ 
+-module.exports = function (babel) {
++module.exports = function (babel, options) {
+   const { types: t } = babel;
+ 
+   return {
+@@ -31,14 +31,17 @@ module.exports = function (babel) {
+ 
+         const icon = stringToIcon(iconValue);
+ 
+-        const filename = locate(icon.prefix);
+-
+         let iconAsJson;
+ 
+-        try {
+-          iconAsJson = require(filename);
+-        } catch (error) {
+-          throw new Error(`Iconify: Could not find icon set "${icon.prefix}"`);
++        if (options?.collectIcons && options.collectIcons[icon.prefix]) {
++          iconAsJson = options.collectIcons[icon.prefix];
++        } else {
++          const filename = locate(icon.prefix);
++          try {
++            iconAsJson = require(filename);
++          } catch (error) {
++            throw new Error(`Iconify: Could not find icon set "${icon.prefix}"`);
++          }
+         }
+ 
+         const iconData = getIconData(iconAsJson, icon.name);
