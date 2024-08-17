@@ -33,8 +33,8 @@ module.exports = function (babel, options) {
 
         let iconAsJson
 
-        if (options?.collectIcons && options.collectIcons[icon.prefix]) {
-          iconAsJson = options.collectIcons[icon.prefix]
+        if (options?.collections && options.collections[icon.prefix]) {
+          iconAsJson = options.collections[icon.prefix]
         }
         else {
           const filename = locate(icon.prefix)

@@ -68,7 +68,7 @@ const stylesheet = createStyleSheet((theme, runtime) => ({
   toolbarButton: ({ pressed }: { pressed: boolean }) => ({
     padding: theme.spacing[1],
     borderRadius: 6,
-    backgroundColor: pressed ? theme.colors.gray3 : theme.colors.gray4,
+    backgroundColor: pressed ? theme.colors.gray3 : 'transparent',
   }),
 }))
 
@@ -116,7 +116,7 @@ function EntryToolsbar({ entry }: { entry: Entry }) {
           Clipboard.setStringAsync(entry.url!).catch(console.error)
         }}
       >
-        <Iconify icon="mingcute:link-line" />
+        <Iconify icon="mgc:link-cute-re" />
       </Pressable>
       <Pressable
         style={styles.toolbarButton}
@@ -125,18 +125,18 @@ function EntryToolsbar({ entry }: { entry: Entry }) {
             .catch(console.error)
         }}
       >
-        <Iconify icon="mingcute:world-2-line" />
+        <Iconify icon="mgc:world-2-cute-re" />
       </Pressable>
       <Pressable
         style={styles.toolbarButton}
         onPress={async () => {
-          if (await Sharing.isAvailableAsync()) {
-            await Sharing.shareAsync(entry.url!)
+          if (entry.url && await Sharing.isAvailableAsync()) {
+            await Sharing.shareAsync(entry.url)
               .catch(console.error)
           }
         }}
       >
-        <Iconify icon="mingcute:share-3-line" />
+        <Iconify icon="mgc:share-3-cute-re" />
       </Pressable>
     </Row>
   )
