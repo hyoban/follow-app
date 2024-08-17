@@ -3,7 +3,7 @@ import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
-import { Platform } from 'react-native'
+import { ActivityIndicator, Platform } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
@@ -97,10 +97,11 @@ export default function RootLayout() {
         options={({ route }) => {
           const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))
           return {
-            title: isUpdating ? 'Updating...' : view?.title,
+            title: view?.title,
             headerLeft: () => (
               <Row gap={18}>
                 <SettingsLink />
+                {isUpdating && <ActivityIndicator />}
               </Row>
             ),
             headerRight: () => (

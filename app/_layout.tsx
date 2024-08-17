@@ -111,7 +111,7 @@ export default function Root() {
         },
       }}
     >
-      <ToastProvider offsetBottom={100} duration={1000}>
+      <ToastProvider offsetTop={100} duration={1000} placement="top">
         <ThemeProvider
           value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
         >

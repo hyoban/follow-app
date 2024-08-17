@@ -9,6 +9,7 @@ import { useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Platform, Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
+import { Toast } from 'react-native-toast-notifications'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
 
@@ -323,8 +324,10 @@ export function EntryList({
       },
     )
       .then((publishedAt) => {
-        if (!publishedAt)
+        if (!publishedAt) {
+          Toast.show('No more entries')
           return
+        }
         lastItemPublishedAt.current = publishedAt
       })
       .catch((error) => {
