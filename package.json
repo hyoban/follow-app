@@ -98,7 +98,7 @@
     "pre-commit": "npx lint-staged"
   },
   "lint-staged": {
-    "*": "eslint --flag unstable_ts_config --fix"
+    "*": "eslint --fix"
   },
   "expo": {
     "install": {
