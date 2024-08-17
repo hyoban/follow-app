@@ -10,6 +10,7 @@ import { FlatList, Pressable, View } from 'react-native'
 import PagerView from 'react-native-pager-view'
 import Animated, { FadeIn, runOnJS, SlideInDown, SlideOutDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
+import { useToast } from 'react-native-toast-notifications'
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
 
@@ -108,6 +109,7 @@ function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> 
 
 function EntryToolsbar({ entry }: { entry: Entry }) {
   const { styles } = useStyles(stylesheet)
+  const toast = useToast()
   if (!entry.url) {
     return null
   }
@@ -116,7 +118,11 @@ function EntryToolsbar({ entry }: { entry: Entry }) {
       <Pressable
         style={styles.toolbarButton}
         onPress={() => {
-          Clipboard.setStringAsync(entry.url!).catch(console.error)
+          Clipboard.setStringAsync(entry.url!)
+            .then(() => {
+              toast.show('Copied to clipboard', { type: 'success' })
+            })
+            .catch(console.error)
         }}
       >
         <Iconify icon="mgc:link-cute-re" />

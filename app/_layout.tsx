@@ -11,6 +11,7 @@ import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
 import { AppState, Platform } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { ToastProvider } from 'react-native-toast-notifications'
 import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import { SWRConfig } from 'swr'
 
@@ -110,12 +111,14 @@ export default function Root() {
         },
       }}
     >
-      <ThemeProvider
-        value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
-      >
-        {__DEV__ && <DrizzleStudio />}
-        <Slot />
-      </ThemeProvider>
+      <ToastProvider offsetBottom={100} duration={1000}>
+        <ThemeProvider
+          value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
+        >
+          {__DEV__ && <DrizzleStudio />}
+          <Slot />
+        </ThemeProvider>
+      </ToastProvider>
     </SWRConfig>
   )
 }
