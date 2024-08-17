@@ -300,8 +300,17 @@ export function FeedList({ view }: { view: TabViewIndex }) {
       Object.entries(feedsGrouped),
       ([title, data]) => isSingleCategory(data)
         ? [data]
-        : [title, data],
-    ).flat(),
+        : [
+            title,
+            data.sort((a, b) => b.unread - a.unread),
+          ],
+    )
+      .sort((a, b) => {
+        const unreadA = Array.isArray(a[0]) ? a[0].reduce((acc, sub) => acc + sub.unread, 0) : Array.isArray(a[1]) ? a[1].reduce((acc, sub) => acc + sub.unread, 0) : 0
+        const unreadB = Array.isArray(b[0]) ? b[0].reduce((acc, sub) => acc + sub.unread, 0) : Array.isArray(b[1]) ? b[1].reduce((acc, sub) => acc + sub.unread, 0) : 0
+        return unreadB - unreadA
+      })
+      .flat(),
     [feedsGrouped],
   )
 
