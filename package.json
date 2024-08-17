@@ -5,7 +5,7 @@
   "packageManager": "pnpm@9.7.1",
   "main": "expo-router/entry",
   "scripts": {
-    "android": "expo run:android",
+    "android": "expo run:android --device",
     "build:dev": "eas build --profile development",
     "build:preview": "eas build --profile preview",
     "build:preview:local": "eas build --profile preview --local",
