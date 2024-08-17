@@ -1,5 +1,6 @@
 import '../theme/unistyles'
 
+import { PortalProvider } from '@gorhom/portal'
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
@@ -111,14 +112,16 @@ export default function Root() {
         },
       }}
     >
-      <ToastProvider offsetTop={100} duration={1000} placement="top">
-        <ThemeProvider
-          value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
-        >
-          {__DEV__ && <DrizzleStudio />}
-          <Slot />
-        </ThemeProvider>
-      </ToastProvider>
+      <PortalProvider>
+        <ToastProvider offsetTop={100} duration={1000} placement="top">
+          <ThemeProvider
+            value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
+          >
+            {__DEV__ && <DrizzleStudio />}
+            <Slot />
+          </ThemeProvider>
+        </ToastProvider>
+      </PortalProvider>
     </SWRConfig>
   )
 }

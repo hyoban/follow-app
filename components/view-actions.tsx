@@ -1,4 +1,3 @@
-import { MenuView } from '@react-native-menu/menu'
 import { useRouter } from 'expo-router'
 import { useAtom } from 'jotai'
 
@@ -7,11 +6,13 @@ import type { TabViewIndex } from '~/atom/layout'
 import { viewLayoutMapAtom } from '~/atom/layout'
 import { Iconify } from '~/components'
 
+import Menu from './menu'
+
 export function ViewActions({ view }: { view: TabViewIndex }) {
   const [viewLayoutMap, setViewLayoutMap] = useAtom(viewLayoutMapAtom)
   const router = useRouter()
   return (
-    <MenuView
+    <Menu
       actions={[
         {
           id: 'mark-as-read',
@@ -59,6 +60,6 @@ export function ViewActions({ view }: { view: TabViewIndex }) {
       <Iconify
         icon="mingcute:more-2-fill"
       />
-    </MenuView>
+    </Menu>
   )
 }
