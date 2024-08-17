@@ -265,8 +265,12 @@ const toggleExpandedSectionAtom = atom(null, async (get, set, update: string) =>
   }
 })
 
+function capitalizeFirstLetter(string: string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
 function getFeedCategory(feed: Feed) {
-  return feed.category || (feed.siteUrl ? (new URL(feed.siteUrl)).host : '')
+  return feed.category || (feed.siteUrl ? capitalizeFirstLetter((new URL(feed.siteUrl)).host.split('.').slice(-2).join('.')) : '')
 }
 
 function isSingleCategory(feeds: Feed[]) {
