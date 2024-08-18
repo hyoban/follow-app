@@ -76,7 +76,7 @@ const stylesheet = createStyleSheet((theme, runtime) => ({
 
 function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> }) {
   const { styles } = useStyles(stylesheet)
-  const readUserAvatars = users?.map(i => i?.image).filter((i): i is string => i !== null) ?? []
+  const readUserAvatars = users?.map(i => i?.image).filter(i => i !== null) ?? []
 
   return (
     <AnimatedPressable
@@ -162,7 +162,7 @@ function EntryFooterNavBar({ readHistories, entry }: EntryFooterNavBarProps) {
     inMounted.value = true
   }, [inMounted])
 
-  const users = readHistories?.entryReadHistories?.userIds.map(id => readHistories?.users[id]).filter((i): i is Omit<User, 'emailVerified'> => i !== null)
+  const users = readHistories?.entryReadHistories?.userIds.map(id => readHistories?.users[id]).filter(i => i != null)
 
   if (!entry) {
     return null
