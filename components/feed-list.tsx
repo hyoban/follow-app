@@ -162,6 +162,7 @@ function FeedItem({
             <Row gap={10} h={45} align="center" px={18}>
               {feed.image ? (
                 <Image
+                  recyclingKey={feed.id}
                   source={{ uri: feed.image }}
                   style={{ width: 24, height: 24, borderRadius: 1000 }}
                 />

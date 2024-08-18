@@ -150,6 +150,7 @@ function EntryItem({ entry }: EntryItemProps) {
                     {entry.media?.map((media, index) => (
                       <Image
                         key={index}
+                        recyclingKey={entry.id}
                         source={{ uri: media.type === 'photo' ? media.url : media.preview_image_url }}
                         style={{
                           width: 100,
@@ -175,6 +176,7 @@ function EntryItem({ entry }: EntryItemProps) {
                   : entry.media && entry.media.find(media => media.type === 'photo')
                     ? (
                         <Image
+                          recyclingKey={entry.id}
                           source={{
                             uri: entry.media.find(media => media.type === 'photo')?.url,
                           }}
@@ -423,6 +425,7 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
       <Column>
         {media && (
           <Image
+            recyclingKey={entry.id}
             source={{ uri: mediaUrl?.startsWith('http') ? mediaUrl.replace('http://', 'https://') : mediaUrl }}
             style={{
               width: '100%',
