@@ -3,7 +3,7 @@ import { useScrollToTop } from '@react-navigation/native'
 import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { Alert, Platform, Pressable } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import Animated, {
@@ -42,6 +42,12 @@ function FeedFolder({
   const isExpanded = expandedSections.includes(category)
 
   const rotate = useSharedValue(isExpanded ? '90deg' : '0deg')
+  useEffect(
+    () => {
+      rotate.value = isExpanded ? '90deg' : '0deg'
+    },
+    [category],
+  )
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
   const { view, title } = useTabInfo()
