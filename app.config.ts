@@ -82,6 +82,10 @@ export default function app({ config }: ConfigContext): ExpoConfig {
       },
     },
     android: {
+      adaptiveIcon: {
+        foregroundImage: './assets/adaptive-icon.png',
+        backgroundColor: '#FF5C00',
+      },
       splash: {
         image: './assets/splash.png',
         resizeMode: 'contain',
