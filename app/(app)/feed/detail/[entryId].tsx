@@ -1,7 +1,6 @@
 import { formatDate } from 'date-fns'
 import { Video } from 'expo-av'
 import * as Clipboard from 'expo-clipboard'
-import { Image } from 'expo-image'
 import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-router'
 import * as Sharing from 'expo-sharing'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
@@ -20,7 +19,7 @@ import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
 import { showFooterAtom } from '~/atom/entry-list'
 import { Column, Container, Iconify, Row, Text } from '~/components'
 import { FeedContent } from '~/components/feed-content'
-import { blurhash } from '~/consts/blur'
+import { Image } from '~/components/image'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
 import type { Entry, Feed, User } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
@@ -93,7 +92,7 @@ function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> 
               <View key={image} style={styles.userAvatar({ index })}>
                 <Image
                   style={{ height: '100%', width: '100%' }}
-                  source={{ uri: image }}
+                  source={image}
                 />
               </View>
             ))}
@@ -341,13 +340,16 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
                 ? (
                     <Image
                       key={media.url}
-                      source={{ uri: media.url }}
+                      source={media.url}
                       style={{
                         width: '100%',
                         aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
                       }}
+                      proxy={{
+                        width: 700,
+                        height: 0,
+                      }}
                       contentFit="contain"
-                      placeholder={{ blurhash }}
                     />
                   )
                 : (

@@ -1,5 +1,4 @@
-import { Image } from 'expo-image'
-
+import { Image } from './image'
 import { SiteIcon } from './site-icon'
 
 export function SiteImage({ feed, size = 24 }: { feed: { image?: string | null, siteUrl?: string | null }, size?: number }) {

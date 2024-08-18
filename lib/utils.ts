@@ -58,3 +58,49 @@ export function getFontFamily(
   }
   return fontFamily
 }
+
+const imageRefererMatches = [
+  {
+    url: /^https:\/\/\w+\.sinaimg.cn/,
+    referer: 'https://weibo.com',
+  },
+  {
+    url: /^https:\/\/i\.pximg\.net/,
+    referer: 'https://www.pixiv.net',
+  },
+  {
+    url: /^https:\/\/cdnfile\.sspai\.com/,
+    referer: 'https://sspai.com',
+  },
+]
+
+function getProxyUrl({
+  url,
+  width,
+  height,
+}: {
+  url: string
+  width: number
+  height: number
+}) {
+  return `${process.env.EXPO_PUBLIC_IMGPROXY_URL}/unsafe/${width}x${height}/${encodeURIComponent(url)}`
+}
+
+export function replaceImgUrlIfNeed({
+  url,
+  width,
+  height,
+}: {
+  url: string
+  width: number
+  height: number
+}) {
+  const httpsUrl = url.replace(/^http:/, 'https:')
+
+  for (const rule of imageRefererMatches) {
+    if (rule.url.test(httpsUrl)) {
+      return getProxyUrl({ url: httpsUrl, width, height })
+    }
+  }
+  return httpsUrl
+}

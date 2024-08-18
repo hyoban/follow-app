@@ -1,10 +1,10 @@
-import { Image } from 'expo-image'
 import { Redirect } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { Platform } from 'react-native'
 import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 
 import { Button, Column, Container, Row, Text, TextButton } from '~/components'
+import { Image } from '~/components/image'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useLogOut } from '~/hooks/use-log-out'
 import { accentColors, getAccentColor } from '~/theme'

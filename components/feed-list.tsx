@@ -1,6 +1,5 @@
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useScrollToTop } from '@react-navigation/native'
-import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
@@ -21,6 +20,7 @@ import { deleteFeed, syncFeeds } from '~/api/feed'
 import type { TabViewIndex } from '~/atom/layout'
 import { atomWithStorage } from '~/atom/storage'
 import { Iconify, Row, Text } from '~/components'
+import { Image } from '~/components/image'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
 import { useFeedList } from '~/hooks/use-feed-list'
@@ -169,7 +169,7 @@ function FeedItem({
               {feed.image ? (
                 <Image
                   recyclingKey={feed.id}
-                  source={{ uri: feed.image }}
+                  source={feed.image}
                   style={{ width: 24, height: 24, borderRadius: 1000 }}
                 />
               ) : (

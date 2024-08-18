@@ -1,7 +1,7 @@
-import { Image } from 'expo-image'
 import { Link } from 'expo-router'
 import { Pressable } from 'react-native'
 
+import { Image } from '~/components/image'
 import { useCurrentUser } from '~/hooks/use-current-user'
 
 import { Iconify } from './icon'

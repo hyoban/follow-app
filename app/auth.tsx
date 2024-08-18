@@ -1,4 +1,3 @@
-import { Image } from 'expo-image'
 import * as Linking from 'expo-linking'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import * as WebBrowser from 'expo-web-browser'
@@ -9,6 +8,7 @@ import useSWR from 'swr'
 
 import { getSession, saveSessionToUserTable } from '~/api/session'
 import { Column, Container, Text, TextButton } from '~/components'
+import { Image } from '~/components/image'
 import { commonStylesheet } from '~/theme/common'
 
 function obtainAuthToken() {

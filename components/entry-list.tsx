@@ -3,7 +3,6 @@ import { useScrollToTop } from '@react-navigation/native'
 import type { FlashList } from '@shopify/flash-list'
 import { MasonryFlashList } from '@shopify/flash-list'
 import { formatDistanceToNowStrict } from 'date-fns'
-import { Image } from 'expo-image'
 import { Link, useRouter } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
@@ -17,7 +16,7 @@ import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
 import { showUnreadOnlyAtom } from '~/atom/entry-list'
 import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
-import { blurhash } from '~/consts/blur'
+import { Image } from '~/components/image'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
@@ -151,13 +150,14 @@ function EntryItem({ entry }: EntryItemProps) {
                       <Image
                         key={index}
                         recyclingKey={entry.id}
-                        source={{ uri: media.type === 'photo' ? media.url : media.preview_image_url }}
+                        source={media.type === 'photo' ? media.url : media.preview_image_url}
                         style={{
                           width: 100,
                           // height: 100,
                           aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
                           borderRadius: 5,
                         }}
+
                       />
                     ))}
                   </Row>
@@ -177,10 +177,9 @@ function EntryItem({ entry }: EntryItemProps) {
                     ? (
                         <Image
                           recyclingKey={entry.id}
-                          source={{
-                            uri: entry.media.find(media => media.type === 'photo')?.url,
-                          }}
+                          source={entry.media.find(media => media.type === 'photo')?.url}
                           style={{ width: 50, height: 50, borderRadius: 5 }}
+                          proxy={{ width: 160, height: 160 }}
                         />
                       )
                     : null}
@@ -433,7 +432,6 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
                 ? media.width / media.height
                 : isVideo ? 16 / 9 : 9 / 16,
             }}
-            placeholder={{ blurhash }}
           />
         )}
         <Column p={10} gap={10}>

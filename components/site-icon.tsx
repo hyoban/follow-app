@@ -1,6 +1,7 @@
 import type { ImageProps } from 'expo-image'
-import { Image } from 'expo-image'
 import { parse } from 'tldts'
+
+import { Image } from '~/components/image'
 
 import { Iconify } from './icon'
 

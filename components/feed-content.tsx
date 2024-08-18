@@ -5,21 +5,19 @@ import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import WebView from 'react-native-webview'
 
 import { simpleCSS } from '~/consts/css'
-import { openExternalUrl } from '~/lib/utils'
+import { openExternalUrl, replaceImgUrlIfNeed } from '~/lib/utils'
 
 export function FeedContent({ html }: { html: string }) {
   const [height, setHeight] = useState<DimensionValue>('auto')
   const { theme } = useStyles()
+  const finalHtml = html.replaceAll(/<img src="([^"]+)"/g, (_, src) => `<img src="${replaceImgUrlIfNeed({ url: src, width: 700, height: 0 })}"`)
 
   return (
     <>
       {(!html || height === 'auto') && <ActivityIndicator style={{ marginVertical: 10 }} />}
       <WebView
         scrollEnabled={false}
-        style={{
-          height,
-          display: height ? 'flex' : 'none',
-        }}
+        style={{ height }}
         originWhitelist={['*']}
         injectedJavaScript={`
             // prevent links from opening in the webview
@@ -73,13 +71,12 @@ export function FeedContent({ html }: { html: string }) {
       </style>
   </head>
   <body>
-    <main>${html}</main>
+    <main>${finalHtml}</main>
   </body>
   </html>
           `,
         }}
       />
     </>
-
   )
 }
