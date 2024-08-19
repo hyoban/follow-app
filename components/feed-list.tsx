@@ -1,7 +1,7 @@
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useScrollToTop } from '@react-navigation/native'
 import { Link } from 'expo-router'
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
 import { Alert, Platform, Pressable } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
@@ -44,9 +44,11 @@ function FeedFolder({
   const rotate = useSharedValue(isExpanded ? '90deg' : '0deg')
   useEffect(
     () => {
+      const store = getDefaultStore()
+      const isExpanded = store.get(expandedSectionsAtom).includes(category)
       rotate.value = isExpanded ? '90deg' : '0deg'
     },
-    [category],
+    [category, rotate],
   )
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
