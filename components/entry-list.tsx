@@ -343,7 +343,7 @@ export function EntryList({
     if (updateLimit === 'increase')
       setLimit(limit => limit + FETCH_PAGE_SIZE)
   }, [data])
-  const refresh = useCallback((props: { updateLimit: 'increase' | 'reset', hideGlobalLoading?: boolean }) => {
+  const refresh = useCallback((props: { updateLimit: 'increase' | 'reset' }) => {
     setCanLoadMore(false)
     resetCursor()
     load(props)
@@ -386,6 +386,7 @@ export function EntryList({
       <RefreshIndicator
         feedIdList={feedIdList}
         onRefresh={() => refresh({ updateLimit: 'reset' })}
+        cursor={lastItemPublishedAt.current}
       />
     </>
   )

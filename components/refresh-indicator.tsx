@@ -13,9 +13,11 @@ import { Iconify, Row, Text } from '.'
 export function RefreshIndicator({
   feedIdList,
   onRefresh,
+  cursor,
 }: {
   feedIdList: string[]
   onRefresh: () => void
+  cursor?: string
 }) {
   const { theme } = useStyles()
   const headerHeight = useHeaderHeight()
@@ -50,7 +52,7 @@ export function RefreshIndicator({
     },
   )
 
-  if (!hasNew)
+  if (!cursor || !hasNew)
     return null
 
   return (
