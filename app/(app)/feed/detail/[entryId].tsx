@@ -4,7 +4,7 @@ import * as Clipboard from 'expo-clipboard'
 import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-router'
 import * as Sharing from 'expo-sharing'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import PagerView from 'react-native-pager-view'
@@ -18,7 +18,7 @@ import { apiClient } from '~/api/client'
 import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
 import { showFooterAtom } from '~/atom/entry-list'
 import { Column, Container, Iconify, Row, Text } from '~/components'
-import { FeedContent } from '~/components/feed-content'
+import HtmlRender from '~/components/dom/html-render'
 import { Image } from '~/components/image'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
 import type { Entry, Feed, User } from '~/db/schema'
@@ -321,6 +321,8 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
     },
   })
 
+  const [height, setHeight] = useState(UnistylesRuntime.screen.height)
+
   return (
     <Animated.ScrollView
       scrollEventThrottle={8}
@@ -451,7 +453,18 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
           </Column>
         )}
       </Column>
-      <FeedContent html={entry?.content ?? ''} />
+      <HtmlRender
+        onLayout={async (size) => {
+          if (size[1] !== height) {
+            setHeight(size[1])
+          }
+        }}
+        dom={{
+          scrollEnabled: false,
+          style: { height, width: UnistylesRuntime.screen.width },
+        }}
+        content={entry.content ?? ''}
+      />
     </Animated.ScrollView>
   )
 }
