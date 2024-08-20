@@ -462,6 +462,28 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
         dom={{
           scrollEnabled: false,
           style: { height, width: UnistylesRuntime.screen.width },
+          injectedJavaScript: `
+            // prevent links from opening in the webview
+            document.addEventListener('click', function(e) {
+              if (e.target.tagName === 'A') {
+                e.preventDefault()
+                window.ReactNativeWebView.postMessage(JSON.stringify({ external_url_open: e.target.href }))
+              }
+            })
+          `,
+          onMessage: (e) => {
+            let message: any = e.nativeEvent.data
+            try {
+              message = JSON.parse(message)
+            }
+            catch {
+              return
+            }
+            if ('object' == typeof message && message.external_url_open) {
+              openExternalUrl(message.external_url_open)
+                .catch(console.error)
+            }
+          },
         }}
         content={entry.content ?? ''}
       />
