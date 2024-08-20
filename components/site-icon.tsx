@@ -14,7 +14,9 @@ export function SiteIcon(props: ImageProps & { size?: number }) {
       ? typeof props.source[0] === 'object'
         ? props.source[0].uri
         : props.source[0]
-      : props.source?.uri
+      : props.source && 'uri' in props.source
+        ? props.source?.uri
+        : null
     : typeof props.source === 'string'
       ? props.source
       : null

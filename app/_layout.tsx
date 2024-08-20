@@ -26,7 +26,7 @@ export const unstable_settings = {
 }
 
 function DrizzleStudio() {
-  useDrizzleStudio(expoDb)
+  useDrizzleStudio(expoDb as any)
   return null
 }
 
