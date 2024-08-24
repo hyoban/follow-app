@@ -23,6 +23,7 @@ import { useTabInfo } from '~/hooks/use-tab-info'
 import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
 import { showUnreadOnlyAtom } from '~/store/entry-list'
 import type { TabViewIndex } from '~/store/layout'
+import { isTabletLandscape } from '~/theme/breakpoints'
 
 import { RefreshIndicator } from './refresh-indicator'
 import { SiteImage } from './site-image'
@@ -362,12 +363,13 @@ export function EntryList({
   }, [feedIdList, refresh])
 
   const { view } = useTabInfo()
+  const { breakpoint } = useStyles()
 
   return (
     <>
       <FeedIdList.Provider value={{ feedIdList }}>
         <MasonryFlashList
-          numColumns={view === 2 ? 2 : 1}
+          numColumns={view === 2 ? 2 : isTabletLandscape(breakpoint) && view === 3 ? 2 : 1}
           scrollToOverflowEnabled
           ref={flashListRef}
           contentInsetAdjustmentBehavior="automatic"
@@ -413,7 +415,7 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
           router.push(`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : entry.feedId}&title=${title}&view=${view}` as any)
         }
       }}
-      style={isVideo ? {} : {
+      style={{
         margin: 5,
         marginLeft: index !== undefined ? index % 2 === 1 ? 5 : 10 : 5,
         marginRight: index !== undefined ? index % 2 === 1 ? 10 : 5 : 5,
@@ -423,18 +425,34 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
       }}
     >
       <Column>
-        {media && (
+        {media ? (
           <Image
             recyclingKey={entry.id}
             source={{ uri: mediaUrl?.startsWith('http') ? mediaUrl.replace('http://', 'https://') : mediaUrl }}
             style={{
               width: '100%',
-              aspectRatio: (media?.height && media.width)
-                ? media.width / media.height
-                : isVideo ? 16 / 9 : 9 / 16,
+              aspectRatio: isVideo
+                ? 16 / 9
+                : (media?.height && media.width)
+                    ? media.width / media.height
+                    : 9 / 16,
             }}
           />
-        )}
+        ) : isVideo
+          ? (
+              <Column
+                w="100%"
+                style={{
+                  aspectRatio: 16 / 9,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  backgroundColor: theme.colors.gray2,
+                }}
+              >
+                <Text>No media available</Text>
+              </Column>
+            )
+          : null}
         <Column p={10} gap={10}>
           {entry.title && (
             <Text weight="600" numberOfLines={1}>
