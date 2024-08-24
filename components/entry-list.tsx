@@ -10,7 +10,7 @@ import { Platform, Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import { Toast } from 'react-native-toast-notifications'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
-import { useStyles } from 'react-native-unistyles'
+import { createStyleSheet, useStyles } from 'react-native-unistyles'
 import { unstable_serialize } from 'swr'
 
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
@@ -90,6 +90,7 @@ function EntryItem({ entry }: EntryItemProps) {
   const { view, title } = useTabInfo()
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
   const { feedIdList } = useContext(FeedIdList)
+  const { styles } = useStyles(entryItemStyleSheet)
   return (
     <>
       <ContextMenu
@@ -180,7 +181,7 @@ function EntryItem({ entry }: EntryItemProps) {
                         <Image
                           recyclingKey={entry.id}
                           source={entry.media.find(media => media.type === 'photo')?.url}
-                          style={{ width: 50, height: 50, borderRadius: 5 }}
+                          style={styles.mediaImage}
                           proxy={{ width: 160, height: 160 }}
                         />
                       )
@@ -189,11 +190,21 @@ function EntryItem({ entry }: EntryItemProps) {
           </Pressable>
         </Link>
       </ContextMenu>
-
       {!options?.hideDivider && <Row w="100%" h={1} bg="component" />}
     </>
   )
 }
+
+const entryItemStyleSheet = createStyleSheet(_theme => ({
+  mediaImage: {
+    width: {
+      xs: 50,
+      tablet: 100,
+    },
+    aspectRatio: 1,
+    borderRadius: 5,
+  },
+}))
 
 type AudioButtonProps = EntryItemProps & {
   children?: React.ReactNode
