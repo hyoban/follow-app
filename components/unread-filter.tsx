@@ -1,6 +1,6 @@
 import { useAtom } from 'jotai'
 
-import { showUnreadOnlyAtom } from '~/atom/entry-list'
+import { showUnreadOnlyAtom } from '~/store/entry-list'
 
 import { Iconify } from './icon'
 

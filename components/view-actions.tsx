@@ -1,16 +1,18 @@
 import { useRouter } from 'expo-router'
 import { useAtom } from 'jotai'
+import { useStyles } from 'react-native-unistyles'
 
 import { flagEntryReadStatus } from '~/api/entry'
-import type { TabViewIndex } from '~/atom/layout'
-import { viewLayoutMapAtom } from '~/atom/layout'
 import { Iconify } from '~/components'
+import type { TabViewIndex } from '~/store/layout'
+import { viewLayoutMapAtom } from '~/store/layout'
 
 import Menu from './menu'
 
 export function ViewActions({ view }: { view: TabViewIndex }) {
   const [viewLayoutMap, setViewLayoutMap] = useAtom(viewLayoutMapAtom)
   const router = useRouter()
+  const { breakpoint } = useStyles()
   return (
     <Menu
       actions={[
@@ -29,7 +31,12 @@ export function ViewActions({ view }: { view: TabViewIndex }) {
           title: 'Add Feed',
           image: 'plus',
         },
-      ]}
+      ].filter(({ id }) => {
+        if (id === 'switch-layout') {
+          return breakpoint !== 'tablet'
+        }
+        return true
+      })}
       onPressAction={({ nativeEvent }) => {
         switch (nativeEvent.event) {
           case 'mark-as-read': {

@@ -9,7 +9,6 @@ import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeeds } from '~/api/feed'
-import { isUpdatingFeedAtom } from '~/atom/loading'
 import { Row } from '~/components'
 import { SettingsLink } from '~/components/settings-link'
 import { UnreadFilter } from '~/components/unread-filter'
@@ -18,6 +17,7 @@ import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { getFontFamily } from '~/lib/utils'
+import { isUpdatingFeedAtom } from '~/store/loading'
 
 TrackPlayer.registerPlaybackService(() => async () => {
   TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())

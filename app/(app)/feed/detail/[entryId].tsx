@@ -16,7 +16,6 @@ import useSWR from 'swr'
 
 import { apiClient } from '~/api/client'
 import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
-import { showFooterAtom } from '~/atom/entry-list'
 import { Column, Container, Iconify, Row, Text } from '~/components'
 import { FeedContent } from '~/components/feed-content'
 import { Image } from '~/components/image'
@@ -25,6 +24,7 @@ import type { Entry, Feed, User } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
 import { openExternalUrl } from '~/lib/utils'
+import { showFooterAtom } from '~/store/entry-list'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
