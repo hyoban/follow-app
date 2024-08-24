@@ -28,15 +28,19 @@ export function FeedContent({ html }: { html: string }) {
               }
             })
   
-            const postHeight = () => {
-              window.ReactNativeWebView.postMessage(JSON.stringify({ height: document.body.scrollHeight + 10 }))
+            const callback = ([width, height]) => {
+              window.ReactNativeWebView.postMessage(JSON.stringify({ height, width }))
             }
-            const interval = setInterval(() => {
-              postHeight()
-              if (document.readyState === 'complete') {
-                clearInterval(interval)
+            const observer = new ResizeObserver(entries => {
+              for (const entry of entries) {
+                const { width, height } = entry.contentRect;
+                callback([width, height]);
               }
-            }, 1000)
+            });
+
+            observer.observe(document.body);
+
+            callback([document.body.clientWidth, document.body.clientHeight]);
           `}
         onMessage={(e) => {
           let message: any = e.nativeEvent.data
