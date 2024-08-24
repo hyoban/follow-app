@@ -6,7 +6,9 @@ const config = getDefaultConfig(__dirname)
 
 config.resolver.sourceExts.push('sql')
 
-// https://github.com/expo/expo/issues/22482
+// This is a workaround for expo-dom
+// https://docs.expo.dev/versions/latest/config/metro/#custom-resolving
+// https://github.com/facebook/metro/issues/330
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   // * .expo/@dom/00bb935b368d3519cca2a1dc067f71ec1f66887b.js(.web.ts|.ts|.web.tsx|.tsx|.web.mjs|.mjs|.web.js|.js|.web.jsx|.jsx|.web.json|.json|.web.cjs|.cjs|.web.scss|.scss|.web.sass|.sass|.web.css|.css|.web.sql|.sql)
   // * .expo/@dom/00bb935b368d3519cca2a1dc067f71ec1f66887b.js/index(.web.ts|.ts|.web.tsx|.tsx|.web.mjs|.mjs|.web.js|.js|.web.jsx|.jsx|.web.json|.json|.web.cjs|.cjs|.web.scss|.scss|.web.sass|.sass|.web.css|.css|.web.sql|.sql)
