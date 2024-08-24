@@ -42,9 +42,12 @@ export default function TabLayout() {
             tabBarShowLabel: isTablet(breakpoint),
             tabBarStyle: styles.tabBar,
             headerShown: false,
-            tabBarBadge: countList[view.view] > 0 ? '' : undefined,
+            tabBarBadge: countList[view.view] > 0 ? isTablet(breakpoint) ? countList[view.view] : '' : undefined,
             tabBarBadgeStyle: {
-              transform: [{ scale: 0.4 }],
+              transform: [
+                { scale: isTablet(breakpoint) ? 0.8 : 0.4 },
+                { translateX: isTablet(breakpoint) ? -35 : 0 },
+              ],
             },
           }}
         />
