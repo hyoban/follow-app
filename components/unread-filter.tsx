@@ -10,13 +10,13 @@ export function UnreadFilter() {
   return showUnreadOnly
     ? (
         <Iconify
-          icon="mingcute:document-fill"
+          icon="mgc:round-cute-fi"
           onPress={() => { setUnreadOnly(i => !i) }}
         />
       )
     : (
         <Iconify
-          icon="mingcute:document-line"
+          icon="mgc:round-cute-re"
           onPress={() => { setUnreadOnly(i => !i) }}
         />
       )
