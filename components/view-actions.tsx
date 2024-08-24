@@ -1,18 +1,19 @@
 import { useRouter } from 'expo-router'
 import { useAtom } from 'jotai'
+import { Pressable } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
 import { flagEntryReadStatus } from '~/api/entry'
 import { Iconify } from '~/components'
 import type { TabViewIndex } from '~/store/layout'
 import { viewLayoutMapAtom } from '~/store/layout'
+import { isTablet } from '~/theme/breakpoints'
 
 import Menu from './menu'
 
-export function ViewActions({ view }: { view: TabViewIndex }) {
+function ViewActionsMobile({ view }: { view: TabViewIndex }) {
   const [viewLayoutMap, setViewLayoutMap] = useAtom(viewLayoutMapAtom)
   const router = useRouter()
-  const { breakpoint } = useStyles()
   return (
     <Menu
       actions={[
@@ -31,12 +32,7 @@ export function ViewActions({ view }: { view: TabViewIndex }) {
           title: 'Add Feed',
           image: 'plus',
         },
-      ].filter(({ id }) => {
-        if (id === 'switch-layout') {
-          return breakpoint !== 'tablet'
-        }
-        return true
-      })}
+      ]}
       onPressAction={({ nativeEvent }) => {
         switch (nativeEvent.event) {
           case 'mark-as-read': {
@@ -69,4 +65,34 @@ export function ViewActions({ view }: { view: TabViewIndex }) {
       />
     </Menu>
   )
+}
+
+function ViewActionsTablet({ view }: { view: TabViewIndex }) {
+  const router = useRouter()
+  return (
+    <>
+      <Pressable
+        onPress={() => {
+          flagEntryReadStatus({ view })
+            .catch(console.error)
+        }}
+      >
+        <Iconify icon="mgc:check-circle-cute-re" />
+      </Pressable>
+      <Pressable
+        onPress={() => {
+          router.push(`/discover?view=${view}`)
+        }}
+      >
+        <Iconify icon="mgc:add-cute-re" />
+      </Pressable>
+    </>
+  )
+}
+
+export function ViewActions({ view }: { view: TabViewIndex }) {
+  const { breakpoint } = useStyles()
+  return isTablet(breakpoint)
+    ? <ViewActionsTablet view={view} />
+    : <ViewActionsMobile view={view} />
 }
