@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai'
 
 import { db } from '~/db'
-import { showUnreadOnlyAtom } from '~/store/entry-list'
+import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
 
 import { useQuerySubscription } from './use-query-subscription'

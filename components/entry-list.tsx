@@ -21,7 +21,7 @@ import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
 import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
-import { showUnreadOnlyAtom } from '~/store/entry-list'
+import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
 import { isTabletLandscape } from '~/theme/breakpoints'
 

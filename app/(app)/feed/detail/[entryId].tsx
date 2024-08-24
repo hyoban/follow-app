@@ -22,8 +22,8 @@ import { Image } from '~/components/image'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
 import type { Entry, Feed, User } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
-import { openExternalUrl } from '~/lib/utils'
-import { showFooterAtom } from '~/store/entry-list'
+import { openExternalUrl, readability } from '~/lib/utils'
+import { enableReadabilityMapAtom, showFooterAtom, toggleEnableReadabilityMapAtom } from '~/store/entry'
 import { isNotTabletLandscape, isTabletLandscape } from '~/theme/breakpoints'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -109,6 +109,9 @@ function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> 
 
 function EntryToolsbar({ entry }: { entry: Entry & { feed: Feed } }) {
   const { styles } = useStyles(stylesheet)
+  const enableReadabilityMap = useAtomValue(enableReadabilityMapAtom)
+  const enableReadability = useMemo(() => enableReadabilityMap[entry.feedId], [enableReadabilityMap, entry.feedId])
+  const toggleEnableReadability = useSetAtom(toggleEnableReadabilityMapAtom)
   if (!entry.url) {
     return null
   }
@@ -145,6 +148,18 @@ function EntryToolsbar({ entry }: { entry: Entry & { feed: Feed } }) {
         }}
       >
         <Iconify icon="mgc:share-3-cute-re" />
+      </Pressable>
+      <Pressable
+        style={styles.toolbarButton}
+        onPress={() => {
+          toggleEnableReadability(entry.feedId)
+        }}
+      >
+        {enableReadability ? (
+          <Iconify icon="mgc:sparkles-2-filled" />
+        ) : (
+          <Iconify icon="mgc:sparkles-2-cute-re" />
+        )}
       </Pressable>
     </Row>
   )
@@ -383,6 +398,14 @@ function MainContentScrollView({
     },
   )
 
+  const enableReadabilityMap = useAtomValue(enableReadabilityMapAtom)
+  const enableReadability = useMemo(() => enableReadabilityMap[entry.feedId], [enableReadabilityMap, entry.feedId])
+
+  const { data: readabilityData } = useSWR(
+    (enableReadability && entry.url) ? ['readability', entry.url] : null,
+    () => readability(entry.url!),
+  )
+
   const [showFooter, setShowFooter] = useAtom(showFooterAtom)
   const lastOffsetY = useSharedValue(0)
 
@@ -497,7 +520,7 @@ function MainContentScrollView({
           </Column>
         )}
       </Column>
-      <FeedContent html={entry?.content ?? ''} />
+      <FeedContent html={readabilityData?.content ?? entry?.content ?? ''} />
     </Animated.ScrollView>
   )
 }

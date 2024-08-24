@@ -5,7 +5,7 @@ import { getDefaultStore } from 'jotai'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
-import { showUnreadOnlyAtom } from '~/store/entry-list'
+import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
 
 import { apiClient } from './client'

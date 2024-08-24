@@ -1,7 +1,7 @@
 import { useAtomValue } from 'jotai'
 
 import { db } from '~/db'
-import { showUnreadOnlyAtom } from '~/store/entry-list'
+import { showUnreadOnlyAtom } from '~/store/entry'
 
 import { useQuerySubscription } from './use-query-subscription'
 

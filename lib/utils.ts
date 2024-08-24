@@ -1,3 +1,5 @@
+import { Readability } from '@mozilla/readability'
+import { parseHTML } from 'linkedom'
 import type { TextStyle } from 'react-native'
 import { Linking, Platform } from 'react-native'
 import InAppBrowser from 'react-native-inappbrowser-reborn'
@@ -103,4 +105,35 @@ export function replaceImgUrlIfNeed({
     }
   }
   return httpsUrl
+}
+
+export async function readability(url: string) {
+  const documentString = await fetch(url).then(res => res.text())
+
+  // FIXME: linkedom does not handle relative addresses in strings. Refer to
+  // @see https://github.com/WebReflection/linkedom/issues/153
+  // JSDOM handles it correctly, but JSDOM introduces canvas binding.
+
+  const { document } = parseHTML(documentString)
+  const baseUrl = new URL(url).origin
+
+  document.querySelectorAll('a').forEach((a) => {
+    a.href = replaceRelativeAddress(baseUrl, a.href)
+  });
+
+  (['img', 'audio', 'video'] as const).forEach((tag) => {
+    document.querySelectorAll(tag).forEach((img) => {
+      img.src = img.src && replaceRelativeAddress(baseUrl, img.src)
+    })
+  })
+
+  const reader = new Readability(document)
+  return reader.parse()
+}
+
+function replaceRelativeAddress(baseUrl: string, url: string) {
+  if (url.startsWith('http')) {
+    return url
+  }
+  return new URL(url, baseUrl).href
 }
