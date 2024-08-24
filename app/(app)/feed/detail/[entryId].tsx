@@ -24,7 +24,7 @@ import type { Entry, Feed, User } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { openExternalUrl } from '~/lib/utils'
 import { showFooterAtom } from '~/store/entry-list'
-import { isTabletLandscape } from '~/theme/breakpoints'
+import { isNotTabletLandscape, isTabletLandscape } from '~/theme/breakpoints'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -292,22 +292,28 @@ const mediaPagerViewStyleSheet = createStyleSheet((theme, runtime) => ({
   container: {
     width: {
       xs: '100%',
+      tablet: '100%',
       tabletLandscape: runtime.screen.width / 3,
     },
     maxHeight: {
       xs: runtime.screen.height / 3,
+      tablet: runtime.screen.height / 3,
+      tabletLandscape: undefined,
+    },
+    alignSelf: {
+      xs: 'center',
+      tablet: 'center',
       tabletLandscape: undefined,
     },
     height: {
-      xs: undefined,
+      xs: runtime.screen.height / 3,
+      tablet: runtime.screen.height / 3,
       tabletLandscape: '100%',
     },
     alignItems: {
-      xs: undefined,
       tabletLandscape: 'center',
     },
     justifyContent: {
-      xs: undefined,
       tabletLandscape: 'center',
     },
   },
@@ -315,14 +321,20 @@ const mediaPagerViewStyleSheet = createStyleSheet((theme, runtime) => ({
 
 function MediaPagerView({ entry }: { entry: Entry & { feed: Feed } }) {
   const mediaList = entry.media ?? []
-  const { styles } = useStyles(mediaPagerViewStyleSheet)
+  const { styles, breakpoint } = useStyles(mediaPagerViewStyleSheet)
 
   if (mediaList.length === 0 || entry.feed.view === 5) {
     return null
   }
 
   return (
-    <PagerView style={styles.container}>
+    <PagerView
+      style={[
+        styles.container,
+        isNotTabletLandscape(breakpoint) && mediaList.map(media => media.height).filter(i => i != null).length > 0
+        && { height: Math.max(...mediaList.map(media => media.height).filter(i => i != null)) },
+      ]}
+    >
       {mediaList.map(media => (
         media.type === 'photo'
           ? (

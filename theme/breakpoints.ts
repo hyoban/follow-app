@@ -13,3 +13,7 @@ export function isTablet(breakpoint: keyof UnistylesBreakpoints) {
 export function isTabletLandscape(breakpoint: keyof UnistylesBreakpoints) {
   return breakpoint === 'tabletLandscape'
 }
+
+export function isNotTabletLandscape(breakpoint: keyof UnistylesBreakpoints) {
+  return breakpoint !== 'tabletLandscape'
+}
