@@ -10,6 +10,7 @@ import { useFeedList } from '~/hooks/use-feed-list'
 import { useFeedIdListMapStore } from '~/store/feed'
 import { viewLayoutMapAtom } from '~/store/layout'
 import { createViewStore, ViewContext } from '~/store/view'
+import { isTablet } from '~/theme/breakpoints'
 
 const viewIndex = 4
 const viewTitle = tabViewList.find(i => i.view === viewIndex)?.title as string
@@ -56,7 +57,7 @@ export default function TabPage() {
   return (
     <ViewContext.Provider value={store}>
       {
-        breakpoint === 'tablet'
+        isTablet(breakpoint)
           ? <TabletView />
           : <MobileView />
       }

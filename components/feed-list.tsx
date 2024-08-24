@@ -27,6 +27,7 @@ import { useTabInfo } from '~/hooks/use-tab-info'
 import { useFeedIdListMapStore } from '~/store/feed'
 import type { TabViewIndex } from '~/store/layout'
 import { atomWithStorage } from '~/store/storage'
+import { isTablet } from '~/theme/breakpoints'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -66,7 +67,7 @@ function FeedFolder({
       <ContextMenuWrapper feedIdList={feedIdList}>
         <Pressable
           onPress={() => {
-            if (breakpoint === 'tablet') {
+            if (isTablet(breakpoint)) {
               if (view !== undefined) {
                 update(view, feedIdList)
               }
@@ -187,7 +188,7 @@ function FeedItem({
       >
         <Pressable
           onPress={() => {
-            if (breakpoint === 'tablet') {
+            if (isTablet(breakpoint)) {
               if (view !== undefined) {
                 update(view, [feed.id])
               }

@@ -8,6 +8,7 @@ import { syncFeedsEffect } from '~/api/feed'
 import { tabViewList } from '~/consts/view'
 import { useUnreadCount, useUnreadCountList } from '~/hooks/use-badge-count'
 import type { ThemeColorKey } from '~/theme'
+import { isTablet } from '~/theme/breakpoints'
 
 export default function TabLayout() {
   const { styles, theme, breakpoint } = useStyles(stylesheet)
@@ -38,7 +39,7 @@ export default function TabLayout() {
             title: view.title,
             tabBarIcon: ({ color }) => view.icon(color),
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],
-            tabBarShowLabel: breakpoint === 'tablet',
+            tabBarShowLabel: isTablet(breakpoint),
             tabBarStyle: styles.tabBar,
             headerShown: false,
             tabBarBadge: countList[view.view] > 0 ? '' : undefined,

@@ -22,9 +22,9 @@ import { Image } from '~/components/image'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
 import type { Entry, Feed, User } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
-import { useTabInfo } from '~/hooks/use-tab-info'
 import { openExternalUrl } from '~/lib/utils'
 import { showFooterAtom } from '~/store/entry-list'
+import { isTabletLandscape } from '~/theme/breakpoints'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -288,7 +288,81 @@ export default function Page() {
   )
 }
 
-function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, readHistories?: EntryReadHistories }) {
+const mediaPagerViewStyleSheet = createStyleSheet((theme, runtime) => ({
+  container: {
+    width: {
+      xs: '100%',
+      tabletLandscape: runtime.screen.width / 3,
+    },
+    maxHeight: {
+      xs: runtime.screen.height / 3,
+      tabletLandscape: undefined,
+    },
+    height: {
+      xs: undefined,
+      tabletLandscape: '100%',
+    },
+    alignItems: {
+      xs: undefined,
+      tabletLandscape: 'center',
+    },
+    justifyContent: {
+      xs: undefined,
+      tabletLandscape: 'center',
+    },
+  },
+}))
+
+function MediaPagerView({ entry }: { entry: Entry & { feed: Feed } }) {
+  const mediaList = entry.media ?? []
+  const { styles } = useStyles(mediaPagerViewStyleSheet)
+
+  if (mediaList.length === 0 || entry.feed.view === 5) {
+    return null
+  }
+
+  return (
+    <PagerView style={styles.container}>
+      {mediaList.map(media => (
+        media.type === 'photo'
+          ? (
+              <Image
+                key={media.url}
+                source={media.url}
+                style={{
+                  aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
+                }}
+                proxy={{
+                  width: 700,
+                  height: 0,
+                }}
+                contentFit="contain"
+              />
+            )
+          : (
+              <Video
+                key={media.url}
+                source={{ uri: media.url }}
+                style={{
+                  aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
+                }}
+                useNativeControls
+              />
+            )
+      ))}
+    </PagerView>
+  )
+}
+
+function MainContentScrollView({
+  entry,
+  readHistories,
+  children,
+}: {
+  entry: Entry & { feed: Feed }
+  readHistories?: EntryReadHistories
+  children?: React.ReactNode
+}) {
   const { data: summary } = useSWR(
     ['entry-summary', entry.id],
     () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
@@ -297,8 +371,6 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
     },
   )
 
-  const mediaList = entry.media ?? []
-  const { view } = useTabInfo()
   const [showFooter, setShowFooter] = useAtom(showFooterAtom)
   const lastOffsetY = useSharedValue(0)
 
@@ -320,52 +392,14 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
       lastOffsetY.value = currentOffsetY
     },
   })
-
   return (
     <Animated.ScrollView
       scrollEventThrottle={8}
       showsVerticalScrollIndicator={false}
       onScroll={scrollHandler}
     >
+      {children}
       <Column gap={8}>
-        {(mediaList.length > 0 && view !== 5) && (
-          <PagerView
-            style={{
-              width: '100%',
-              aspectRatio: Math.max(...mediaList.map(media => (media.width && media.height) ? media.width / media.height : 1), 1),
-            }}
-          >
-            {mediaList.map(media => (
-              media.type === 'photo'
-                ? (
-                    <Image
-                      key={media.url}
-                      source={media.url}
-                      style={{
-                        width: '100%',
-                        aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
-                      }}
-                      proxy={{
-                        width: 700,
-                        height: 0,
-                      }}
-                      contentFit="contain"
-                    />
-                  )
-                : (
-                    <Video
-                      key={media.url}
-                      source={{ uri: media.url }}
-                      style={{
-                        width: '100%',
-                        aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
-                      }}
-                      useNativeControls
-                    />
-                  )
-            ))}
-          </PagerView>
-        )}
         <ContextMenu
           actions={
             entry.url
@@ -453,5 +487,30 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
       </Column>
       <FeedContent html={entry?.content ?? ''} />
     </Animated.ScrollView>
+  )
+}
+
+function EntryDetail({
+  entry,
+  readHistories,
+}: {
+  entry: Entry & { feed: Feed }
+  readHistories?: EntryReadHistories
+}) {
+  const { breakpoint } = useStyles()
+
+  if (isTabletLandscape(breakpoint)) {
+    return (
+      <Row minH="100%">
+        <MediaPagerView entry={entry} />
+        <MainContentScrollView entry={entry} readHistories={readHistories} />
+      </Row>
+    )
+  }
+
+  return (
+    <MainContentScrollView entry={entry} readHistories={readHistories}>
+      <MediaPagerView entry={entry} />
+    </MainContentScrollView>
   )
 }
