@@ -3,11 +3,11 @@ import { atom, getDefaultStore } from 'jotai'
 import { atomEffect } from 'jotai-effect'
 import { AppState } from 'react-native'
 
-import type { TabViewIndex } from '~/atom/layout'
-import { isUpdatingFeedAtom } from '~/atom/loading'
 import { db } from '~/db'
 import type { Feed } from '~/db/schema'
 import { entries, feeds } from '~/db/schema'
+import type { TabViewIndex } from '~/store/layout'
+import { isUpdatingFeedAtom } from '~/store/loading'
 
 import { apiClient } from './client'
 

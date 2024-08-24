@@ -2,11 +2,11 @@ import { isBefore, subMinutes } from 'date-fns'
 import { and, eq, inArray, sql } from 'drizzle-orm'
 import { getDefaultStore } from 'jotai'
 
-import { showUnreadOnlyAtom } from '~/atom/entry-list'
-import type { TabViewIndex } from '~/atom/layout'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
+import { showUnreadOnlyAtom } from '~/store/entry-list'
+import type { TabViewIndex } from '~/store/layout'
 
 import { apiClient } from './client'
 

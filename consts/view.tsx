@@ -1,7 +1,7 @@
 import type { Routes } from 'expo-router'
 
-import type { TabViewIndex } from '~/atom/layout'
 import { Iconify } from '~/components'
+import type { TabViewIndex } from '~/store/layout'
 
 export type TabView = {
   view: TabViewIndex

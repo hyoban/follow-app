@@ -199,6 +199,9 @@ importers:
       zod:
         specifier: ^3.23.8
         version: 3.23.8
+      zustand:
+        specifier: ^4.5.5
+        version: 4.5.5(@types/react@18.2.79)(react@18.2.0)
     devDependencies:
       '@babel/core':
         specifier: ^7.25.2
@@ -7345,8 +7348,27 @@ packages:
   zod@3.23.8:
     resolution: {integrity: sha512-XBx9AXhXktjUqnepgTiE5flcKIYWi/rme0Eaj+5Y0lftuGBq+jyRu/md4WnuxqgP1ubdpNCsYEYPxrzVHD8d6g==}
 
+<<<<<<< HEAD
   zwitch@2.0.4:
     resolution: {integrity: sha512-bXE4cR/kVZhKZX/RjPEflHaKVhUVl85noU3v6b8apfQEc1x4A+zBxjZ4lN8LqGd6WZ3dl98pY4o717VFmoPp+A==}
+=======
+  zustand@4.5.5:
+    resolution: {integrity: sha512-+0PALYNJNgK6hldkgDq2vLrw5f6g/jCInz52n9RTpropGgeAf/ioFUCdtsjCqu4gNhW9D01rUQBROoRjdzyn2Q==}
+    engines: {node: '>=12.7.0'}
+    peerDependencies:
+      '@types/react': '>=16.8'
+      immer: '>=9.0.6'
+      react: '>=16.8'
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
+      immer:
+        optional: true
+      react:
+        optional: true
+
+snapshots:
+>>>>>>> main
 
 snapshots:
 
@@ -16008,4 +16030,13 @@ snapshots:
 
   zod@3.23.8: {}
 
+<<<<<<< HEAD
   zwitch@2.0.4: {}
+=======
+  zustand@4.5.5(@types/react@18.2.79)(react@18.2.0):
+    dependencies:
+      use-sync-external-store: 1.2.2(react@18.2.0)
+    optionalDependencies:
+      '@types/react': 18.2.79
+      react: 18.2.0
+>>>>>>> main

@@ -1,6 +1,6 @@
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useScrollToTop } from '@react-navigation/native'
-import { Link } from 'expo-router'
+import { useRouter } from 'expo-router'
 import { atom, getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
 import { Alert, Platform, Pressable } from 'react-native'
@@ -14,17 +14,19 @@ import Animated, {
   withSpring,
 } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
+import { unstable_serialize } from 'swr'
 
 import { flagEntryReadStatus } from '~/api/entry'
 import { deleteFeed, syncFeeds } from '~/api/feed'
-import type { TabViewIndex } from '~/atom/layout'
-import { atomWithStorage } from '~/atom/storage'
 import { Iconify, Row, Text } from '~/components'
 import { Image } from '~/components/image'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
 import { useFeedList } from '~/hooks/use-feed-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
+import { useFeedIdListMapStore } from '~/store/feed'
+import type { TabViewIndex } from '~/store/layout'
+import { atomWithStorage } from '~/store/storage'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
@@ -53,38 +55,55 @@ function FeedFolder({
   const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
 
   const { view, title } = useTabInfo()
+  const { breakpoint, theme } = useStyles()
+  const router = useRouter()
+  const selectedFeedIdList = useFeedIdListMapStore(state => state.feedIdListMap[view!])
+  const update = useFeedIdListMapStore(state => state.updateFeedIdListMap)
+  const showBackGround = selectedFeedIdList.length > 0 && unstable_serialize(selectedFeedIdList) === unstable_serialize(feedIdList)
 
   return (
     <>
       <ContextMenuWrapper feedIdList={feedIdList}>
-        <Link
-          href={`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`}
-          asChild
+        <Pressable
+          onPress={() => {
+            if (breakpoint === 'tablet') {
+              if (view !== undefined) {
+                update(view, feedIdList)
+              }
+              return
+            }
+            router.push(`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`)
+          }}
+          onLongPress={() => {}}
+          delayLongPress={250}
+          style={{
+            backgroundColor: showBackGround
+              ? theme.colors.gray3
+              : undefined,
+          }}
         >
-          <Pressable onLongPress={() => {}} delayLongPress={250}>
-            <Row gap={10} h={45} align="center" px={18}>
-              <AnimatedPressable
-                style={animatedStyle}
-                onPress={() => {
-                  handleToggle(category)
-                    .catch(console.error)
-                  rotate.value = withSpring(
-                    isExpanded ? '0deg' : '90deg',
-                    { duration: 500, dampingRatio: 1 },
-                  )
-                }}
-              >
-                <Iconify icon="mingcute:right-fill" />
-              </AnimatedPressable>
-              <Text style={{ flex: 1 }}>
-                {category}
-              </Text>
-              {unread > 0 && (
-                <Text>{unread}</Text>
-              )}
-            </Row>
-          </Pressable>
-        </Link>
+          <Row gap={10} h={45} align="center" px={18}>
+            <AnimatedPressable
+              style={animatedStyle}
+              onPress={() => {
+                handleToggle(category)
+                  .catch(console.error)
+                rotate.value = withSpring(
+                  isExpanded ? '0deg' : '90deg',
+                  { duration: 500, dampingRatio: 1 },
+                )
+              }}
+            >
+              <Iconify icon="mingcute:right-fill" />
+            </AnimatedPressable>
+            <Text style={{ flex: 1 }}>
+              {category}
+            </Text>
+            {unread > 0 && (
+              <Text>{unread}</Text>
+            )}
+          </Row>
+        </Pressable>
       </ContextMenuWrapper>
       <Row h={1} bg="component" w="100%" />
     </>
@@ -155,53 +174,69 @@ function FeedItem({
   feed: Feed
 }) {
   const { view, title } = useTabInfo()
-  const { theme } = useStyles()
+  const { theme, breakpoint } = useStyles()
+  const router = useRouter()
+  const selectedFeedIdList = useFeedIdListMapStore(state => state.feedIdListMap[view!])
+  const update = useFeedIdListMapStore(state => state.updateFeedIdListMap)
+  const showBackGround = selectedFeedIdList.length > 0 && selectedFeedIdList.at(-1) === feed.id
   return (
     <>
       <ContextMenuWrapper
         feedIdList={[feed.id]}
         feed={feed}
       >
-        <Link
-          href={`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`}
-          asChild
+        <Pressable
+          onPress={() => {
+            if (breakpoint === 'tablet') {
+              if (view !== undefined) {
+                update(view, [feed.id])
+              }
+              return
+            }
+            router.push(`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`)
+          }}
+          onLongPress={() => {}}
+          delayLongPress={250}
+          style={{
+            backgroundColor: showBackGround
+              ? theme.colors.gray3
+              : undefined,
+          }}
         >
-          <Pressable onLongPress={() => {}} delayLongPress={250}>
-            <Row gap={10} h={45} align="center" px={18}>
-              {feed.image ? (
-                <Image
-                  recyclingKey={feed.id}
-                  source={feed.image}
-                  style={{ width: 24, height: 24, borderRadius: 1000 }}
-                />
-              ) : (
-                <SiteIcon source={feed.siteUrl} />
-              )}
-              <Row flex={1} align="center" gap={4}>
-                <Text
-                  numberOfLines={1}
-                  style={{
-                    ...(
-                      feed.errorAt
-                        ? {
-                            color: theme.colors.red10,
-                          }
-                        : {}
-                    ),
-                  }}
-                >
-                  {feed.title}
-                </Text>
-                {feed.errorAt && (
-                  <Iconify icon="mingcute:wifi-off-line" color={theme.colors.red10} />
-                )}
-              </Row>
-              {feed.unread > 0 && (
-                <Text>{feed.unread}</Text>
+          <Row gap={10} h={45} align="center" px={18}>
+            {feed.image ? (
+              <Image
+                recyclingKey={feed.id}
+                source={feed.image}
+                style={{ width: 24, height: 24, borderRadius: 1000 }}
+              />
+            ) : (
+              <SiteIcon source={feed.siteUrl} />
+            )}
+            <Row flex={1} align="center" gap={4}>
+              <Text
+                numberOfLines={1}
+                style={{
+                  ...(
+                    feed.errorAt
+                      ? {
+                          color: theme.colors.red10,
+                        }
+                      : {}
+                  ),
+                }}
+              >
+                {feed.title}
+              </Text>
+              {feed.errorAt && (
+                <Iconify icon="mingcute:wifi-off-line" color={theme.colors.red10} />
               )}
             </Row>
-          </Pressable>
-        </Link>
+            {feed.unread > 0 && (
+              <Text>{feed.unread}</Text>
+            )}
+          </Row>
+        </Pressable>
       </ContextMenuWrapper>
       <Row h={1} bg="component" w="100%" />
     </>

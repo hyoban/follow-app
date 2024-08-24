@@ -11,10 +11,9 @@ import ContextMenu from 'react-native-context-menu-view'
 import { Toast } from 'react-native-toast-notifications'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { useStyles } from 'react-native-unistyles'
+import { unstable_serialize } from 'swr'
 
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
-import { showUnreadOnlyAtom } from '~/atom/entry-list'
-import type { TabViewIndex } from '~/atom/layout'
 import { Column, Iconify, Row, Text } from '~/components'
 import { Image } from '~/components/image'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
@@ -22,6 +21,8 @@ import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
 import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
+import { showUnreadOnlyAtom } from '~/store/entry-list'
+import type { TabViewIndex } from '~/store/layout'
 
 import { RefreshIndicator } from './refresh-indicator'
 import { SiteImage } from './site-image'
@@ -349,17 +350,16 @@ export function EntryList({
     load(props)
   }, [load, resetCursor])
 
-  const onceRef = useRef(false)
+  const lastFeedIdListLengthRef = useRef(feedIdList)
   useEffect(() => {
     if (
-      !lastItemPublishedAt.current
-      && feedIdList.length > 0
-      && !onceRef.current
+      feedIdList.length > 0
+      && unstable_serialize(feedIdList) !== unstable_serialize(lastFeedIdListLengthRef.current)
     ) {
-      onceRef.current = true
+      lastFeedIdListLengthRef.current = feedIdList
       refresh({ updateLimit: 'reset' })
     }
-  }, [feedIdList.length, refresh])
+  }, [feedIdList, refresh])
 
   const { view } = useTabInfo()
 

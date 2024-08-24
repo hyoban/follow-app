@@ -10,7 +10,7 @@ import { useUnreadCount, useUnreadCountList } from '~/hooks/use-badge-count'
 import type { ThemeColorKey } from '~/theme'
 
 export default function TabLayout() {
-  const { styles, theme } = useStyles(stylesheet)
+  const { styles, theme, breakpoint } = useStyles(stylesheet)
   useAtomValue(syncFeedsEffect)
   const countList = useUnreadCountList()
 
@@ -38,7 +38,7 @@ export default function TabLayout() {
             title: view.title,
             tabBarIcon: ({ color }) => view.icon(color),
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],
-            tabBarShowLabel: false,
+            tabBarShowLabel: breakpoint === 'tablet',
             tabBarStyle: styles.tabBar,
             headerShown: false,
             tabBarBadge: countList[view.view] > 0 ? '' : undefined,

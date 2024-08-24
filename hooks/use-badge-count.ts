@@ -1,7 +1,7 @@
 import { useMemo } from 'react'
 
-import type { TabViewIndex } from '~/atom/layout'
 import { db } from '~/db'
+import type { TabViewIndex } from '~/store/layout'
 
 import { useQuerySubscription } from './use-query-subscription'
 
