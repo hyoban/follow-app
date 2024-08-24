@@ -76,32 +76,35 @@ export async function syncFeeds() {
 
   store.set(isUpdatingFeedAtom, true)
 
-  const feedsFromApi = await getFeeds()
-  const existFeedIds = feedsFromApi.map(feed => feed.id)
+  try {
+    const feedsFromApi = await getFeeds()
+    const existFeedIds = feedsFromApi.map(feed => feed.id)
 
-  await Promise.all([
-    ...feedsFromApi.map(async (feed) => {
-      const feedInDB = await db.query.feeds.findFirst({
-        where: eq(feeds.id, feed.id),
-      })
-      if (!feedInDB) {
-        console.info('Insert feed', feed.title)
-        return await db.insert(feeds)
-          .values(feed)
-      }
-      if (needUpdate(feed, feedInDB)) {
-        console.info('Update feed', feed.title)
-        return await db.update(feeds)
-          .set(feed)
-          .where(eq(feeds.id, feed.id))
-      }
-    }),
+    await Promise.all([
+      ...feedsFromApi.map(async (feed) => {
+        const feedInDB = await db.query.feeds.findFirst({
+          where: eq(feeds.id, feed.id),
+        })
+        if (!feedInDB) {
+          console.info('Insert feed', feed.title)
+          return await db.insert(feeds)
+            .values(feed)
+        }
+        if (needUpdate(feed, feedInDB)) {
+          console.info('Update feed', feed.title)
+          return await db.update(feeds)
+            .set(feed)
+            .where(eq(feeds.id, feed.id))
+        }
+      }),
 
-    db.delete(feeds).where(notInArray(feeds.id, existFeedIds)),
-    db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
-  ])
-
-  store.set(isUpdatingFeedAtom, false)
+      db.delete(feeds).where(notInArray(feeds.id, existFeedIds)),
+      db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
+    ])
+  }
+  finally {
+    store.set(isUpdatingFeedAtom, false)
+  }
 }
 
 function needUpdate(data: any, dataInDB: any) {
