@@ -25,6 +25,7 @@ import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
 import { isTabletLandscape } from '~/theme/breakpoints'
 
+import { ListEmpty } from './list-empty'
 import { RefreshIndicator } from './refresh-indicator'
 import { SiteImage } from './site-image'
 
@@ -394,6 +395,7 @@ export function EntryList({
               load({ updateLimit: 'increase' })
             }
           }}
+          ListEmptyComponent={ListEmpty}
         />
       </FeedIdList.Provider>
       <RefreshIndicator

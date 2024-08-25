@@ -29,6 +29,8 @@ import type { TabViewIndex } from '~/store/layout'
 import { atomWithStorage } from '~/store/storage'
 import { isTablet } from '~/theme/breakpoints'
 
+import { ListEmpty } from './list-empty'
+
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
 function FeedFolder({
@@ -404,6 +406,7 @@ export function FeedList({ view }: { view: TabViewIndex }) {
           </LayoutAnimationConfig>
         )
       }}
+      ListEmptyComponent={ListEmpty}
     />
   )
 }
