@@ -7,7 +7,6 @@ import { getCsrfToken } from './session'
 
 const { hc } = require('hono/dist/client') as typeof import('hono/client')
 
-let csrfTokenPromise: Promise<string> | null = null
 export const apiFetch = ofetch.create({
   baseURL: process.env.EXPO_PUBLIC_FOLLOW_API_URL,
   credentials: 'omit',
@@ -16,11 +15,7 @@ export const apiFetch = ofetch.create({
     const user = await db.query.users.findFirst()
 
     if (user?.sessionToken) {
-      if (!csrfTokenPromise) {
-        csrfTokenPromise = getCsrfToken(user.sessionToken)
-      }
-
-      const csrfToken = await csrfTokenPromise
+      const csrfToken = await getCsrfToken(user.sessionToken)
       if (options.method && options.method.toLowerCase() !== 'get') {
         if (typeof options.body === 'string') {
           options.body = JSON.parse(options.body)
