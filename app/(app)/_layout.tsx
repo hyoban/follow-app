@@ -82,7 +82,7 @@ export default function RootLayout() {
       .catch(console.error)
   }, [])
 
-  const { styles } = useStyles(styleSheet)
+  const { styles, theme } = useStyles(styleSheet)
   const isUpdating = useAtomValue(isUpdatingFeedAtom)
 
   const { user } = useCurrentUser()
@@ -126,7 +126,10 @@ export default function RootLayout() {
         options={{
           presentation: 'modal',
           title: 'Settings',
-          headerStyle: styles.header,
+          headerStyle: {
+            backgroundColor: theme.colors.gray1,
+          },
+          headerShadowVisible: false,
           headerTitleStyle: styles.title,
         }}
       />

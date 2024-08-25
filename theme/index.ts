@@ -192,7 +192,7 @@ export const accentColors = [
   'violet',
   'yellow',
 ] as const
-type AccentColor = (typeof accentColors)[number]
+export type AccentColor = (typeof accentColors)[number]
 
 type Accent = {
   accent1: string

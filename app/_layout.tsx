@@ -8,17 +8,19 @@ import { useFonts } from 'expo-font'
 import * as NavigationBar from 'expo-navigation-bar'
 import { Slot } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
+import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
-import { AppState, Platform } from 'react-native'
+import { Appearance, AppState, Platform, useColorScheme } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ToastProvider } from 'react-native-toast-notifications'
-import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
+import { UnistylesRuntime, useInitialTheme, useStyles } from 'react-native-unistyles'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
+import { userThemeAtom } from '~/store/theme'
 
 export const unstable_settings = {
   // Ensure that reloading on `/settings` keeps a back button present.
@@ -34,6 +36,19 @@ SplashScreen.preventAutoHideAsync()
   .catch(console.error)
 
 export default function Root() {
+  const userTheme = useAtomValue(userThemeAtom)
+  const colorScheme = useColorScheme()
+  useInitialTheme(userTheme === 'system' ? colorScheme === 'dark' ? 'dark' : 'light' : userTheme)
+  useEffect(() => {
+    if (userTheme === 'system') {
+      Appearance.setColorScheme(null)
+      UnistylesRuntime.setTheme(colorScheme === 'dark' ? 'dark' : 'light')
+      return
+    }
+    Appearance.setColorScheme(userTheme)
+    UnistylesRuntime.setTheme(userTheme)
+  }, [colorScheme, userTheme])
+
   const { success, error } = useMigrations(db, migrations)
   const { theme } = useStyles()
 
