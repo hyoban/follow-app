@@ -20,7 +20,8 @@ import { SWRConfig } from 'swr'
 import { Text } from '~/components'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
-import { userThemeAtom } from '~/store/theme'
+import { accentColorAtom, userThemeAtom } from '~/store/theme'
+import { getAccentColor } from '~/theme'
 
 export const unstable_settings = {
   // Ensure that reloading on `/settings` keeps a back button present.
@@ -48,6 +49,26 @@ export default function Root() {
     Appearance.setColorScheme(userTheme)
     UnistylesRuntime.setTheme(userTheme)
   }, [colorScheme, userTheme])
+
+  const selectedAccentColor = useAtomValue(accentColorAtom)
+  useEffect(() => {
+    const { accent, accentA, accentDark, accentDarkA } = getAccentColor(selectedAccentColor);
+    (['light', 'dark'] as const).forEach((themeName) => {
+      UnistylesRuntime.updateTheme(
+        themeName,
+        oldTheme => ({
+          ...oldTheme,
+          colors: {
+            ...oldTheme.colors,
+            ...accent,
+            ...accentA,
+            ...accentDark,
+            ...accentDarkA,
+          },
+        }),
+      )
+    })
+  }, [selectedAccentColor])
 
   const { success, error } = useMigrations(db, migrations)
   const { theme } = useStyles()

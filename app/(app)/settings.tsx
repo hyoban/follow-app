@@ -1,35 +1,17 @@
 import { StatusBar } from 'expo-status-bar'
-import { useAtom } from 'jotai'
-import { useEffect } from 'react'
+import { useAtom, useSetAtom } from 'jotai'
 import { Platform, ScrollView, Switch, useColorScheme } from 'react-native'
-import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
+import { useStyles } from 'react-native-unistyles'
 
 import { Button, Column, Container, Iconify, Row, Text, TextButton } from '~/components'
 import { Image } from '~/components/image'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useLogOut } from '~/hooks/use-log-out'
 import { accentColorAtom, userThemeAtom } from '~/store/theme'
-import { accentColors, getAccentColor } from '~/theme'
+import { accentColors } from '~/theme'
 
 function ThemeSwitcher() {
-  const [selectedAccentColor, setSelectedAccentColor] = useAtom(accentColorAtom)
-
-  useEffect(() => {
-    const { accent, accentA, accentDark, accentDarkA } = getAccentColor(selectedAccentColor)
-    UnistylesRuntime.updateTheme(
-      UnistylesRuntime.themeName,
-      oldTheme => ({
-        ...oldTheme,
-        colors: {
-          ...oldTheme.colors,
-          ...accent,
-          ...accentA,
-          ...accentDark,
-          ...accentDarkA,
-        },
-      }),
-    )
-  }, [selectedAccentColor])
+  const setSelectedAccentColor = useSetAtom(accentColorAtom)
 
   return (
     <Row align="center" gap={30}>
@@ -70,7 +52,7 @@ export default function UserInfo() {
   return (
     <>
       <Container>
-        <Column flex={1} p={20}>
+        <Column flex={1} p={14}>
           <Column flex={1} gap={20} align="stretch" w="100%">
             <Column gap={10}>
               <Row align="center" gap={8} px={12}>
@@ -84,6 +66,8 @@ export default function UserInfo() {
                 px={12}
                 style={{
                   borderRadius: 8,
+                  borderColor: theme.colors.gray3,
+                  borderWidth: 1,
                 }}
               >
                 <ThemeSwitcher />
@@ -133,6 +117,8 @@ export default function UserInfo() {
                 px={12}
                 style={{
                   borderRadius: 8,
+                  borderColor: theme.colors.gray3,
+                  borderWidth: 1,
                 }}
               >
                 {user && (
