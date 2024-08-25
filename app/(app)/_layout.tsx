@@ -82,7 +82,7 @@ export default function RootLayout() {
       .catch(console.error)
   }, [])
 
-  const { styles, theme } = useStyles(styleSheet)
+  const { styles } = useStyles(styleSheet)
   const isUpdating = useAtomValue(isUpdatingFeedAtom)
 
   const { user } = useCurrentUser()
@@ -124,12 +124,8 @@ export default function RootLayout() {
       <Stack.Screen
         name="settings"
         options={{
-          presentation: 'modal',
           title: 'Settings',
-          headerStyle: {
-            backgroundColor: theme.colors.gray1,
-          },
-          headerShadowVisible: false,
+          headerStyle: styles.header,
           headerTitleStyle: styles.title,
         }}
       />
