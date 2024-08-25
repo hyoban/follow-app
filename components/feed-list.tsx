@@ -3,12 +3,9 @@ import { useScrollToTop } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
 import { atom, getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
-import { Alert, Platform, Pressable } from 'react-native'
+import { Alert, FlatList, Platform, Pressable } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import Animated, {
-  Easing,
-  Keyframe,
-  LayoutAnimationConfig,
   useAnimatedStyle,
   useSharedValue,
   withSpring,
@@ -257,50 +254,6 @@ function groupBy<T>(array: T[], key: (item: T) => string) {
   }, {} as Record<string, T[]>)
 }
 
-const enteringAnimation = new Keyframe({
-  0: {
-    opacity: 0,
-    transform: [{
-      translateY: -10,
-    }],
-  },
-  0.5: {
-    opacity: 0.5,
-    transform: [{
-      translateY: 5,
-    }],
-    easing: Easing.in(Easing.quad),
-  },
-  1: {
-    opacity: 1,
-    transform: [{
-      translateY: 0,
-    }],
-  },
-}).duration(10000)
-
-const exitingAnimation = new Keyframe({
-  0: {
-    opacity: 1,
-    transform: [{
-      translateY: 0,
-    }],
-  },
-  0.5: {
-    opacity: 0.5,
-    transform: [{
-      translateY: 5,
-    }],
-    easing: Easing.out(Easing.quad),
-  },
-  1: {
-    opacity: 0,
-    transform: [{
-      translateY: -10,
-    }],
-  },
-}).duration(10000)
-
 const expandedSectionsAtom = atomWithStorage<string[]>('expanded-sections', [])
 const toggleExpandedSectionAtom = atom(null, async (get, set, update: string) => {
   const expandedSections = get(expandedSectionsAtom)
@@ -361,50 +314,39 @@ export function FeedList({ view }: { view: TabViewIndex }) {
         const unreadB = Array.isArray(b[0]) ? b[0].reduce((acc, sub) => acc + sub.unread, 0) : Array.isArray(b[1]) ? b[1].reduce((acc, sub) => acc + sub.unread, 0) : 0
         return unreadB - unreadA
       })
-      .flat(),
+      .flatMap(i => (Array.isArray(i[1]) ? [i[0], ...i[1]] : i[0]))
+    ,
     [feedsGrouped],
   )
 
   const expandedSections = useAtomValue(expandedSectionsAtom)
 
   return (
-    <Animated.FlatList
+    <FlatList
       scrollToOverflowEnabled
       contentInsetAdjustmentBehavior="automatic"
       ref={ref}
       style={{ width: '100%' }}
       data={data}
       extraData={expandedSections}
-      renderItem={({ item }) => {
+      renderItem={({ item: feedOrCategory }) => {
+        const item = feedOrCategory as Feed | string
+
         if (typeof item === 'string') {
-          return item === ''
-            ? null
-            : (
-                <FeedFolder
-                  category={item}
-                  feedIdList={feedsGrouped[item]?.map(i => i.id) ?? []}
-                  unread={feedsGrouped[item]?.reduce((acc, sub) => acc + sub.unread, 0) ?? 0}
-                />
-              )
+          return (
+            <FeedFolder
+              category={item}
+              feedIdList={feedsGrouped[item]?.map(i => i.id) ?? []}
+              unread={feedsGrouped[item]?.reduce((acc, sub) => acc + sub.unread, 0) ?? 0}
+            />
+          )
         }
-        if (!item[0]) {
-          return null
-        }
-        const category = getFeedCategory(item[0])
-        const shouldShow = expandedSections.includes(category) || isSingleCategory(item)
+        const category = getFeedCategory(item)
+        const shouldShow = expandedSections.includes(category) || (feedsGrouped[category] && isSingleCategory(feedsGrouped[category]))
         if (!shouldShow) {
           return null
         }
-        return (
-          <LayoutAnimationConfig skipEntering={!item[0].category}>
-            <Animated.View
-              entering={enteringAnimation}
-              exiting={exitingAnimation}
-            >
-              {item.map(i => (<FeedItem key={i.id} feed={i} />))}
-            </Animated.View>
-          </LayoutAnimationConfig>
-        )
+        return <FeedItem feed={item} />
       }}
       ListEmptyComponent={ListEmpty}
     />
