@@ -1,14 +1,15 @@
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useScrollToTop } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
-import { atom, getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo, useRef } from 'react'
-import { Alert, FlatList, Platform, Pressable } from 'react-native'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { useMemo, useRef } from 'react'
+import { Alert, Platform, Pressable, ScrollView, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import Animated, {
   useAnimatedStyle,
+  useDerivedValue,
   useSharedValue,
-  withSpring,
+  withTiming,
 } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
 import { unstable_serialize } from 'swr'
@@ -30,29 +31,51 @@ import { ListEmpty } from './list-empty'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
+const expandedSectionsAtom = atomWithStorage<string[]>('expanded-sections', [])
+const toggleExpandedSectionAtom = atom(null, (get, set, update: string) => {
+  const expandedSections = get(expandedSectionsAtom)
+  if (expandedSections.includes(update)) {
+    set(expandedSectionsAtom, expandedSections.filter(i => i !== update))
+  }
+  else {
+    set(expandedSectionsAtom, [...expandedSections, update])
+  }
+})
+
 function FeedFolder({
   category,
   feedIdList,
+  feedList,
   unread,
 }: {
   category: string
   feedIdList: string[]
+  feedList: Feed[]
   unread: number
 }) {
   const expandedSections = useAtomValue(expandedSectionsAtom)
   const handleToggle = useSetAtom(toggleExpandedSectionAtom)
-  const isExpanded = expandedSections.includes(category)
+  const isExpanded = useSharedValue(expandedSections.includes(category))
 
-  const rotate = useSharedValue(isExpanded ? '90deg' : '0deg')
-  useEffect(
-    () => {
-      const store = getDefaultStore()
-      const isExpanded = store.get(expandedSectionsAtom).includes(category)
-      rotate.value = isExpanded ? '90deg' : '0deg'
-    },
-    [category, rotate],
+  const height = useSharedValue(0)
+
+  const derivedHeight = useDerivedValue(() =>
+    withTiming(height.value * Number(isExpanded.value), {
+      duration: 200,
+    }),
   )
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
+  const containerAnimatedStyle = useAnimatedStyle(() => ({
+    height: derivedHeight.value,
+  }))
+
+  const rotate = useDerivedValue(() =>
+    withTiming(isExpanded.value ? '90deg' : '0deg', {
+      duration: 200,
+    }),
+  )
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: rotate.value }],
+  }))
 
   const { view, title } = useTabInfo()
   const { breakpoint, theme } = useStyles()
@@ -87,11 +110,7 @@ function FeedFolder({
               style={animatedStyle}
               onPress={() => {
                 handleToggle(category)
-                  .catch(console.error)
-                rotate.value = withSpring(
-                  isExpanded ? '0deg' : '90deg',
-                  { duration: 500, dampingRatio: 1 },
-                )
+                isExpanded.value = !isExpanded.value
               }}
             >
               <Iconify icon="mingcute:right-fill" />
@@ -106,6 +125,29 @@ function FeedFolder({
         </Pressable>
       </ContextMenuWrapper>
       <Row h={1} bg="component" w="100%" />
+      <Animated.View
+        style={[
+          {
+            width: '100%',
+            overflow: 'hidden',
+          },
+          containerAnimatedStyle,
+        ]}
+      >
+        <View
+          onLayout={(e) => {
+            height.value = e.nativeEvent.layout.height
+          }}
+          style={{
+            width: '100%',
+            position: 'absolute',
+          }}
+        >
+          {feedList.map(feed => (
+            <FeedItem key={feed.id} feed={feed} />
+          ))}
+        </View>
+      </Animated.View>
     </>
   )
 }
@@ -254,17 +296,6 @@ function groupBy<T>(array: T[], key: (item: T) => string) {
   }, {} as Record<string, T[]>)
 }
 
-const expandedSectionsAtom = atomWithStorage<string[]>('expanded-sections', [])
-const toggleExpandedSectionAtom = atom(null, async (get, set, update: string) => {
-  const expandedSections = get(expandedSectionsAtom)
-  if (expandedSections.includes(update)) {
-    set(expandedSectionsAtom, expandedSections.filter(i => i !== update))
-  }
-  else {
-    set(expandedSectionsAtom, [...expandedSections, update])
-  }
-})
-
 function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
@@ -279,12 +310,12 @@ function isSingleCategory(feeds: Feed[]) {
 
 export function FeedList({ view }: { view: TabViewIndex }) {
   const headerHeight = useHeaderHeight()
-  const ref = useRef<Animated.FlatList<unknown>>(null)
+  const ref = useRef<ScrollView>(null)
   useScrollToTop(
     useRef({
       scrollToTop: () => {
-        ref.current?.scrollToOffset({
-          offset: Platform.select({ ios: -headerHeight, android: 0 }) ?? 0,
+        ref.current?.scrollTo({
+          y: Platform.select({ ios: -headerHeight, android: 0 }) ?? 0,
           animated: true,
         })
         syncFeeds()
@@ -295,60 +326,44 @@ export function FeedList({ view }: { view: TabViewIndex }) {
 
   const { data: feeds } = useFeedList(view)
   const feedsGrouped = useMemo(
-    () => groupBy(feeds ?? [], getFeedCategory),
+    () =>
+      Array.from(Object.entries(groupBy(feeds ?? [], getFeedCategory)))
+        .map(([category, feeds]) => {
+          feeds.sort((a, b) => b.unread - a.unread)
+          return [category, feeds] as const
+        })
+        .sort(([, a], [, b]) => {
+          const unreadA = a.reduce((acc, sub) => acc + sub.unread, 0)
+          const unreadB = b.reduce((acc, sub) => acc + sub.unread, 0)
+          return unreadB - unreadA
+        }),
     [feeds],
   )
 
-  const data = useMemo(
-    () => Array.from(
-      Object.entries(feedsGrouped),
-      ([title, data]) => isSingleCategory(data)
-        ? [data]
-        : [
-            title,
-            data.sort((a, b) => b.unread - a.unread),
-          ],
-    )
-      .sort((a, b) => {
-        const unreadA = Array.isArray(a[0]) ? a[0].reduce((acc, sub) => acc + sub.unread, 0) : Array.isArray(a[1]) ? a[1].reduce((acc, sub) => acc + sub.unread, 0) : 0
-        const unreadB = Array.isArray(b[0]) ? b[0].reduce((acc, sub) => acc + sub.unread, 0) : Array.isArray(b[1]) ? b[1].reduce((acc, sub) => acc + sub.unread, 0) : 0
-        return unreadB - unreadA
-      })
-      .flatMap(i => (Array.isArray(i[1]) ? [i[0], ...i[1]] : i[0]))
-    ,
-    [feedsGrouped],
-  )
-
-  const expandedSections = useAtomValue(expandedSectionsAtom)
-
   return (
-    <FlatList
-      scrollToOverflowEnabled
-      contentInsetAdjustmentBehavior="automatic"
+    <ScrollView
       ref={ref}
-      style={{ width: '100%' }}
-      data={data}
-      extraData={expandedSections}
-      renderItem={({ item: feedOrCategory }) => {
-        const item = feedOrCategory as Feed | string
-
-        if (typeof item === 'string') {
-          return (
-            <FeedFolder
-              category={item}
-              feedIdList={feedsGrouped[item]?.map(i => i.id) ?? []}
-              unread={feedsGrouped[item]?.reduce((acc, sub) => acc + sub.unread, 0) ?? 0}
-            />
-          )
-        }
-        const category = getFeedCategory(item)
-        const shouldShow = expandedSections.includes(category) || (feedsGrouped[category] && isSingleCategory(feedsGrouped[category]))
-        if (!shouldShow) {
-          return null
-        }
-        return <FeedItem feed={item} />
-      }}
-      ListEmptyComponent={ListEmpty}
-    />
+      contentInsetAdjustmentBehavior="automatic"
+      scrollToOverflowEnabled
+    >
+      {
+        feedsGrouped.length > 0
+          ? feedsGrouped.map(([category, feeds]) => {
+            if (isSingleCategory(feeds)) {
+              return <FeedItem key={feeds[0]!.id} feed={feeds[0]!} />
+            }
+            return (
+              <FeedFolder
+                key={category}
+                category={category}
+                feedIdList={feeds.map(i => i.id)}
+                feedList={feeds}
+                unread={feeds.reduce((acc, sub) => acc + sub.unread, 0)}
+              />
+            )
+          })
+          : <ListEmpty />
+      }
+    </ScrollView>
   )
 }
