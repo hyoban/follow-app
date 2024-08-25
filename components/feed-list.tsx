@@ -3,14 +3,9 @@ import { useScrollToTop } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
 import { useMemo, useRef } from 'react'
-import { Alert, Platform, Pressable, ScrollView, View } from 'react-native'
+import { Alert, Platform, Pressable, ScrollView } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
-import Animated, {
-  useAnimatedStyle,
-  useDerivedValue,
-  useSharedValue,
-  withTiming,
-} from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut, LinearTransition, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
 import { unstable_serialize } from 'swr'
 
@@ -57,17 +52,6 @@ function FeedFolder({
   const handleToggle = useSetAtom(toggleExpandedSectionAtom)
   const isExpanded = useSharedValue(expandedSections.includes(category))
 
-  const height = useSharedValue(0)
-
-  const derivedHeight = useDerivedValue(() =>
-    withTiming(height.value * Number(isExpanded.value), {
-      duration: 200,
-    }),
-  )
-  const containerAnimatedStyle = useAnimatedStyle(() => ({
-    height: derivedHeight.value,
-  }))
-
   const rotate = useDerivedValue(() =>
     withTiming(isExpanded.value ? '90deg' : '0deg', {
       duration: 200,
@@ -85,7 +69,11 @@ function FeedFolder({
   const showBackGround = selectedFeedIdList.length > 0 && unstable_serialize(selectedFeedIdList) === unstable_serialize(feedIdList)
 
   return (
-    <>
+    <Animated.View
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
+      layout={LinearTransition.duration(200)}
+    >
       <ContextMenuWrapper feedIdList={feedIdList}>
         <Pressable
           onPress={() => {
@@ -125,30 +113,10 @@ function FeedFolder({
         </Pressable>
       </ContextMenuWrapper>
       <Row h={1} bg="component" w="100%" />
-      <Animated.View
-        style={[
-          {
-            width: '100%',
-            overflow: 'hidden',
-          },
-          containerAnimatedStyle,
-        ]}
-      >
-        <View
-          onLayout={(e) => {
-            height.value = e.nativeEvent.layout.height
-          }}
-          style={{
-            width: '100%',
-            position: 'absolute',
-          }}
-        >
-          {feedList.map(feed => (
-            <FeedItem key={feed.id} feed={feed} />
-          ))}
-        </View>
-      </Animated.View>
-    </>
+      {expandedSections.includes(category) && feedList.map(feed => (
+        <FeedItem key={feed.id} feed={feed} />
+      ))}
+    </Animated.View>
   )
 }
 
@@ -222,7 +190,11 @@ function FeedItem({
   const update = useFeedIdListMapStore(state => state.updateFeedIdListMap)
   const showBackGround = selectedFeedIdList.length > 0 && selectedFeedIdList.at(-1) === feed.id
   return (
-    <>
+    <Animated.View
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
+      layout={LinearTransition.duration(200)}
+    >
       <ContextMenuWrapper
         feedIdList={[feed.id]}
         feed={feed}
@@ -281,7 +253,7 @@ function FeedItem({
         </Pressable>
       </ContextMenuWrapper>
       <Row h={1} bg="component" w="100%" />
-    </>
+    </Animated.View>
   )
 }
 
