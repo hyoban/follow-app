@@ -3,16 +3,16 @@ import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
-import { ActivityIndicator, Platform } from 'react-native'
+import { ActivityIndicator, Platform, Pressable } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
+import { flagEntryReadStatus } from '~/api/entry'
 import { syncFeeds } from '~/api/feed'
-import { Row } from '~/components'
+import { Iconify, Row } from '~/components'
 import { SettingsLink } from '~/components/settings-link'
 import { UnreadFilter } from '~/components/unread-filter'
-import { ViewActions } from '~/components/view-actions'
 import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
 import { useCurrentUser } from '~/hooks/use-current-user'
@@ -101,13 +101,22 @@ export default function RootLayout() {
             headerLeft: () => (
               <Row gap={18}>
                 <SettingsLink />
-                {isUpdating && <ActivityIndicator />}
               </Row>
             ),
             headerRight: () => (
               <Row gap={18}>
+                {isUpdating && <ActivityIndicator />}
                 <UnreadFilter />
-                {view?.view !== undefined && <ViewActions view={view.view} />}
+                {view?.view !== undefined && (
+                  <Pressable
+                    onPress={() => {
+                      flagEntryReadStatus({ view: view.view })
+                        .catch(console.error)
+                    }}
+                  >
+                    <Iconify icon="mgc:check-circle-cute-re" />
+                  </Pressable>
+                )}
               </Row>
             ),
             headerTitleAlign: 'center',

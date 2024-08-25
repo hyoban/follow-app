@@ -1,8 +1,7 @@
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useScrollToTop } from '@react-navigation/native'
-import { useRouter } from 'expo-router'
 import { atom, useAtomValue, useSetAtom } from 'jotai'
-import { useMemo, useRef } from 'react'
+import { createContext, useContext, useMemo, useRef } from 'react'
 import { Alert, Platform, Pressable, ScrollView } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import Animated, { FadeIn, FadeOut, LinearTransition, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
@@ -20,7 +19,6 @@ import { useTabInfo } from '~/hooks/use-tab-info'
 import { useFeedIdListMapStore } from '~/store/feed'
 import type { TabViewIndex } from '~/store/layout'
 import { atomWithStorage } from '~/store/storage'
-import { isTablet } from '~/theme/breakpoints'
 
 import { ListEmpty } from './list-empty'
 
@@ -61,9 +59,9 @@ function FeedFolder({
     transform: [{ rotate: rotate.value }],
   }))
 
-  const { view, title } = useTabInfo()
-  const { breakpoint, theme } = useStyles()
-  const router = useRouter()
+  const { view } = useTabInfo()
+  const { theme } = useStyles()
+
   const selectedFeedIdList = useFeedIdListMapStore(state => state.feedIdListMap[view!])
   const update = useFeedIdListMapStore(state => state.updateFeedIdListMap)
   const showBackGround = selectedFeedIdList.length > 0 && unstable_serialize(selectedFeedIdList) === unstable_serialize(feedIdList)
@@ -77,13 +75,9 @@ function FeedFolder({
       <ContextMenuWrapper feedIdList={feedIdList}>
         <Pressable
           onPress={() => {
-            if (isTablet(breakpoint)) {
-              if (view !== undefined) {
-                update(view, feedIdList)
-              }
-              return
+            if (view !== undefined) {
+              update(view, feedIdList)
             }
-            router.push(`/feed/group/${feedIdList.join('/')}?title=${encodeURIComponent(category)}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`)
           }}
           onLongPress={() => {}}
           delayLongPress={250}
@@ -183,9 +177,8 @@ function FeedItem({
 }: {
   feed: Feed
 }) {
-  const { view, title } = useTabInfo()
-  const { theme, breakpoint } = useStyles()
-  const router = useRouter()
+  const { view } = useContext(ViewContext)
+  const { theme } = useStyles()
   const selectedFeedIdList = useFeedIdListMapStore(state => state.feedIdListMap[view!])
   const update = useFeedIdListMapStore(state => state.updateFeedIdListMap)
   const showBackGround = selectedFeedIdList.length > 0 && selectedFeedIdList.at(-1) === feed.id
@@ -201,13 +194,9 @@ function FeedItem({
       >
         <Pressable
           onPress={() => {
-            if (isTablet(breakpoint)) {
-              if (view !== undefined) {
-                update(view, [feed.id])
-              }
-              return
+            if (view !== undefined) {
+              update(view, [feed.id])
             }
-            router.push(`/feed/group/${feed.id}?title=${encodeURIComponent(feed.title ?? '')}&view=${view}&backTitle=${encodeURIComponent(title ?? '')}`)
           }}
           onLongPress={() => {}}
           delayLongPress={250}
@@ -280,22 +269,8 @@ function isSingleCategory(feeds: Feed[]) {
   return feeds.length <= 1 && !feeds.every(i => i.category)
 }
 
-export function FeedList({ view }: { view: TabViewIndex }) {
-  const headerHeight = useHeaderHeight()
-  const ref = useRef<ScrollView>(null)
-  useScrollToTop(
-    useRef({
-      scrollToTop: () => {
-        ref.current?.scrollTo({
-          y: Platform.select({ ios: -headerHeight, android: 0 }) ?? 0,
-          animated: true,
-        })
-        syncFeeds()
-          .catch(console.error)
-      },
-    }),
-  )
-
+function FeedListInDrawer() {
+  const { view } = useContext(ViewContext)
   const { data: feeds } = useFeedList(view)
   const feedsGrouped = useMemo(
     () =>
@@ -312,30 +287,57 @@ export function FeedList({ view }: { view: TabViewIndex }) {
     [feeds],
   )
 
+  return feedsGrouped.length > 0
+    ? feedsGrouped.map(([category, feeds]) => {
+      if (isSingleCategory(feeds)) {
+        return <FeedItem key={feeds[0]!.id} feed={feeds[0]!} />
+      }
+      return (
+        <FeedFolder
+          key={category}
+          category={category}
+          feedIdList={feeds.map(i => i.id)}
+          feedList={feeds}
+          unread={feeds.reduce((acc, sub) => acc + sub.unread, 0)}
+        />
+      )
+    })
+    : <ListEmpty />
+}
+
+function FeedListInPage() {
+  const headerHeight = useHeaderHeight()
+  const ref = useRef<ScrollView>(null)
+  useScrollToTop(
+    useRef({
+      scrollToTop: () => {
+        ref.current?.scrollTo({
+          y: Platform.select({ ios: -headerHeight, android: 0 }) ?? 0,
+          animated: true,
+        })
+        syncFeeds()
+          .catch(console.error)
+      },
+    }),
+  )
+
   return (
     <ScrollView
       ref={ref}
       contentInsetAdjustmentBehavior="automatic"
       scrollToOverflowEnabled
     >
-      {
-        feedsGrouped.length > 0
-          ? feedsGrouped.map(([category, feeds]) => {
-            if (isSingleCategory(feeds)) {
-              return <FeedItem key={feeds[0]!.id} feed={feeds[0]!} />
-            }
-            return (
-              <FeedFolder
-                key={category}
-                category={category}
-                feedIdList={feeds.map(i => i.id)}
-                feedList={feeds}
-                unread={feeds.reduce((acc, sub) => acc + sub.unread, 0)}
-              />
-            )
-          })
-          : <ListEmpty />
-      }
+      <FeedListInDrawer />
     </ScrollView>
+  )
+}
+
+const ViewContext = createContext<{ view: TabViewIndex }>({ view: 0 })
+
+export function FeedList({ view, inDrawer }: { view: TabViewIndex, inDrawer?: boolean }) {
+  return (
+    <ViewContext.Provider value={{ view }}>
+      {inDrawer ? <FeedListInDrawer /> : <FeedListInPage />}
+    </ViewContext.Provider>
   )
 }
