@@ -160,6 +160,7 @@ export default function Root() {
               <Drawer
                 screenOptions={{
                   headerShown: false,
+                  swipeEnabled: false,
                 }}
                 drawerContent={props => <DrawerContent {...props} />}
               />
