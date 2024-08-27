@@ -6,18 +6,22 @@ import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { useFonts } from 'expo-font'
 import * as NavigationBar from 'expo-navigation-bar'
-import { Slot } from 'expo-router'
+import { usePathname } from 'expo-router'
+import { Drawer } from 'expo-router/drawer'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
 import { Appearance, AppState, Platform, useColorScheme } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ToastProvider } from 'react-native-toast-notifications'
 import { UnistylesRuntime, useInitialTheme, useStyles } from 'react-native-unistyles'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
+import { DrawerContent } from '~/components/drawer-content'
+import { tabViewList } from '~/consts/view'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
 import { accentColorAtom, userThemeAtom } from '~/store/theme'
@@ -72,6 +76,8 @@ export default function Root() {
 
   const { success, error } = useMigrations(db, migrations)
   const { theme } = useStyles()
+  const pathname = usePathname()
+  const shouldShowDrawer = tabViewList.map(i => i.path as string).includes(pathname)
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -124,40 +130,50 @@ export default function Root() {
   }
 
   return (
-    <SWRConfig
-      value={{
-        provider: () => new Map(),
-        isVisible: () => true,
-        initFocus(callback) {
-          let appState = AppState.currentState
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <SWRConfig
+        value={{
+          provider: () => new Map(),
+          isVisible: () => true,
+          initFocus(callback) {
+            let appState = AppState.currentState
 
-          const onAppStateChange = (nextAppState: AppStateStatus) => {
+            const onAppStateChange = (nextAppState: AppStateStatus) => {
             /* If it's resuming from background or inactive mode to active one */
-            if (/inactive|background/.test(appState) && nextAppState === 'active') {
-              callback()
+              if (/inactive|background/.test(appState) && nextAppState === 'active') {
+                callback()
+              }
+              appState = nextAppState
             }
-            appState = nextAppState
-          }
 
-          // Subscribe to the app state change events
-          const subscription = AppState.addEventListener('change', onAppStateChange)
+            // Subscribe to the app state change events
+            const subscription = AppState.addEventListener('change', onAppStateChange)
 
-          return () => {
-            subscription.remove()
-          }
-        },
-      }}
-    >
-      <PortalProvider>
-        <ToastProvider offsetTop={100} duration={1000} placement="top">
-          <ThemeProvider
-            value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
-          >
-            {__DEV__ && <DrizzleStudio />}
-            <Slot />
-          </ThemeProvider>
-        </ToastProvider>
-      </PortalProvider>
-    </SWRConfig>
+            return () => {
+              subscription.remove()
+            }
+          },
+        }}
+      >
+        <PortalProvider>
+          <ToastProvider offsetTop={100} duration={1000} placement="top">
+            <ThemeProvider
+              value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
+            >
+              {__DEV__ && <DrizzleStudio />}
+              <Drawer
+                screenOptions={{
+                  drawerType: 'back',
+                  headerShown: false,
+                  swipeEdgeWidth: 200,
+                  swipeEnabled: shouldShowDrawer,
+                }}
+                drawerContent={props => <DrawerContent {...props} />}
+              />
+            </ThemeProvider>
+          </ToastProvider>
+        </PortalProvider>
+      </SWRConfig>
+    </GestureHandlerRootView>
   )
 }

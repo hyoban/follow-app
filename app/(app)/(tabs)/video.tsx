@@ -1,4 +1,3 @@
-import { useAtomValue } from 'jotai'
 import { useMemo, useRef } from 'react'
 import { useStyles } from 'react-native-unistyles'
 
@@ -8,7 +7,6 @@ import { FeedList } from '~/components/feed-list'
 import { tabViewList } from '~/consts/view'
 import { useFeedList } from '~/hooks/use-feed-list'
 import { useFeedIdListMapStore } from '~/store/feed'
-import { viewLayoutMapAtom } from '~/store/layout'
 import { createViewStore, ViewContext } from '~/store/view'
 import { isTablet } from '~/theme/breakpoints'
 
@@ -32,7 +30,6 @@ function TabletView() {
         <Column w={1} h="100%" bg="component" />
         <Column flex={2}>
           <EntryListContainer />
-
         </Column>
       </Container>
     </>
@@ -40,14 +37,10 @@ function TabletView() {
 }
 
 function MobileView() {
-  const viewLayoutMap = useAtomValue(viewLayoutMapAtom)
   return (
-    <>
-      <Container>
-        {viewLayoutMap[viewIndex] === 'list' && <FeedList view={viewIndex} />}
-        {viewLayoutMap[viewIndex] === 'detail' && <EntryListContainer />}
-      </Container>
-    </>
+    <Container>
+      <EntryListContainer />
+    </Container>
   )
 }
 
