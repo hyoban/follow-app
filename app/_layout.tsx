@@ -6,6 +6,7 @@ import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { useFonts } from 'expo-font'
 import * as NavigationBar from 'expo-navigation-bar'
+import { usePathname } from 'expo-router'
 import { Drawer } from 'expo-router/drawer'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
@@ -20,6 +21,7 @@ import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
 import { DrawerContent } from '~/components/drawer-content'
+import { tabViewList } from '~/consts/view'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
 import { accentColorAtom, userThemeAtom } from '~/store/theme'
@@ -74,6 +76,8 @@ export default function Root() {
 
   const { success, error } = useMigrations(db, migrations)
   const { theme } = useStyles()
+  const pathname = usePathname()
+  const shouldShowDrawer = tabViewList.map(i => i.path as string).includes(pathname)
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -159,8 +163,10 @@ export default function Root() {
               {__DEV__ && <DrizzleStudio />}
               <Drawer
                 screenOptions={{
+                  drawerType: 'back',
                   headerShown: false,
-                  swipeEnabled: false,
+                  swipeEdgeWidth: 200,
+                  swipeEnabled: shouldShowDrawer,
                 }}
                 drawerContent={props => <DrawerContent {...props} />}
               />
