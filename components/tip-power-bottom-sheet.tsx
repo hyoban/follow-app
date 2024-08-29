@@ -70,6 +70,7 @@ export function TipPowerBottomSheet({
           reset()
         }
       }}
+      // https://github.com/gorhom/react-native-bottom-sheet/issues/243
       backdropComponent={props => (
         <BottomSheetBackdrop
           {...props}
