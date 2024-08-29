@@ -1,5 +1,6 @@
 import '../theme/unistyles'
 
+import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { PortalProvider } from '@gorhom/portal'
 import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
@@ -12,6 +13,7 @@ import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
 import { Appearance, AppState, Platform, useColorScheme } from 'react-native'
+import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ToastProvider } from 'react-native-toast-notifications'
 import { UnistylesRuntime, useInitialTheme, useStyles } from 'react-native-unistyles'
@@ -153,8 +155,12 @@ export default function Root() {
           <ThemeProvider
             value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
           >
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <BottomSheetModalProvider>
+                <Slot />
+              </BottomSheetModalProvider>
+            </GestureHandlerRootView>
             {__DEV__ && <DrizzleStudio />}
-            <Slot />
           </ThemeProvider>
         </ToastProvider>
       </PortalProvider>

@@ -33,7 +33,7 @@ export function Button({
         [
           styles.button(
             pressed,
-            { color, radius, variant, isLoading, size },
+            { color, radius, variant, isLoading, size, disabled: rest.disabled },
           ),
           style,
         ]
@@ -57,11 +57,16 @@ export function Button({
 type TextButtonProps = Omit<ButtonProps, 'children'> & { title: string }
 
 export function TextButton({ title, ...rest }: TextButtonProps) {
+  const { theme } = useStyles()
   return (
     <Button {...rest}>
       <Text
         contrast="low"
-        color={rest.variant === 'solid' ? 'accentContrast' : rest.color}
+        color={
+          (rest.isLoading || rest.disabled)
+            ? theme.colors.grayA8
+            : rest.variant === 'solid' ? 'accentContrast' : rest.color
+        }
       >
         {title}
       </Text>
@@ -70,8 +75,8 @@ export function TextButton({ title, ...rest }: TextButtonProps) {
 }
 
 const styleSheet = createStyleSheet(theme => ({
-  button(pressed: boolean, props?: VariantProps) {
-    const { color = 'gray', radius, variant, isLoading, size = 'medium' } = props ?? {}
+  button(pressed: boolean, props?: VariantProps & { disabled?: boolean | null }) {
+    const { color = 'gray', radius, variant, isLoading, size = 'medium', disabled } = props ?? {}
     if (variant === 'ghost') {
       return {}
     }
@@ -80,7 +85,7 @@ const styleSheet = createStyleSheet(theme => ({
       height: size === 'medium' ? 40 : size === 'large' ? 48 : 32,
       paddingHorizontal: size === 'medium' ? theme.spacing[3] : size === 'large' ? theme.spacing[4] : theme.spacing[2],
       borderRadius: theme.radius[radius ?? 'medium'],
-      backgroundColor: isLoading
+      backgroundColor: isLoading || disabled
         ? theme.colors.grayA3
         : pressed
           ? theme.colors[`${color}${variant === 'solid' ? 10 : 5}` as ThemeColorKey]

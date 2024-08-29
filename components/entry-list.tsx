@@ -1,3 +1,4 @@
+import type { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useScrollToTop } from '@react-navigation/native'
 import type { FlashList } from '@shopify/flash-list'
@@ -8,6 +9,10 @@ import { useAtomValue } from 'jotai'
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react'
 import { Platform, Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
+import type { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSwipeable'
+import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
+import type { SharedValue } from 'react-native-reanimated'
+import Reanimated, { useAnimatedStyle } from 'react-native-reanimated'
 import { Toast } from 'react-native-toast-notifications'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
@@ -28,6 +33,7 @@ import { isTabletLandscape } from '~/theme/breakpoints'
 import { ListEmpty } from './list-empty'
 import { RefreshIndicator } from './refresh-indicator'
 import { SiteImage } from './site-image'
+import { TipPowerBottomSheet } from './tip-power-bottom-sheet'
 
 type EntryItemProps = {
   entry: Entry & { feed: Feed }
@@ -86,111 +92,225 @@ function Dot({ show, size = 8 }: { show: boolean, size?: number }) {
   )
 }
 
+const leftActionStyles = createStyleSheet(theme => ({
+  leftAction: {
+    backgroundColor: theme.colors.gray10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+  },
+}))
+const AnimatedPressable = Reanimated.createAnimatedComponent(Pressable)
+
+function LeftAction({
+  prog: _prog,
+  drag,
+  onPress,
+  swipeableRef,
+}: {
+  prog: SharedValue<number>
+  drag: SharedValue<number>
+  onPress?: () => void
+  swipeableRef?: React.MutableRefObject<SwipeableMethods | null>
+}) {
+  const { styles } = useStyles(leftActionStyles)
+  const styleAnimation = useAnimatedStyle(() => ({
+    transform: [{ translateX: drag.value - 80 }],
+  }))
+
+  return (
+    <AnimatedPressable
+      style={[styleAnimation, styles.leftAction]}
+      onPress={() => {
+        onPress?.()
+        swipeableRef?.current?.close()
+      }}
+    >
+      <Iconify icon="mgc:round-cute-re" />
+    </AnimatedPressable>
+  )
+}
+
+const rightActionStyles = createStyleSheet(theme => ({
+  leftAction: {
+    backgroundColor: theme.colors.accent10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+  },
+}))
+
+function RightAction({
+  prog: _prog,
+  drag,
+  entry,
+  onPress,
+  swipeableRef,
+}: {
+  prog: SharedValue<number>
+  drag: SharedValue<number>
+  entry: Entry & { feed: Feed }
+  onPress?: () => void
+  swipeableRef?: React.MutableRefObject<SwipeableMethods | null>
+}) {
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null)
+
+  const { styles } = useStyles(rightActionStyles)
+  const styleAnimation = useAnimatedStyle(() => ({
+    transform: [{ translateX: drag.value + 80 }],
+  }))
+
+  return (
+    <>
+      <AnimatedPressable
+        style={[styleAnimation, styles.leftAction]}
+        onPress={() => {
+          onPress?.()
+          swipeableRef?.current?.close()
+          bottomSheetModalRef.current?.present()
+        }}
+      >
+        <Iconify icon="mgc:power-outline" />
+      </AnimatedPressable>
+      <TipPowerBottomSheet
+        entry={entry}
+        bottomSheetModalRef={bottomSheetModalRef}
+      />
+    </>
+  )
+}
+
 function EntryItem({ entry }: EntryItemProps) {
   const { feed } = entry
   const { view, title } = useTabInfo()
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
   const { feedIdList } = useContext(FeedIdList)
   const { styles } = useStyles(entryItemStyleSheet)
+  const swipeableRow = useRef<SwipeableMethods>(null)
+  const toggleReadStatus = useCallback(() => {
+    flagEntryReadStatus({ entryId: entry.id, read: !entry.read })
+      .catch(console.error)
+  }, [entry.id, entry.read])
+
   return (
     <>
-      <ContextMenu
-        actions={[
-          entry.read
-            ? { title: 'Mark as Unread', systemIcon: 'circlebadge' }
-            : { title: 'Mark as Read', systemIcon: 'circlebadge.fill' },
-        ]}
-        onPress={(e) => {
-          switch (e.nativeEvent.index) {
-            case 0: {
-              flagEntryReadStatus({ entryId: entry.id, read: !entry.read })
-                .catch(console.error)
-              break
-            }
-            default: {
-              break
-            }
-          }
-        }}
+      <ReanimatedSwipeable
+        ref={swipeableRow}
+        dragOffsetFromLeftEdge={20}
+        renderLeftActions={(prog, drag) => (
+          <LeftAction
+            swipeableRef={swipeableRow}
+            prog={prog}
+            drag={drag}
+            onPress={toggleReadStatus}
+          />
+        )}
+        renderRightActions={(prog, drag) => (
+          <RightAction
+            entry={entry}
+            swipeableRef={swipeableRow}
+            prog={prog}
+            drag={drag}
+          />
+        )}
       >
-        <Link
-          href={`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : feed.id}&title=${title}&view=${view}` as any}
-          asChild
+        <ContextMenu
+          actions={[
+            entry.read
+              ? { title: 'Mark as Unread', systemIcon: 'circlebadge' }
+              : { title: 'Mark as Read', systemIcon: 'circlebadge.fill' },
+          ]}
+          onPress={(e) => {
+            switch (e.nativeEvent.index) {
+              case 0: {
+                toggleReadStatus()
+                break
+              }
+              default: {
+                break
+              }
+            }
+          }}
         >
-          <Pressable onLongPress={() => {}} delayLongPress={250}>
-            <Row px={15} py={12} gap={10}>
-              {!options?.hideSiteIcon && <SiteImage feed={feed} />}
-              <Dot show={!entry.read} />
-              <Column gap={6} flex={1}>
-                <Row gap={6}>
-                  <Text size={10}>
-                    {feed?.title}
-                  </Text>
-                  <Text size={10}>
-                    {formatDistanceToNowStrict(new Date(entry.publishedAt))}
-                  </Text>
-                </Row>
-                <Row>
-                  <Text
-                    size={16}
-                    style={{ flex: 1, flexWrap: 'wrap' }}
-                    weight={600}
-                    numberOfLines={options?.noTruncation ? undefined : 2}
-                  >
-                    {entry.title}
-                  </Text>
-                </Row>
-                {!options?.hideDescription && (
-                  <Text
-                    size={12}
-                    numberOfLines={options?.noTruncation ? undefined : 3}
-                  >
-                    {entry.description}
-                  </Text>
-                )}
-                {options?.imageNewLine && (
-                  <Row gap={10}>
-                    {entry.media?.map((media, index) => (
-                      <Image
-                        key={index}
-                        recyclingKey={entry.id}
-                        source={media.type === 'photo' ? media.url : media.preview_image_url}
-                        style={{
-                          width: 100,
-                          // height: 100,
-                          aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
-                          borderRadius: 5,
-                        }}
-
-                      />
-                    ))}
+          <Link
+            href={`/feed/detail/${entry.id}?feedId=${feedIdList ? feedIdList.join(',') : feed.id}&title=${title}&view=${view}` as any}
+            asChild
+          >
+            <Pressable onLongPress={() => {}} delayLongPress={250}>
+              <Row px={15} py={12} gap={10}>
+                {!options?.hideSiteIcon && <SiteImage feed={feed} />}
+                <Dot show={!entry.read} />
+                <Column gap={6} flex={1}>
+                  <Row gap={6}>
+                    <Text size={10}>
+                      {feed?.title}
+                    </Text>
+                    <Text size={10}>
+                      {formatDistanceToNowStrict(new Date(entry.publishedAt))}
+                    </Text>
                   </Row>
-                )}
-              </Column>
-              {options?.hideImage || options?.imageNewLine
-                ? null
-                : options?.hideSiteIcon
-                  ? (
-                      <AudioButton
-                        entry={entry}
-                      >
-                        <SiteImage feed={feed} size={60} />
-                      </AudioButton>
-                    )
-                  : entry.media && entry.media.find(media => media.type === 'photo')
-                    ? (
+                  <Row>
+                    <Text
+                      size={16}
+                      style={{ flex: 1, flexWrap: 'wrap' }}
+                      weight={600}
+                      numberOfLines={options?.noTruncation ? undefined : 2}
+                    >
+                      {entry.title}
+                    </Text>
+                  </Row>
+                  {!options?.hideDescription && (
+                    <Text
+                      size={12}
+                      numberOfLines={options?.noTruncation ? undefined : 3}
+                    >
+                      {entry.description}
+                    </Text>
+                  )}
+                  {options?.imageNewLine && (
+                    <Row gap={10}>
+                      {entry.media?.map((media, index) => (
                         <Image
+                          key={index}
                           recyclingKey={entry.id}
-                          source={entry.media.find(media => media.type === 'photo')?.url}
-                          style={styles.mediaImage}
-                          proxy={{ width: 160, height: 160 }}
+                          source={media.type === 'photo' ? media.url : media.preview_image_url}
+                          style={{
+                            width: 100,
+                            // height: 100,
+                            aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
+                            borderRadius: 5,
+                          }}
+
                         />
+                      ))}
+                    </Row>
+                  )}
+                </Column>
+                {options?.hideImage || options?.imageNewLine
+                  ? null
+                  : options?.hideSiteIcon
+                    ? (
+                        <AudioButton
+                          entry={entry}
+                        >
+                          <SiteImage feed={feed} size={60} />
+                        </AudioButton>
                       )
-                    : null}
-            </Row>
-          </Pressable>
-        </Link>
-      </ContextMenu>
+                    : entry.media && entry.media.find(media => media.type === 'photo')
+                      ? (
+                          <Image
+                            recyclingKey={entry.id}
+                            source={entry.media.find(media => media.type === 'photo')?.url}
+                            style={styles.mediaImage}
+                            proxy={{ width: 160, height: 160 }}
+                          />
+                        )
+                      : null}
+              </Row>
+            </Pressable>
+          </Link>
+        </ContextMenu>
+      </ReanimatedSwipeable>
       {!options?.hideDivider && <Row w="100%" h={1} bg="component" />}
     </>
   )
