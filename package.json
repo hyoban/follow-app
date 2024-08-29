@@ -29,6 +29,7 @@
     "@react-navigation/native": "^6.1.18",
     "@shopify/flash-list": "1.6.4",
     "date-fns": "^3.6.0",
+    "dnum": "^2.13.1",
     "drizzle-orm": "^0.32.2",
     "expo": "^51.0.28",
     "expo-av": "~14.0.6",
