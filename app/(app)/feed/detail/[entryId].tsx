@@ -1,3 +1,4 @@
+import type { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { formatDate } from 'date-fns'
 import { Video } from 'expo-av'
 import * as Clipboard from 'expo-clipboard'
@@ -19,6 +20,7 @@ import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
 import { Column, Container, Iconify, Row, Text } from '~/components'
 import { FeedContent } from '~/components/feed-content'
 import { Image } from '~/components/image'
+import { TipPowerBottomSheet } from '~/components/tip-power-bottom-sheet'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
 import type { Entry, Feed, User } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
@@ -107,16 +109,29 @@ function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> 
   )
 }
 
-function EntryToolsbar({ entry }: { entry: Entry & { feed: Feed } }) {
+function EntryToolbar({ entry }: { entry: Entry & { feed: Feed } }) {
   const { styles } = useStyles(stylesheet)
   const enableReadabilityMap = useAtomValue(enableReadabilityMapAtom)
   const enableReadability = useMemo(() => enableReadabilityMap[entry.feedId], [enableReadabilityMap, entry.feedId])
   const toggleEnableReadability = useSetAtom(toggleEnableReadabilityMapAtom)
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null)
   if (!entry.url) {
     return null
   }
   return (
     <Row gap={8} align="center">
+      <Pressable
+        style={styles.toolbarButton}
+        onPress={() => {
+          bottomSheetModalRef.current?.present()
+        }}
+      >
+        <Iconify icon="mgc:power-outline" />
+        <TipPowerBottomSheet
+          entry={entry}
+          bottomSheetModalRef={bottomSheetModalRef}
+        />
+      </Pressable>
       <Pressable
         style={styles.toolbarButton}
         onPress={() => {
@@ -211,7 +226,7 @@ function EntryFooterNavBar({ readHistories, entry }: EntryFooterNavBarProps) {
           justify="flex-end"
           flex={1}
         >
-          <EntryToolsbar entry={entry} />
+          <EntryToolbar entry={entry} />
         </Row>
       </Row>
     </Animated.View>

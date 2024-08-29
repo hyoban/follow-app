@@ -51,7 +51,7 @@ export function TipPowerBottomSheet({
         json: {
           amount: String(amountBigInt),
           feedId: entry.feedId,
-          userId: entry.feed.ownerUserId!,
+          userId: entry.feed.ownerUserId ?? undefined,
         },
       }),
   )
@@ -151,7 +151,7 @@ export function TipPowerBottomSheet({
             alignSelf: 'flex-end',
             marginTop: 20,
           }}
-          disabled={!currentUser || !ownerUserId || wrongNumberRange}
+          disabled={!currentUser || wrongNumberRange}
           onPress={() => {
             if (isTipSuccess) {
               bottomSheetModalRef.current?.dismiss()
