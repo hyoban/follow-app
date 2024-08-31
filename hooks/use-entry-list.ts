@@ -1,4 +1,4 @@
-import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { atom, getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
 import { unstable_serialize } from 'swr'
 
 import { db } from '~/db'
@@ -33,6 +33,7 @@ export function useEntryList(
     ['entries', { feedIdList }],
     {
       afterRevalidate(data) {
+        const showUnreadOnly = getDefaultStore().get(showUnreadOnlyAtom)
         if (!showUnreadOnly && data) {
           setUnreadItems(
             feedIdList,

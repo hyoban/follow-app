@@ -1,4 +1,4 @@
-import { atom, useAtom, useAtomValue } from 'jotai'
+import { atom, getDefaultStore, useAtom, useAtomValue } from 'jotai'
 
 import { db } from '~/db'
 import { showUnreadOnlyAtom } from '~/store/entry'
@@ -19,6 +19,7 @@ export function useFeedList(view: TabViewIndex) {
     ['feeds', { view }],
     {
       afterRevalidate(data) {
+        const showUnreadOnly = getDefaultStore().get(showUnreadOnlyAtom)
         if (!showUnreadOnly && data) {
           setUnreadItems(new Set(data.filter(i => i.unread).map(i => i.id)))
         }
