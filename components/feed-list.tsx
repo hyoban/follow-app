@@ -101,7 +101,7 @@ function FeedFolder({
                 isExpanded.value = !isExpanded.value
               }}
             >
-              <Iconify icon="mingcute:right-fill" />
+              <Iconify icon="mgc:right-cute-fi" />
             </AnimatedPressable>
             <Text style={{ flex: 1 }}>
               {category}
@@ -243,7 +243,7 @@ function FeedItem({
                 {feed.title}
               </Text>
               {feed.errorAt && (
-                <Iconify icon="mingcute:wifi-off-line" color={theme.colors.red10} />
+                <Iconify icon="mgc:wifi-off-cute-re" color={theme.colors.red10} />
               )}
             </Row>
             {feed.unread > 0 && (

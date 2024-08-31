@@ -4,8 +4,6 @@ import { Pressable } from 'react-native'
 import { Image } from '~/components/image'
 import { useCurrentUser } from '~/hooks/use-current-user'
 
-import { Iconify } from './icon'
-
 export function SettingsLink() {
   const { user } = useCurrentUser()
   return (
@@ -24,12 +22,7 @@ export function SettingsLink() {
                   }}
                 />
               )
-            : (
-                <Iconify
-                  icon="mingcute:user-4-fill"
-                  style={{ opacity: pressed ? 0.5 : 1 }}
-                />
-              )
+            : null
         )}
       </Pressable>
     </Link>

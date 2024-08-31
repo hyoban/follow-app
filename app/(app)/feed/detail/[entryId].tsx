@@ -512,7 +512,7 @@ function MainContentScrollView({
           <Text>
             {formatDate(entry.publishedAt, 'yyyy-MM-dd HH:mm')}
           </Text>
-          <Iconify icon="mingcute:eye-2-line" />
+          <Iconify icon="mgc:eye-2-cute-re" />
           <Text>
             {readHistories?.entryReadHistories?.readCount ?? 0}
           </Text>
@@ -524,7 +524,7 @@ function MainContentScrollView({
             gap={15}
           >
             <Row align="center" gap={10}>
-              <Iconify icon="mingcute:magic-2-fill" />
+              <Iconify icon="mgc:magic-2-cute-re" />
               <Text>AI summary</Text>
             </Row>
             <Text>

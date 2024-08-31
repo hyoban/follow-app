@@ -83,7 +83,7 @@ function DiscoverItem({ item, children }: { item: DiscoverList[number], children
         </Column>
       </Row>
       <Row align="center" gap={4}>
-        <Iconify icon="mingcute:right-line" size={18} />
+        <Iconify icon="mgc:right-cute-fi" size={18} />
         <Text
           size={14}
           numberOfLines={1}
