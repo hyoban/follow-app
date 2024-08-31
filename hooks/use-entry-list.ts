@@ -1,10 +1,18 @@
-import { useAtomValue } from 'jotai'
-import { useState } from 'react'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { unstable_serialize } from 'swr'
 
 import { db } from '~/db'
 import { showUnreadOnlyAtom } from '~/store/entry'
 
 import { useQuerySubscription } from './use-query-subscription'
+
+const unreadEntryMapAtom = atom<Record<string, Set<string>>>({})
+const setUnreadEntryListAtom = atom(null, (get, set, feedIdList: string[], entryList: string[]) => {
+  set(unreadEntryMapAtom, {
+    ...get(unreadEntryMapAtom),
+    [unstable_serialize(feedIdList)]: new Set(entryList),
+  })
+})
 
 export function useEntryList(
   feedIdList: string[],
@@ -26,15 +34,23 @@ export function useEntryList(
     {
       afterRevalidate(data) {
         if (!showUnreadOnly && data) {
-          setUnreadItems(new Set(data.filter(i => !i.read).map(i => i.id)))
+          setUnreadItems(
+            feedIdList,
+            data.filter(i => !i.read).map(i => i.id),
+          )
         }
       },
     },
   )
 
-  const [unreadItems, setUnreadItems] = useState<Set<string> | null>(null)
+  const unreadEntryMap = useAtomValue(unreadEntryMapAtom)
+  const setUnreadItems = useSetAtom(setUnreadEntryListAtom)
+  const unreadItems = unreadEntryMap[unstable_serialize(feedIdList)]
   if (!unreadItems && sub.data) {
-    setUnreadItems(new Set(sub.data.filter(i => !i.read).map(i => i.id)))
+    setUnreadItems(
+      feedIdList,
+      sub.data.filter(i => !i.read).map(i => i.id),
+    )
   }
 
   return {
