@@ -29,7 +29,7 @@ import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
 import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
 import { markAsReadOnScrollAtom } from '~/store/settings'
-import { isMobile, isTabletLandscape } from '~/theme/breakpoints'
+import { isTabletLandscape } from '~/theme/breakpoints'
 
 import { ListEmpty } from './list-empty'
 import { RefreshIndicator } from './refresh-indicator'
@@ -548,13 +548,13 @@ export function EntryList({
   )
 }
 
-function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
+function EntryMedia({ entry, props, index: _index }: Omit<EntryItemProps, 'props'> & { props?: { isVideo?: boolean } }) {
   const { isVideo } = props ?? {}
   const media = entry.media?.find(media => media.type === 'photo' || media.type === 'video')
   const mediaUrl = media?.type === 'photo' ? media.url : media?.preview_image_url
   const { feedIdList } = useContext(FeedIdList)
   const router = useRouter()
-  const { theme, breakpoint } = useStyles()
+  const { theme } = useStyles()
   const { title, view } = useTabInfo()
   return (
     <Pressable
@@ -571,8 +571,6 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
       }}
       style={{
         margin: 5,
-        marginLeft: isMobile(breakpoint) ? 5 : index !== undefined ? index % 2 === 1 ? 5 : 10 : 5,
-        marginRight: isMobile(breakpoint) ? 5 : index !== undefined ? index % 2 === 1 ? 10 : 5 : 5,
         borderRadius: 5,
         overflow: 'hidden',
         backgroundColor: theme.colors.gray2,
