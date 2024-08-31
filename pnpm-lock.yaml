@@ -167,8 +167,8 @@ importers:
         specifier: ^4.1.1
         version: 4.1.1(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
       react-native-unistyles:
-        specifier: ^2.9.1
-        version: 2.9.1(@react-native/normalize-colors@0.74.87)(react-native-web@0.19.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
+        specifier: ^2.9.2
+        version: 2.9.2(@react-native/normalize-colors@0.74.87)(react-native-web@0.19.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0)
       react-native-web:
         specifier: ~0.19.12
         version: 0.19.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
@@ -5461,8 +5461,8 @@ packages:
       shaka-player:
         optional: true
 
-  react-native-unistyles@2.9.1:
-    resolution: {integrity: sha512-MG+yPPHEvDuGJgXWoIEm9NcA3BEo4hK2wigvN5W4tCN8CwWwQHv4JyBBGXvF0RCQZq8qwPcfGQBdfEkfjURamA==}
+  react-native-unistyles@2.9.2:
+    resolution: {integrity: sha512-eAK4akGbQj/5rd6co+XhPp817mX8MXvzHEkqs/nLP8jn+KvY4Z1V6ef0OJ9wUtn9YY/yiRuL1h7wvqP/RocV4A==}
     engines: {node: '>= 18.0.0'}
     peerDependencies:
       '@react-native/normalize-colors': '*'
@@ -12984,7 +12984,7 @@ snapshots:
       react: 18.2.0
       react-native: 0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0)
 
-  react-native-unistyles@2.9.1(@react-native/normalize-colors@0.74.87)(react-native-web@0.19.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
+  react-native-unistyles@2.9.2(@react-native/normalize-colors@0.74.87)(react-native-web@0.19.12(react-dom@18.2.0(react@18.2.0))(react@18.2.0))(react-native@0.74.5(@babel/core@7.25.2)(@babel/preset-env@7.24.8(@babel/core@7.25.2))(@types/react@18.2.79)(react@18.2.0))(react@18.2.0):
     dependencies:
       '@react-native/normalize-colors': 0.74.87
       react: 18.2.0

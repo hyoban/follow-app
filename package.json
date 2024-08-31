@@ -70,7 +70,7 @@
     "react-native-svg": "15.2.0",
     "react-native-toast-notifications": "^3.4.0",
     "react-native-track-player": "^4.1.1",
-    "react-native-unistyles": "^2.9.1",
+    "react-native-unistyles": "^2.9.2",
     "react-native-web": "~0.19.12",
     "react-native-webview": "13.8.6",
     "swr": "^2.2.5",
