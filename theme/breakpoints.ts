@@ -6,6 +6,10 @@ export const breakpoints = {
   tabletLandscape: 1024,
 } as const
 
+export function isMobile(breakpoint: keyof UnistylesBreakpoints) {
+  return breakpoint === 'xs'
+}
+
 export function isTablet(breakpoint: keyof UnistylesBreakpoints) {
   return breakpoint === 'tablet' || breakpoint === 'tabletLandscape'
 }

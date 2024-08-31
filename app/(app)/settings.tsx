@@ -6,6 +6,7 @@ import { Button, Column, Container, Iconify, Row, Text, TextButton } from '~/com
 import { Image } from '~/components/image'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useLogOut } from '~/hooks/use-log-out'
+import { markAsReadOnScrollAtom } from '~/store/settings'
 import { accentColorAtom, userThemeAtom } from '~/store/theme'
 import { accentColors } from '~/theme'
 
@@ -136,9 +137,45 @@ function UserInfo() {
   )
 }
 
+function General() {
+  const { styles, theme } = useStyles(styleSheet)
+  const [markAsReadOnScroll, setMarkAsReadOnScroll] = useAtom(markAsReadOnScrollAtom)
+
+  return (
+    <Column gap={10}>
+      <Row align="center" gap={8} px={12}>
+        <Iconify icon="mgc:settings-7-cute-re" size={20} />
+        <Text weight="bold">General</Text>
+      </Row>
+      <Column px={12}>
+        <Text>Unread</Text>
+      </Column>
+      <Column style={styles.section}>
+        <Column gap={4}>
+          <Row justify="space-between" align="center">
+            <Text>Mark as read when scrolling</Text>
+            <Switch
+              value={markAsReadOnScroll}
+              onValueChange={(value) => {
+                setMarkAsReadOnScroll(value)
+              }}
+              trackColor={{ true: theme.colors.accent9 }}
+              style={{
+                transform: [{ scale: 0.8 }],
+              }}
+            />
+          </Row>
+          <Text contrast="low" size={14}>Automatically mark entries as read when scrolled out of the view.</Text>
+        </Column>
+      </Column>
+    </Column>
+  )
+}
+
 export default function SettingsPage() {
   return (
     <Container p={14} gap={20}>
+      <General />
       <Appearance />
       <UserInfo />
     </Container>

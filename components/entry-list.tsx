@@ -28,7 +28,8 @@ import { useTabInfo } from '~/hooks/use-tab-info'
 import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
 import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
-import { isTabletLandscape } from '~/theme/breakpoints'
+import { markAsReadOnScrollAtom } from '~/store/settings'
+import { isMobile, isTabletLandscape } from '~/theme/breakpoints'
 
 import { ListEmpty } from './list-empty'
 import { RefreshIndicator } from './refresh-indicator'
@@ -497,6 +498,10 @@ export function EntryList({
   const { view } = useTabInfo()
   const { breakpoint } = useStyles()
 
+  const markAsReadOnScroll = useAtomValue(markAsReadOnScrollAtom)
+  const lastOffset = useRef(0)
+  const scrollDirection = useRef<'up' | 'down'>('down')
+
   return (
     <>
       <FeedIdList.Provider value={{ feedIdList }}>
@@ -509,6 +514,22 @@ export function EntryList({
           data={data}
           renderItem={renderItem}
           keyExtractor={item => item.id}
+          onScroll={({ nativeEvent }) => {
+            const currentOffset = nativeEvent.contentOffset.y
+            if (currentOffset > 0) {
+              scrollDirection.current = currentOffset > lastOffset.current ? 'down' : 'up'
+              lastOffset.current = currentOffset
+            }
+          }}
+          onViewableItemsChanged={({ changed }) => {
+            if (markAsReadOnScroll && scrollDirection.current === 'down') {
+              const itemsOutOfView = changed.filter(i => !i.isViewable && !i.item.read).map(i => i.item.id)
+              if (itemsOutOfView.length > 0) {
+                flagEntryReadStatus({ entryId: itemsOutOfView })
+                  .catch(console.error)
+              }
+            }
+          }}
           onEndReachedThreshold={0.5}
           onEndReached={() => {
             if (canLoadMore) {
@@ -533,7 +554,7 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
   const mediaUrl = media?.type === 'photo' ? media.url : media?.preview_image_url
   const { feedIdList } = useContext(FeedIdList)
   const router = useRouter()
-  const { theme } = useStyles()
+  const { theme, breakpoint } = useStyles()
   const { title, view } = useTabInfo()
   return (
     <Pressable
@@ -550,8 +571,8 @@ function EntryMedia({ entry, props, index }: Omit<EntryItemProps, 'props'> & { p
       }}
       style={{
         margin: 5,
-        marginLeft: index !== undefined ? index % 2 === 1 ? 5 : 10 : 5,
-        marginRight: index !== undefined ? index % 2 === 1 ? 10 : 5 : 5,
+        marginLeft: isMobile(breakpoint) ? 5 : index !== undefined ? index % 2 === 1 ? 5 : 10 : 5,
+        marginRight: isMobile(breakpoint) ? 5 : index !== undefined ? index % 2 === 1 ? 10 : 5 : 5,
         borderRadius: 5,
         overflow: 'hidden',
         backgroundColor: theme.colors.gray2,

@@ -1,4 +1,5 @@
 import { atom, getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
+import { useEffect } from 'react'
 import { unstable_serialize } from 'swr'
 
 import { db } from '~/db'
@@ -47,12 +48,15 @@ export function useEntryList(
   const unreadEntryMap = useAtomValue(unreadEntryMapAtom)
   const setUnreadItems = useSetAtom(setUnreadEntryListAtom)
   const unreadItems = unreadEntryMap[unstable_serialize(feedIdList)]
-  if (!unreadItems && sub.data) {
-    setUnreadItems(
-      feedIdList,
-      sub.data.filter(i => !i.read).map(i => i.id),
-    )
-  }
+
+  useEffect(() => {
+    if (!unreadItems && sub.data) {
+      setUnreadItems(
+        feedIdList,
+        sub.data.filter(i => !i.read).map(i => i.id),
+      )
+    }
+  }, [feedIdList, setUnreadItems, sub.data, unreadItems])
 
   return {
     ...sub,
