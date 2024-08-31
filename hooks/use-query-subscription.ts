@@ -15,6 +15,9 @@ export function useQuerySubscription<
 >(
   query: T,
   key: SWRSubKey,
+  options?: {
+    afterRevalidate?: (data: Awaited<T>) => void
+  },
 ) {
   function subscribe(_key: SWRSubKey, { next }: SWRSubscriptionOptions<Awaited<T>, any>) {
     const entity = is(query, SQLiteRelationalQuery)
@@ -43,7 +46,12 @@ export function useQuerySubscription<
             clearTimeout(queryTimeout)
           }
           queryTimeout = setTimeout(() => {
-            query.then((data) => { next(undefined, data) })
+            query.then((data) => {
+              next(undefined, data)
+              if (options?.afterRevalidate) {
+                options.afterRevalidate(data)
+              }
+            })
               .catch((error) => { next(error) })
           }, 0)
         }

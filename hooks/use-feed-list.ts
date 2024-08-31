@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai'
+import { useState } from 'react'
 
 import { db } from '~/db'
 import { showUnreadOnlyAtom } from '~/store/entry'
@@ -8,16 +9,29 @@ import { useQuerySubscription } from './use-query-subscription'
 
 export function useFeedList(view: TabViewIndex) {
   const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
-  return useQuerySubscription(
+  const sub = useQuerySubscription(
     db.query.feeds.findMany({
-      where(schema, { eq, and, not }) {
-        if (showUnreadOnly) {
-          return and(eq(schema.view, view), not(eq(schema.unread, 0)))
-        }
-
+      where(schema, { eq }) {
         return eq(schema.view, view)
       },
     }),
-    ['feeds', { view, showUnreadOnly }],
+    ['feeds', { view }],
+    {
+      afterRevalidate(data) {
+        if (!showUnreadOnly && data) {
+          setUnreadItems(new Set(data.filter(i => i.unread).map(i => i.id)))
+        }
+      },
+    },
   )
+
+  const [unreadItems, setUnreadItems] = useState<Set<string> | null>(null)
+  if (!unreadItems && sub.data) {
+    setUnreadItems(new Set(sub.data.filter(i => i.unread).map(i => i.id)))
+  }
+
+  return {
+    ...sub,
+    data: sub.data?.filter(i => !showUnreadOnly || !unreadItems || unreadItems.has(i.id)),
+  }
 }

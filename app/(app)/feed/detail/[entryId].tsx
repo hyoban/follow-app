@@ -241,7 +241,6 @@ export default function Page() {
   const initialPage = entryList?.findIndex(i => i.id === entryId)
   const currentEntry = entryList?.find(i => i.id === entryId)
 
-  const entryIdListToMarkAsRead = useRef<string[]>([])
   const navigation = useNavigation()
   const router = useRouter()
 
@@ -257,8 +256,6 @@ export default function Page() {
       'beforeRemove',
       () => {
         setShowFooter(true)
-        flagEntryReadStatus({ entryId: entryIdListToMarkAsRead.current })
-          .catch(console.error)
       },
     ),
     [navigation, setShowFooter],
@@ -301,7 +298,8 @@ export default function Page() {
                     .catch(console.error)
                 }
                 if (!entry.read) {
-                  entryIdListToMarkAsRead.current.push(entry.id)
+                  flagEntryReadStatus({ entryId: entry.id })
+                    .catch(console.error)
                 }
               }
             }

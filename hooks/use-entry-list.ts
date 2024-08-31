@@ -1,4 +1,5 @@
 import { useAtomValue } from 'jotai'
+import { useState } from 'react'
 
 import { db } from '~/db'
 import { showUnreadOnlyAtom } from '~/store/entry'
@@ -9,15 +10,10 @@ export function useEntryList(
   feedIdList: string[],
 ) {
   const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
-  return useQuerySubscription(
+  const sub = useQuerySubscription(
     db.query.entries.findMany({
-      where(fields, { inArray, and, eq }) {
-        return !showUnreadOnly
-          ? inArray(fields.feedId, feedIdList ?? [])
-          : and(
-            inArray(fields.feedId, feedIdList ?? []),
-            eq(fields.read, false),
-          )
+      where(fields, { inArray }) {
+        return inArray(fields.feedId, feedIdList ?? [])
       },
       orderBy(fields, { desc }) {
         return [desc(fields.publishedAt)]
@@ -26,6 +22,23 @@ export function useEntryList(
         feed: true,
       },
     }),
-    ['entries', { feedIdList, showUnreadOnly }],
+    ['entries', { feedIdList }],
+    {
+      afterRevalidate(data) {
+        if (!showUnreadOnly && data) {
+          setUnreadItems(new Set(data.filter(i => !i.read).map(i => i.id)))
+        }
+      },
+    },
   )
+
+  const [unreadItems, setUnreadItems] = useState<Set<string> | null>(null)
+  if (!unreadItems && sub.data) {
+    setUnreadItems(new Set(sub.data.filter(i => !i.read).map(i => i.id)))
+  }
+
+  return {
+    ...sub,
+    data: sub.data?.filter(i => !showUnreadOnly || !unreadItems || unreadItems.has(i.id)),
+  }
 }
