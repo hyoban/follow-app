@@ -42,7 +42,7 @@ export const apiFetch = ofetch.create({
     }
   },
   onResponseError(context) {
-    console.info('onResponseError', context)
+    console.info('onResponseError', context.request)
   },
 })
 

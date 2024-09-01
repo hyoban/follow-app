@@ -446,6 +446,9 @@ function MainContentScrollView({
       scrollEventThrottle={8}
       showsVerticalScrollIndicator={false}
       onScroll={scrollHandler}
+      contentContainerStyle={{
+        paddingBottom: 60,
+      }}
     >
       {children}
       <Column gap={8}>
