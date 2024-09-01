@@ -152,9 +152,7 @@ export default function Root() {
     >
       <PortalProvider>
         <ToastProvider offsetTop={100} duration={1000} placement="top">
-          <ThemeProvider
-            value={UnistylesRuntime.colorScheme === 'light' ? DefaultTheme : DarkTheme}
-          >
+          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <BottomSheetModalProvider>
                 <Slot />
