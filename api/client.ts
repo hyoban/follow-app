@@ -37,7 +37,7 @@ export const apiFetch = ofetch.create({
       }
 
       const header = new Headers(options.headers)
-      header.set('cookie', `authjs.session-token=${user.sessionToken}`)
+      header.set('cookie', `authjs.session-token=${user.sessionToken};authjs.csrf-token=${csrfToken};authjs.callback-url=${encodeURIComponent(process.env.EXPO_PUBLIC_FOLLOW_API_URL)}`)
       options.headers = header
     }
   },
