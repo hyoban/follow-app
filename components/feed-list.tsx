@@ -11,7 +11,7 @@ import { unstable_serialize } from 'swr'
 
 import { flagEntryReadStatus } from '~/api/entry'
 import { deleteFeed, syncFeeds } from '~/api/feed'
-import { Iconify, Row, Text } from '~/components'
+import { Divider, Iconify, Row, Text } from '~/components'
 import { Image } from '~/components/image'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
@@ -112,7 +112,7 @@ function FeedFolder({
           </Row>
         </Pressable>
       </ContextMenuWrapper>
-      <Row h={1} bg="component" w="100%" />
+      <Divider type="horizontal" />
       {expandedSections.includes(category) && feedList.map(feed => (
         <FeedItem key={feed.id} feed={feed} />
       ))}
@@ -252,7 +252,7 @@ function FeedItem({
           </Row>
         </Pressable>
       </ContextMenuWrapper>
-      <Row h={1} bg="component" w="100%" />
+      <Divider type="horizontal" />
     </Animated.View>
   )
 }

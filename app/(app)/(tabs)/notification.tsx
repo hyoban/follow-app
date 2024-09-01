@@ -2,7 +2,7 @@ import { useAtomValue } from 'jotai'
 import { useMemo, useRef } from 'react'
 import { useStyles } from 'react-native-unistyles'
 
-import { Column, Container } from '~/components'
+import { Column, Container, Divider } from '~/components'
 import { EntryList } from '~/components/entry-list'
 import { FeedList } from '~/components/feed-list'
 import { tabViewList } from '~/consts/view'
@@ -29,10 +29,9 @@ function TabletView() {
         <Column flex={1}>
           <FeedList view={viewIndex} />
         </Column>
-        <Column w={1} h="100%" bg="component" />
+        <Divider type="vertical" />
         <Column flex={2}>
           <EntryListContainer />
-
         </Column>
       </Container>
     </>

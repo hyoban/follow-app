@@ -19,7 +19,7 @@ import { createStyleSheet, useStyles } from 'react-native-unistyles'
 import { unstable_serialize } from 'swr'
 
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
-import { Column, Iconify, Row, Text } from '~/components'
+import { Column, Divider, Iconify, Row, Text } from '~/components'
 import { Image } from '~/components/image'
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import type { Entry, Feed } from '~/db/schema'
@@ -312,7 +312,7 @@ function EntryItem({ entry }: EntryItemProps) {
           </Link>
         </ContextMenu>
       </ReanimatedSwipeable>
-      {!options?.hideDivider && <Row w="100%" h={1} bg="component" />}
+      {!options?.hideDivider && <Divider type="horizontal" />}
     </>
   )
 }

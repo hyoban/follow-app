@@ -403,6 +403,7 @@ function MainContentScrollView({
   readHistories?: EntryReadHistories
   children?: React.ReactNode
 }) {
+  const { theme } = useStyles()
   const { data: summary } = useSWR(
     ['entry-summary', entry.id],
     () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
@@ -519,7 +520,7 @@ function MainContentScrollView({
         </Row>
         {summary?.data && (
           <Column
-            bg="subtle"
+            bg={theme.colors.gray2}
             p={15}
             gap={15}
           >

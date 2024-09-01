@@ -51,7 +51,6 @@ export function Flex({
   style,
   ...rest
 }: FlexProps) {
-  const { theme } = useStyles()
   return (
     <View
       style={{
@@ -86,13 +85,7 @@ export function Flex({
         minHeight,
         maxHeight,
 
-        backgroundColor: bg === 'app'
-          ? theme.colors.gray1
-          : bg === 'subtle'
-            ? theme.colors.gray2
-            : bg === 'component'
-              ? theme.colors.gray3
-              : bg,
+        backgroundColor: bg,
 
         ...(typeof style === 'object' ? style : {}),
       }}
@@ -111,4 +104,12 @@ export function Column(props: Omit<FlexProps, 'direction'>) {
 
 export function Container(props: FlexProps) {
   return <Flex w="100%" h="100%" {...props} />
+}
+
+export function Divider({ type: type, ...rest }: FlexProps & { type: 'horizontal' | 'vertical' }) {
+  const { theme } = useStyles()
+  if (type === 'horizontal') {
+    return <Row bg={theme.colors.gray3} h={1} w="100%" {...rest} />
+  }
+  return <Column bg={theme.colors.gray3} w={1} h="100%" {...rest} />
 }

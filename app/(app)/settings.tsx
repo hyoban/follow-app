@@ -2,7 +2,7 @@ import { useAtom, useSetAtom } from 'jotai'
 import { ScrollView, Switch, useColorScheme } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import { Button, Column, Container, Iconify, Row, Text, TextButton } from '~/components'
+import { Button, Column, Container, Divider, Iconify, Row, Text, TextButton } from '~/components'
 import { Image } from '~/components/image'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useLogOut } from '~/hooks/use-log-out'
@@ -50,7 +50,7 @@ function Appearance() {
       </Row>
       <Column style={styles.section}>
         <ThemeSwitcher />
-        <Row h={1} bg="component" w="100%" />
+        <Divider type="horizontal" />
         <Row justify="space-between" align="center">
           <Text>Follow system</Text>
           <Switch
@@ -66,7 +66,7 @@ function Appearance() {
         </Row>
         {userTheme !== 'system' && (
           <>
-            <Row h={1} bg="component" w="100%" />
+            <Divider type="horizontal" />
             <Row justify="space-between" align="center">
               <Text>Dark mode</Text>
               <Switch

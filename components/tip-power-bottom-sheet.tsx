@@ -6,7 +6,7 @@ import useSWR from 'swr'
 import useSWRMutation from 'swr/mutation'
 
 import { apiClient } from '~/api/client'
-import { Iconify, Row, Text, TextButton } from '~/components'
+import { Divider, Iconify, Row, Text, TextButton } from '~/components'
 import type { Entry, Feed } from '~/db/schema'
 import { useCurrentUser } from '~/hooks/use-current-user'
 
@@ -111,7 +111,7 @@ export function TipPowerBottomSheet({
                   securely held in the blockchain contract until it is claimed.
                 </Text>
               )}
-        <Row h={1} w="100%" bg="component" my={6} />
+        <Divider type="horizontal" my={6} />
         {
           isTipSuccess ? (
             <Text>
