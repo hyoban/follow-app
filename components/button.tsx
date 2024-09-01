@@ -9,7 +9,7 @@ import { Text } from './text'
 type VariantProps = {
   color?: Color
   radius?: Radius
-  variant?: 'solid' | 'outlined' | 'ghost'
+  variant?: 'solid' | 'soft' | 'ghost'
   isLoading?: boolean
   size?: 'small' | 'medium' | 'large'
 }
@@ -88,8 +88,8 @@ const styleSheet = createStyleSheet(theme => ({
       backgroundColor: isLoading || disabled
         ? theme.colors.grayA3
         : pressed
-          ? theme.colors[`${color}${variant === 'solid' ? 10 : 5}` as ThemeColorKey]
-          : theme.colors[`${color}${variant === 'solid' ? 9 : 3}` as ThemeColorKey],
+          ? theme.colors[`${color}A${variant === 'solid' ? 10 : 5}` as ThemeColorKey]
+          : theme.colors[`${color}A${variant === 'solid' ? 9 : 3}` as ThemeColorKey],
       justifyContent: 'center',
       alignItems: 'center',
       alignSelf: 'flex-start',
