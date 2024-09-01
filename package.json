@@ -10,7 +10,7 @@
     "build:preview": "eas build --profile preview",
     "build:preview:local": "eas build --profile preview --local",
     "build:prod": "eas build --profile production",
-    "generate:icons": "svgr --out-dir components/icons --filename-case kebab --jsx-runtime automatic --native --typescript --ref --memo --replace-attr-values '#10161F'='currentColor' --svg-props viewBox='0 0 24 24' --template svgr/template.js --index-template svgr/index-template.js -- icons/mgc && node svgr/after-generate.js",
+    "generate:icons": "svgr --out-dir components/icons --filename-case kebab --jsx-runtime automatic --native --typescript --ref --memo --replace-attr-values '#10161F'='currentColor' --svg-props viewBox='0 0 24 24' --svg-props color='{theme.colors.gray12}' --template svgr/template.js --index-template svgr/index-template.js -- icons/mgc && node svgr/after-generate.js",
     "ios": "expo run:ios --device",
     "lint": "eslint",
     "lint:fix": "eslint --fix",

@@ -1,10 +1,9 @@
 import { useRouter } from 'expo-router'
 import { useAtom } from 'jotai'
-import { Pressable } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
 
 import { flagEntryReadStatus } from '~/api/entry'
-import { Iconify } from '~/components'
+import { IconButton, Iconify } from '~/components'
 import type { TabViewIndex } from '~/store/layout'
 import { viewLayoutMapAtom } from '~/store/layout'
 import { isTablet } from '~/theme/breakpoints'
@@ -71,21 +70,21 @@ function ViewActionsTablet({ view }: { view: TabViewIndex }) {
   const router = useRouter()
   return (
     <>
-      <Pressable
+      <IconButton
         onPress={() => {
           flagEntryReadStatus({ view })
             .catch(console.error)
         }}
       >
         <Iconify icon="mgc:check-circle-cute-re" />
-      </Pressable>
-      <Pressable
+      </IconButton>
+      <IconButton
         onPress={() => {
           router.push(`/discover?view=${view}`)
         }}
       >
         <Iconify icon="mgc:add-cute-re" />
-      </Pressable>
+      </IconButton>
     </>
   )
 }

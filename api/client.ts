@@ -41,6 +41,9 @@ export const apiFetch = ofetch.create({
       options.headers = header
     }
   },
+  onResponseError(context) {
+    console.info('onResponseError', context)
+  },
 })
 
 export const apiClient = hc<AppType>('', {

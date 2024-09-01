@@ -1,19 +1,11 @@
-import { atom, getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
+import { getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect } from 'react'
 import { unstable_serialize } from 'swr'
 
 import { db } from '~/db'
-import { showUnreadOnlyAtom } from '~/store/entry'
+import { setUnreadEntryListAtom, showUnreadOnlyAtom, unreadEntryMapAtom } from '~/store/entry'
 
 import { useQuerySubscription } from './use-query-subscription'
-
-const unreadEntryMapAtom = atom<Record<string, Set<string>>>({})
-const setUnreadEntryListAtom = atom(null, (get, set, feedIdList: string[], entryList: string[]) => {
-  set(unreadEntryMapAtom, {
-    ...get(unreadEntryMapAtom),
-    [unstable_serialize(feedIdList)]: new Set(entryList),
-  })
-})
 
 export function useEntryList(
   feedIdList: string[],

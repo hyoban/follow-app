@@ -1,5 +1,5 @@
-import type { PressableProps, ViewProps } from 'react-native'
-import { ActivityIndicator, Pressable } from 'react-native'
+import type { PressableProps, TouchableOpacityProps, ViewProps } from 'react-native'
+import { ActivityIndicator, Pressable, TouchableOpacity, View } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import type { Color, Radius, ThemeColorKey } from '~/theme'
@@ -96,3 +96,19 @@ const styleSheet = createStyleSheet(theme => ({
     }
   },
 }))
+
+export type IconButtonProps = TouchableOpacityProps & { size?: number }
+
+export function IconButton({
+  size = 24,
+  children,
+  ...rest
+}: IconButtonProps) {
+  return (
+    <TouchableOpacity {...rest}>
+      <View style={{ width: size, height: size }}>
+        {children}
+      </View>
+    </TouchableOpacity>
+  )
+}

@@ -1,23 +1,22 @@
-import { useAtom } from 'jotai'
+import { useAtom, useSetAtom } from 'jotai'
+import { useCallback } from 'react'
 
-import { showUnreadOnlyAtom } from '~/store/entry'
+import { cleanUnreadEntryListAtom, showUnreadOnlyAtom } from '~/store/entry'
 
-import { Iconify } from './icon'
+import { IconButton } from './button'
+import { IconRoundCuteFi, IconRoundCuteRe } from './icons'
 
 export function UnreadFilter() {
+  const cleanUnreadEntryList = useSetAtom(cleanUnreadEntryListAtom)
   const [showUnreadOnly, setUnreadOnly] = useAtom(showUnreadOnlyAtom)
+  const toggleShowUnreadOnly = useCallback(() => {
+    setUnreadOnly(i => !i)
+    cleanUnreadEntryList()
+  }, [cleanUnreadEntryList, setUnreadOnly])
 
-  return showUnreadOnly
-    ? (
-        <Iconify
-          icon="mgc:round-cute-fi"
-          onPress={() => { setUnreadOnly(i => !i) }}
-        />
-      )
-    : (
-        <Iconify
-          icon="mgc:round-cute-re"
-          onPress={() => { setUnreadOnly(i => !i) }}
-        />
-      )
+  return (
+    <IconButton onPress={toggleShowUnreadOnly}>
+      {showUnreadOnly ? <IconRoundCuteFi /> : <IconRoundCuteRe />}
+    </IconButton>
+  )
 }
