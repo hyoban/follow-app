@@ -95,7 +95,7 @@ function Dot({ show, size = 8 }: { show: boolean, size?: number }) {
 
 const leftActionStyles = createStyleSheet(theme => ({
   leftAction: {
-    backgroundColor: theme.colors.gray10,
+    backgroundColor: theme.colors.gray3,
     justifyContent: 'center',
     alignItems: 'center',
     width: 80,
@@ -133,8 +133,8 @@ function LeftAction({
 }
 
 const rightActionStyles = createStyleSheet(theme => ({
-  leftAction: {
-    backgroundColor: theme.colors.accent10,
+  rightAction: {
+    backgroundColor: theme.colors.orange9,
     justifyContent: 'center',
     alignItems: 'center',
     width: 80,
@@ -156,7 +156,7 @@ function RightAction({
 }) {
   const bottomSheetModalRef = useRef<BottomSheetModal>(null)
 
-  const { styles } = useStyles(rightActionStyles)
+  const { styles, theme } = useStyles(rightActionStyles)
   const styleAnimation = useAnimatedStyle(() => ({
     transform: [{ translateX: drag.value + 80 }],
   }))
@@ -164,14 +164,14 @@ function RightAction({
   return (
     <>
       <AnimatedPressable
-        style={[styleAnimation, styles.leftAction]}
+        style={[styleAnimation, styles.rightAction]}
         onPress={() => {
           onPress?.()
           swipeableRef?.current?.close()
           bottomSheetModalRef.current?.present()
         }}
       >
-        <Iconify icon="mgc:power-outline" />
+        <Iconify icon="mgc:power-outline" color={theme.colors.orangeContrast} />
       </AnimatedPressable>
       <TipPowerBottomSheet
         entry={entry}
