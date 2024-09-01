@@ -1,5 +1,6 @@
 import type { ViewProps, ViewStyle } from 'react-native'
 import { View } from 'react-native'
+import { useStyles } from 'react-native-unistyles'
 
 import type { CommonProps } from './layout'
 
@@ -50,6 +51,7 @@ export function Flex({
   style,
   ...rest
 }: FlexProps) {
+  const { theme } = useStyles()
   return (
     <View
       style={{
@@ -84,7 +86,13 @@ export function Flex({
         minHeight,
         maxHeight,
 
-        backgroundColor: bg,
+        backgroundColor: bg === 'app'
+          ? theme.colors.gray1
+          : bg === 'subtle'
+            ? theme.colors.gray2
+            : bg === 'component'
+              ? theme.colors.gray3
+              : bg,
 
         ...(typeof style === 'object' ? style : {}),
       }}
@@ -102,5 +110,5 @@ export function Column(props: Omit<FlexProps, 'direction'>) {
 }
 
 export function Container(props: FlexProps) {
-  return <Flex w="100%" h="100%" bg="app" {...props} />
+  return <Flex w="100%" h="100%" {...props} />
 }

@@ -45,7 +45,7 @@ export default function TabLayout() {
             tabBarBadgeStyle: {
               transform: [
                 { scale: isTablet(breakpoint) ? 0.8 : 0.4 },
-                { translateX: isTablet(breakpoint) ? -35 : 0 },
+                { translateX: isTablet(breakpoint) ? -40 : 0 },
               ],
             },
           }}

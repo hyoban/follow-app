@@ -2,29 +2,24 @@ import '../theme/unistyles'
 
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { PortalProvider } from '@gorhom/portal'
-import type { Theme as NavigationTheme } from '@react-navigation/native'
 import { ThemeProvider } from '@react-navigation/native'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { useFonts } from 'expo-font'
-import * as NavigationBar from 'expo-navigation-bar'
 import { Slot } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
-import { useAtomValue } from 'jotai'
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
-import { Appearance, AppState, Platform, useColorScheme } from 'react-native'
+import { AppState } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ToastProvider } from 'react-native-toast-notifications'
-import { UnistylesRuntime, useInitialTheme, useStyles } from 'react-native-unistyles'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
-import { accentColorAtom, userThemeAtom } from '~/store/theme'
-import { getAccentColor } from '~/theme'
+import { useTheme } from '~/hooks/use-theme'
 
 export const unstable_settings = {
   // Ensure that reloading on `/settings` keeps a back button present.
@@ -40,82 +35,9 @@ SplashScreen.preventAutoHideAsync()
   .catch(console.error)
 
 export default function Root() {
-  const userTheme = useAtomValue(userThemeAtom)
-  const colorScheme = useColorScheme()
-  useInitialTheme(userTheme === 'system' ? colorScheme === 'dark' ? 'dark' : 'light' : userTheme)
-  useEffect(() => {
-    if (userTheme === 'system') {
-      Appearance.setColorScheme(null)
-      UnistylesRuntime.setTheme(colorScheme === 'dark' ? 'dark' : 'light')
-      return
-    }
-    Appearance.setColorScheme(userTheme)
-    UnistylesRuntime.setTheme(userTheme)
-  }, [colorScheme, userTheme])
-
-  const selectedAccentColor = useAtomValue(accentColorAtom)
-  useEffect(() => {
-    const { accent, accentA, accentDark, accentDarkA } = getAccentColor(selectedAccentColor);
-    (['light', 'dark'] as const).forEach((themeName) => {
-      UnistylesRuntime.updateTheme(
-        themeName,
-        oldTheme => ({
-          ...oldTheme,
-          colors: {
-            ...oldTheme.colors,
-            ...accent,
-            ...accentA,
-            ...accentDark,
-            ...accentDarkA,
-          },
-        }),
-      )
-    })
-  }, [selectedAccentColor])
+  const { navigationTheme } = useTheme()
 
   const { success, error } = useMigrations(db, migrations)
-  const { theme } = useStyles()
-  const navigationTheme = useMemo<NavigationTheme>(() => {
-    if (colorScheme === 'dark') {
-      return {
-        dark: true,
-        colors: {
-          notification: 'rgb(255, 69, 58)',
-          background: theme.colors.gray1,
-          card: theme.colors.gray2,
-          primary: theme.colors.accent9,
-          text: theme.colors.gray12,
-          border: theme.colors.gray6,
-        },
-      }
-    }
-    return {
-      dark: false,
-      colors: {
-        notification: 'rgb(255, 59, 48)',
-        background: theme.colors.gray1,
-        card: theme.colors.gray2,
-        primary: theme.colors.accent9,
-        text: theme.colors.gray12,
-        border: theme.colors.gray6,
-      },
-    }
-  }, [
-    colorScheme,
-    theme.colors.accent9,
-    theme.colors.gray1,
-    theme.colors.gray12,
-    theme.colors.gray2,
-    theme.colors.gray6,
-  ])
-
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      void NavigationBar.setPositionAsync('absolute')
-      void NavigationBar.setBackgroundColorAsync(theme.colors.gray2)
-      void NavigationBar.setButtonStyleAsync(UnistylesRuntime.colorScheme === 'light' ? 'dark' : 'light')
-    }
-  }, [theme.colors.gray2])
 
   const [fontLoaded, loadFontError] = useFonts({
     'SNPro-Black': ('./font/sn-pro/SNPro-Black.otf'),
