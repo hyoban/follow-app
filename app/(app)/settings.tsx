@@ -59,9 +59,6 @@ function Appearance() {
               value => setUserTheme(value ? 'system' : colorScheme === 'dark' ? 'dark' : 'light')
             }
             trackColor={{ true: theme.colors.accent9 }}
-            style={{
-              transform: [{ scale: 0.8 }],
-            }}
           />
         </Row>
         {userTheme !== 'system' && (
@@ -75,9 +72,6 @@ function Appearance() {
                   value => setUserTheme(value ? 'dark' : 'light')
                 }
                 trackColor={{ true: theme.colors.accent9 }}
-                style={{
-                  transform: [{ scale: 0.8 }],
-                }}
               />
             </Row>
           </>
@@ -160,9 +154,6 @@ function General() {
                 setMarkAsReadOnScroll(value)
               }}
               trackColor={{ true: theme.colors.accent9 }}
-              style={{
-                transform: [{ scale: 0.8 }],
-              }}
             />
           </Row>
           <Text contrast="low" size={14}>Automatically mark entries as read when scrolled out of the view.</Text>
@@ -186,7 +177,7 @@ const styleSheet = createStyleSheet(theme => ({
   section: {
     backgroundColor: theme.colors.gray2,
     gap: 8,
-    paddingVertical: 8,
+    paddingVertical: 10,
     paddingHorizontal: 12,
     borderRadius: 8,
     borderColor: theme.colors.gray3,

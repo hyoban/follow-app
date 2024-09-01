@@ -54,7 +54,7 @@ export function useTheme() {
         background: theme.colors.gray1,
         border: theme.colors.gray6,
         card: theme.colors.gray2,
-        notification: theme.colors.red9,
+        notification: theme.colors.accent9,
         primary: theme.colors.accent9,
         text: theme.colors.gray12,
       },
@@ -66,7 +66,6 @@ export function useTheme() {
     theme.colors.gray12,
     theme.colors.gray2,
     theme.colors.gray6,
-    theme.colors.red9,
   ])
 
   // handle Android navigation bar
