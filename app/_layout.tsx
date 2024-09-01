@@ -2,7 +2,8 @@ import '../theme/unistyles'
 
 import { BottomSheetModalProvider } from '@gorhom/bottom-sheet'
 import { PortalProvider } from '@gorhom/portal'
-import { DarkTheme, DefaultTheme, ThemeProvider } from '@react-navigation/native'
+import type { Theme as NavigationTheme } from '@react-navigation/native'
+import { ThemeProvider } from '@react-navigation/native'
 import { useMigrations } from 'drizzle-orm/expo-sqlite/migrator'
 import { useDrizzleStudio } from 'expo-drizzle-studio-plugin'
 import { useFonts } from 'expo-font'
@@ -10,7 +11,7 @@ import * as NavigationBar from 'expo-navigation-bar'
 import { Slot } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useAtomValue } from 'jotai'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import type { AppStateStatus } from 'react-native'
 import { Appearance, AppState, Platform, useColorScheme } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
@@ -74,6 +75,39 @@ export default function Root() {
 
   const { success, error } = useMigrations(db, migrations)
   const { theme } = useStyles()
+  const navigationTheme = useMemo<NavigationTheme>(() => {
+    if (colorScheme === 'dark') {
+      return {
+        dark: true,
+        colors: {
+          notification: 'rgb(255, 69, 58)',
+          background: theme.colors.gray1,
+          card: theme.colors.gray2,
+          primary: theme.colors.accent9,
+          text: theme.colors.gray12,
+          border: theme.colors.gray6,
+        },
+      }
+    }
+    return {
+      dark: false,
+      colors: {
+        notification: 'rgb(255, 59, 48)',
+        background: theme.colors.gray1,
+        card: theme.colors.gray2,
+        primary: theme.colors.accent9,
+        text: theme.colors.gray12,
+        border: theme.colors.gray6,
+      },
+    }
+  }, [
+    colorScheme,
+    theme.colors.accent9,
+    theme.colors.gray1,
+    theme.colors.gray12,
+    theme.colors.gray2,
+    theme.colors.gray6,
+  ])
 
   useEffect(() => {
     if (Platform.OS === 'android') {
@@ -152,7 +186,7 @@ export default function Root() {
     >
       <PortalProvider>
         <ToastProvider offsetTop={100} duration={1000} placement="top">
-          <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
+          <ThemeProvider value={navigationTheme}>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <BottomSheetModalProvider>
                 <Slot />

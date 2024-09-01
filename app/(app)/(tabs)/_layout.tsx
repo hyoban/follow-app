@@ -2,7 +2,7 @@ import * as Notifications from 'expo-notifications'
 import { Tabs } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
-import { createStyleSheet, useStyles } from 'react-native-unistyles'
+import { useStyles } from 'react-native-unistyles'
 
 import { syncFeedsEffect } from '~/api/feed'
 import { tabViewList } from '~/consts/view'
@@ -11,7 +11,7 @@ import type { ThemeColorKey } from '~/theme'
 import { isTablet } from '~/theme/breakpoints'
 
 export default function TabLayout() {
-  const { styles, theme, breakpoint } = useStyles(stylesheet)
+  const { theme, breakpoint } = useStyles()
   useAtomValue(syncFeedsEffect)
   const countList = useUnreadCountList()
 
@@ -40,7 +40,6 @@ export default function TabLayout() {
             tabBarIcon: ({ color }) => view.icon(color),
             tabBarActiveTintColor: theme.colors[`${view.color}9` as ThemeColorKey],
             tabBarShowLabel: isTablet(breakpoint),
-            tabBarStyle: styles.tabBar,
             headerShown: false,
             tabBarBadge: countList[view.view] > 0 ? isTablet(breakpoint) ? countList[view.view] : '' : undefined,
             tabBarBadgeStyle: {
@@ -55,13 +54,3 @@ export default function TabLayout() {
     </Tabs>
   )
 }
-
-const stylesheet = createStyleSheet(theme => ({
-  tabBar: {
-    backgroundColor: theme.colors.gray2,
-    borderTopColor: theme.colors.gray6,
-  },
-  title: {
-    color: theme.colors.gray12,
-  },
-}))

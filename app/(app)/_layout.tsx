@@ -125,7 +125,6 @@ export default function RootLayout() {
         name="settings"
         options={{
           title: 'Settings',
-          headerStyle: styles.header,
           headerTitleStyle: styles.title,
         }}
       />
@@ -134,7 +133,6 @@ export default function RootLayout() {
         options={{
           presentation: 'modal',
           title: 'Discover',
-          headerStyle: styles.header,
           headerTitleStyle: styles.title,
         }}
       />
@@ -142,12 +140,8 @@ export default function RootLayout() {
   )
 }
 
-const styleSheet = createStyleSheet(theme => ({
-  header: {
-    backgroundColor: theme.colors.gray2,
-  },
+const styleSheet = createStyleSheet(() => ({
   title: {
-    color: theme.colors.gray12,
     fontFamily: getFontFamily('bold'),
     fontWeight: 'bold',
   },
