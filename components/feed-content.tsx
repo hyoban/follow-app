@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { DimensionValue } from 'react-native'
-import { UnistylesRuntime, useStyles } from 'react-native-unistyles'
+import { useColorScheme } from 'react-native'
+import { useStyles } from 'react-native-unistyles'
 import WebView from 'react-native-webview'
 
 import { simpleCSS } from '~/consts/css'
@@ -10,7 +11,7 @@ export function FeedContent({ html }: { html: string }) {
   const [height, setHeight] = useState<DimensionValue>('auto')
   const { theme } = useStyles()
   const finalHtml = html.replaceAll(/<img src="([^"]+)"/g, (_, src) => `<img src="${replaceImgUrlIfNeed({ url: src, width: 700, height: 0 })}"`)
-
+  const colorScheme = useColorScheme()
   return (
     <WebView
       scrollEnabled={false}
@@ -67,7 +68,7 @@ export function FeedContent({ html }: { html: string }) {
         ${simpleCSS({
           accent: theme.colors.accent9,
           accentHover: theme.colors.accent10,
-          theme: UnistylesRuntime.colorScheme === 'dark' ? 'dark' : 'light',
+          theme: colorScheme === 'dark' ? 'dark' : 'light',
         })}
       </style>
   </head>
