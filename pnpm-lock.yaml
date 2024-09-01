@@ -4,14 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-patchedDependencies:
-  hono@4.5.1:
-    hash: q3aeuaptngkxz7mmr7ddabp5zu
-    path: patches/hono@4.5.1.patch
-  ofetch@1.3.4:
-    hash: 44522uqiiqtikwbs5kysvu6y4u
-    path: patches/ofetch@1.3.4.patch
-
 importers:
 
   .:
@@ -118,9 +110,6 @@ importers:
       linkedom:
         specifier: ^0.18.4
         version: 0.18.4
-      ofetch:
-        specifier: ^1.3.4
-        version: 1.3.4(patch_hash=44522uqiiqtikwbs5kysvu6y4u)
       react:
         specifier: 18.2.0
         version: 18.2.0
@@ -223,7 +212,7 @@ importers:
         version: 3.1.4(@typescript-eslint/eslint-plugin@8.3.0(@typescript-eslint/parser@8.3.0(eslint@9.9.1(jiti@1.21.6))(typescript@5.5.4))(eslint@9.9.1(jiti@1.21.6))(typescript@5.5.4))(eslint@9.9.1(jiti@1.21.6))(tailwindcss@3.4.6(ts-node@10.9.2(@types/node@20.14.11)(typescript@5.5.4)))(typescript@5.5.4)
       hono:
         specifier: ^4.5.1
-        version: 4.5.1(patch_hash=q3aeuaptngkxz7mmr7ddabp5zu)
+        version: 4.5.1
       lint-staged:
         specifier: ^15.2.9
         version: 15.2.9
@@ -3052,9 +3041,6 @@ packages:
     resolution: {integrity: sha512-g7nH6P6dyDioJogAAGprGpCtVImJhpPk/roCzdb3fIh61/s/nPsfR6onyMwkCAR/OlC3yBC0lESvUoQEAssIrw==}
     engines: {node: '>= 0.8'}
 
-  destr@2.0.3:
-    resolution: {integrity: sha512-2N3BOUU4gYMpTP24s5rF5iP7BDr7uNTCs4ozw3kf/eKfvWSIu93GEBi5m427YoyJoeOzQ5smuu4nNAPGb8idSQ==}
-
   destroy@1.2.0:
     resolution: {integrity: sha512-2sJGJTaXIIaR1w4iJSNoN0hnMY7Gpc/n8D4qSCJw8QqFWXf7cuAgnEHxBpweaVcPevC2l3KpjYCx3NypQQgaJg==}
     engines: {node: '>= 0.8', npm: 1.2.8000 || >= 1.4.16}
@@ -5012,9 +4998,6 @@ packages:
     resolution: {integrity: sha512-tmPX422rYgofd4epzrNoOXiE8XFZYOcCq1vD7MAXCDO+O+zndlA2ztdKKMa+EeuBG5tHETpr4ml4RGgpqDCCAg==}
     engines: {node: '>= 0.10.5'}
 
-  node-fetch-native@1.6.4:
-    resolution: {integrity: sha512-IhOigYzAKHd244OC0JIMIUrjzctirCmPkaIfhDeGcEETWof5zKYUW7e7MYvChGWh/4CJeXEgsRyGzuF334rOOQ==}
-
   node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
     engines: {node: 4.x || >=6.0.0}
@@ -5100,9 +5083,6 @@ packages:
   object.assign@4.1.5:
     resolution: {integrity: sha512-byy+U7gp+FVwmyzKPYhW2h5l3crpmGsxl7X2s8y43IgxvG4g3QZ6CffDtsNQy1WsmZpQbO+ybo0AlW7TY6DcBQ==}
     engines: {node: '>= 0.4'}
-
-  ofetch@1.3.4:
-    resolution: {integrity: sha512-KLIET85ik3vhEfS+3fDlc/BAZiAp+43QEC/yCo5zkNoY2YaKvNkOaFr/6wCFgFH1kuYQM5pMNi0Tg8koiIemtw==}
 
   on-finished@2.3.0:
     resolution: {integrity: sha512-ikqdkGAAyf/X/gPhXGvfgAytDZtDbr+bkNUJ0N9h5MI/dmdgCs3l6hoHrcUv41sRKew3jIwrp4qQDXiK99Utww==}
@@ -10382,8 +10362,6 @@ snapshots:
 
   depd@2.0.0: {}
 
-  destr@2.0.3: {}
-
   destroy@1.2.0: {}
 
   detect-indent@6.1.0: {}
@@ -11700,7 +11678,7 @@ snapshots:
     dependencies:
       react-is: 16.13.1
 
-  hono@4.5.1(patch_hash=q3aeuaptngkxz7mmr7ddabp5zu): {}
+  hono@4.5.1: {}
 
   hosted-git-info@2.8.9: {}
 
@@ -12700,8 +12678,6 @@ snapshots:
     dependencies:
       minimatch: 3.1.2
 
-  node-fetch-native@1.6.4: {}
-
   node-fetch@2.7.0:
     dependencies:
       whatwg-url: 5.0.0
@@ -12777,12 +12753,6 @@ snapshots:
       define-properties: 1.2.1
       has-symbols: 1.0.3
       object-keys: 1.1.1
-
-  ofetch@1.3.4(patch_hash=44522uqiiqtikwbs5kysvu6y4u):
-    dependencies:
-      destr: 2.0.3
-      node-fetch-native: 1.6.4
-      ufo: 1.5.4
 
   on-finished@2.3.0:
     dependencies:
