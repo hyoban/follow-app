@@ -26,7 +26,7 @@ export function TipPowerBottomSheet({
   const { user: currentUser } = useCurrentUser()
   const { data: wallet } = useSWR(
     currentUser ? ['wallet', currentUser.id] : null,
-    () => apiClient.wallets.$get({ query: { userId: currentUser!.id } }),
+    async () => (await apiClient.wallets.$get({ query: { userId: currentUser!.id } })).json(),
   )
   const myWalletData = wallet?.data?.[0]
   const dPowerBigInt = BigInt(myWalletData?.dailyPowerToken ?? 0)
@@ -36,7 +36,7 @@ export function TipPowerBottomSheet({
 
   const { data: ownerProfile, isLoading } = useSWR(
     ownerUserId ? ['profile', ownerUserId] : null,
-    () => apiClient.profiles.$get({ query: { id: ownerUserId! } }),
+    async () => (await apiClient.profiles.$get({ query: { id: ownerUserId! } })).json(),
   )
 
   const {
@@ -46,14 +46,13 @@ export function TipPowerBottomSheet({
     reset,
   } = useSWRMutation(
     ['tip', entry.id],
-    () =>
-      apiClient.wallets.transactions.tip.$post({
-        json: {
-          amount: String(amountBigInt),
-          feedId: entry.feedId,
-          userId: entry.feed.ownerUserId ?? undefined,
-        },
-      }),
+    async () => (await apiClient.wallets.transactions.tip.$post({
+      json: {
+        amount: String(amountBigInt),
+        feedId: entry.feedId,
+        userId: entry.feed.ownerUserId ?? undefined,
+      },
+    })).json(),
   )
   const isTipSuccess = !!tipResult?.data.transactionHash
 

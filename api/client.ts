@@ -40,6 +40,6 @@ export const apiClient = hc<AppType>(process.env.EXPO_PUBLIC_FOLLOW_API_URL, {
     options.headers = header
     options.credentials = 'omit'
 
-    return (await fetch(input, options)).json()
+    return fetch(input, options)
   },
 })

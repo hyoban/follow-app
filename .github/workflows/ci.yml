@@ -14,15 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-      - uses: actions/setup-node@v4
-        with:
-          node-version: lts/*
-          cache: pnpm
+      - uses: oven-sh/setup-bun@v2
 
-      - run: pnpm i -g @antfu/ni
-      - run: nci
-      - run: nr lint
-      - run: nr typecheck
+      - run: bun install
+      - run: bun run lint
+      - run: bun run typecheck

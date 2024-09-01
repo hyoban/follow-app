@@ -248,7 +248,7 @@ export default function Page() {
 
   const { data: readHistories } = useSWR(
     ['entry-read-histories', entryId],
-    () => apiClient.entries['read-histories'][entryId]?.$get?.().then(res => res.data as EntryReadHistories),
+    async () => (await apiClient.entries['read-histories'][entryId]?.$get?.())?.json().then(res => (res as any).data as EntryReadHistories),
   )
 
   useEffect(
@@ -406,7 +406,7 @@ function MainContentScrollView({
   const { theme } = useStyles()
   const { data: summary } = useSWR(
     ['entry-summary', entry.id],
-    () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
+    async () => (await apiClient.ai.summary.$get({ query: { id: entry.id } })).json(),
     {
       dedupingInterval: 1000 * 60 * 10,
     },

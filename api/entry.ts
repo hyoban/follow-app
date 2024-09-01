@@ -1,5 +1,6 @@
 import { isBefore, subMinutes } from 'date-fns'
 import { and, eq, inArray, sql } from 'drizzle-orm'
+import type { InferRequestType } from 'hono/client'
 import { getDefaultStore } from 'jotai'
 
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
@@ -10,12 +11,11 @@ import type { TabViewIndex } from '~/store/layout'
 
 import { apiClient } from './client'
 
-type InferRequestType<T> = T extends (args: infer R, options: any | undefined) => Promise<unknown> ? NonNullable<R> : never
 type GetEntriesProps = InferRequestType<typeof apiClient.entries.$post>['json']
 export async function getEntries(
   props?: GetEntriesProps,
 ) {
-  const entries = await apiClient.entries.$post({ json: { ...props } })
+  const entries = await (await apiClient.entries.$post({ json: { ...props } })).json()
   return entries.data?.map(entry => ({
     ...entry,
     ...entry.entries,
@@ -205,8 +205,7 @@ export async function flagEntryReadStatus({
 export async function loadEntryContent(
   entryId: string,
 ) {
-  const res = await apiClient.entries
-    .$get({ query: { id: entryId } })
+  const res = await (await apiClient.entries.$get({ query: { id: entryId } })).json()
   return await db.update(entries)
     .set({ content: res.data?.entries.content })
     .where(eq(entries.id, entryId))

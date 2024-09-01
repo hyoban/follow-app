@@ -15,7 +15,7 @@ export async function createFeed(
   feed: Omit<Feed, 'unread' | 'view' | 'category' | 'isPrivate'>,
   options: { view: TabViewIndex, category: string, isPrivate: boolean },
 ) {
-  const reads = await apiClient.reads.$get({ query: {} })
+  const reads = await (await apiClient.reads.$get({ query: {} })).json()
   const feedWithUnread: Feed = {
     ...feed,
     unread: reads.data[feed.id] ?? 0,
@@ -33,8 +33,8 @@ export async function deleteFeed(feedId: string) {
 }
 
 export async function getFeeds(): Promise<Feed[]> {
-  const subscriptions = await apiClient.subscriptions.$get({ query: {} })
-  const reads = await apiClient.reads.$get({ query: {} })
+  const subscriptions = await (await apiClient.subscriptions.$get({ query: {} })).json()
+  const reads = await (await apiClient.reads.$get({ query: {} })).json()
 
   return subscriptions.data.map(subscription => ({
     ...subscription,
