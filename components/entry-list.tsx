@@ -542,7 +542,6 @@ export function EntryList({
       <RefreshIndicator
         feedIdList={feedIdList}
         onRefresh={() => refresh({ updateLimit: 'reset' })}
-        cursor={lastItemPublishedAt.current}
       />
     </>
   )

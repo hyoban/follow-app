@@ -13,11 +13,9 @@ import { Iconify, Row, Text } from '.'
 export function RefreshIndicator({
   feedIdList,
   onRefresh,
-  cursor,
 }: {
   feedIdList: string[]
   onRefresh: () => void
-  cursor?: string
 }) {
   const { theme } = useStyles()
   const headerHeight = useHeaderHeight()
@@ -34,25 +32,25 @@ export function RefreshIndicator({
     ['latestData', { feedIdList }],
   )
 
-  const { data: hasNew } = useSWR(
+  const { data: hasNew, mutate } = useSWR(
     feedIdList?.length > 0
       ? ['check-new', feedIdList, latestData?.insertedAt]
       : null,
     async () => {
       const { data } = await (
         // @ts-expect-error
-        apiClient.entries['check-new'].$get({
+        await apiClient.entries['check-new'].$get({
           query: {
             ...(feedIdList.length > 1 ? { feedIdList } : { feedId: feedIdList[0] }),
             insertedAfter: Date.parse(latestData?.insertedAt ?? (new Date()).toISOString()),
           },
-        }) as Promise<{ data: { has_new: boolean, lastest_at?: string } }>
-      )
+        })
+      ).json() as { data: { has_new: boolean, lastest_at?: string } }
       return data.has_new ?? false
     },
   )
 
-  if (!cursor || !hasNew)
+  if (!hasNew)
     return null
 
   return (
@@ -71,7 +69,11 @@ export function RefreshIndicator({
       }}
     >
       <Pressable
-        onPress={() => { onRefresh() }}
+        onPress={() => {
+          onRefresh()
+          mutate(false)
+            .catch(console.error)
+        }}
       >
         <Row
           bg={theme.colors.accent9}
