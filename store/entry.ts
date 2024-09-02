@@ -10,6 +10,15 @@ export const setUnreadEntryListAtom = atom(null, (get, set, feedIdList: string[]
     [unstable_serialize(feedIdList)]: new Set(entryList),
   })
 })
+export const addUnreadEntryListAtom = atom(null, (get, set, feedIdList: string[], entryList: string[]) => {
+  set(unreadEntryMapAtom, {
+    ...get(unreadEntryMapAtom),
+    [unstable_serialize(feedIdList)]: new Set([
+      ...get(unreadEntryMapAtom)[unstable_serialize(feedIdList)] || [],
+      ...entryList,
+    ]),
+  })
+})
 export const cleanUnreadEntryListAtom = atom(null, (_get, set) => {
   set(unreadEntryMapAtom, {})
 })

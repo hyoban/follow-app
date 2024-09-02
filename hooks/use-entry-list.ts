@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { unstable_serialize } from 'swr'
 
 import { db } from '~/db'
-import { setUnreadEntryListAtom, showUnreadOnlyAtom, unreadEntryMapAtom } from '~/store/entry'
+import { addUnreadEntryListAtom, setUnreadEntryListAtom, showUnreadOnlyAtom, unreadEntryMapAtom } from '~/store/entry'
 
 import { useQuerySubscription } from './use-query-subscription'
 
@@ -27,7 +27,15 @@ export function useEntryList(
     {
       afterRevalidate(data) {
         const showUnreadOnly = getDefaultStore().get(showUnreadOnlyAtom)
-        if (!showUnreadOnly && data) {
+        if (!data)
+          return
+        if (showUnreadOnly) {
+          addUnreadItems(
+            feedIdList,
+            data.filter(i => !i.read).map(i => i.id),
+          )
+        }
+        else {
           setUnreadItems(
             feedIdList,
             data.filter(i => !i.read).map(i => i.id),
@@ -39,6 +47,7 @@ export function useEntryList(
 
   const unreadEntryMap = useAtomValue(unreadEntryMapAtom)
   const setUnreadItems = useSetAtom(setUnreadEntryListAtom)
+  const addUnreadItems = useSetAtom(addUnreadEntryListAtom)
   const unreadItems = unreadEntryMap[unstable_serialize(feedIdList)]
 
   useEffect(() => {
