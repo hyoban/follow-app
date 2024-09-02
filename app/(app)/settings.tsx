@@ -1,8 +1,8 @@
 import { useAtom, useSetAtom } from 'jotai'
-import { ScrollView, Switch, useColorScheme } from 'react-native'
+import { ScrollView, useColorScheme } from 'react-native'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
-import { Button, Column, Container, Divider, Iconify, Row, Text, TextButton } from '~/components'
+import { Button, Column, Container, Divider, Iconify, Row, Switch, Text, TextButton } from '~/components'
 import { Image } from '~/components/image'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { useLogOut } from '~/hooks/use-log-out'
@@ -39,7 +39,7 @@ function ThemeSwitcher() {
 }
 
 function Appearance() {
-  const { styles, theme } = useStyles(styleSheet)
+  const { styles } = useStyles(styleSheet)
   const [userTheme, setUserTheme] = useAtom(userThemeAtom)
   const colorScheme = useColorScheme()
   return (
@@ -58,7 +58,6 @@ function Appearance() {
             onValueChange={
               value => setUserTheme(value ? 'system' : colorScheme === 'dark' ? 'dark' : 'light')
             }
-            trackColor={{ true: theme.colors.accent9 }}
           />
         </Row>
         {userTheme !== 'system' && (
@@ -71,7 +70,6 @@ function Appearance() {
                 onValueChange={
                   value => setUserTheme(value ? 'dark' : 'light')
                 }
-                trackColor={{ true: theme.colors.accent9 }}
               />
             </Row>
           </>
@@ -132,7 +130,7 @@ function UserInfo() {
 }
 
 function General() {
-  const { styles, theme } = useStyles(styleSheet)
+  const { styles } = useStyles(styleSheet)
   const [markAsReadOnScroll, setMarkAsReadOnScroll] = useAtom(markAsReadOnScrollAtom)
 
   return (
@@ -153,7 +151,6 @@ function General() {
               onValueChange={(value) => {
                 setMarkAsReadOnScroll(value)
               }}
-              trackColor={{ true: theme.colors.accent9 }}
             />
           </Row>
           <Text contrast="low" size={14}>Automatically mark entries as read when scrolled out of the view.</Text>
