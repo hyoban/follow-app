@@ -1,14 +1,20 @@
 import { useHeaderHeight } from '@react-navigation/elements'
+import { useAtomValue } from 'jotai'
+import { useEffect } from 'react'
 import { Platform, Pressable } from 'react-native'
-import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated'
+import Animated, { Easing, FadeInUp, FadeOutUp, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
 
 import { apiClient } from '~/api/client'
 import { db } from '~/db'
 import { useQuerySubscription } from '~/hooks/use-query-subscription'
+import { isUpdatingEntryAtom } from '~/store/loading'
 
 import { Iconify, Row, Text } from '.'
+
+const duration = 2000
+const easing = Easing.bezier(0.25, -0.5, 0.25, 1)
 
 export function RefreshIndicator({
   feedIdList,
@@ -17,6 +23,7 @@ export function RefreshIndicator({
   feedIdList: string[]
   onRefresh: () => void
 }) {
+  const isUpdating = useAtomValue(isUpdatingEntryAtom)
   const { theme } = useStyles()
   const headerHeight = useHeaderHeight()
 
@@ -32,7 +39,7 @@ export function RefreshIndicator({
     ['latestData', { feedIdList }],
   )
 
-  const { data: hasNew, mutate } = useSWR(
+  const { data: hasNew } = useSWR(
     feedIdList?.length > 0
       ? ['check-new', feedIdList, latestData?.insertedAt]
       : null,
@@ -49,6 +56,15 @@ export function RefreshIndicator({
       return data.has_new ?? false
     },
   )
+  const sv = useSharedValue<number>(0)
+
+  useEffect(() => {
+    sv.value = withRepeat(withTiming(1, { duration, easing }), -1)
+  }, [])
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: `${sv.value * 360}deg` }],
+  }))
 
   if (!hasNew)
     return null
@@ -68,13 +84,7 @@ export function RefreshIndicator({
         zIndex: 999,
       }}
     >
-      <Pressable
-        onPress={() => {
-          onRefresh()
-          mutate(false)
-            .catch(console.error)
-        }}
-      >
+      <Pressable onPress={() => { onRefresh() }}>
         <Row
           bg={theme.colors.accent9}
           style={{ borderRadius: 9999 }}
@@ -83,11 +93,21 @@ export function RefreshIndicator({
           gap={6}
           align="center"
         >
-          <Iconify
-            icon="mingcute:arrow-up-fill"
-            size={14}
-            color={theme.colors.accentContrast}
-          />
+          {isUpdating ? (
+            <Animated.View style={animatedStyle}>
+              <Iconify
+                icon="mgc:loading-3-cute-re"
+                size={16}
+                color={theme.colors.accentContrast}
+              />
+            </Animated.View>
+          ) : (
+            <Iconify
+              icon="mingcute:arrow-up-fill"
+              size={16}
+              color={theme.colors.accentContrast}
+            />
+          )}
           <Text size={12} weight="600" color="accentContrast">
             Refresh to see new entries
           </Text>

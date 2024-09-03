@@ -8,6 +8,7 @@ import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
 import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
+import { isUpdatingEntryAtom } from '~/store/loading'
 
 import { apiClient } from './client'
 
@@ -82,34 +83,40 @@ export async function checkNotExistEntries({
   end?: string
 }) {
   const store = getDefaultStore()
+  store.set(isUpdatingEntryAtom, true)
 
-  const readOnly = store.get(showUnreadOnlyAtom)
-  console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly)
-  let entriesFromApi = await getEntries({
-    feedIdList,
-    publishedAfter: start,
-    read: readOnly ? false : undefined,
-    limit: FETCH_PAGE_SIZE,
-  })
-  if (end && entriesFromApi.at(-1)?.publishedAt) {
-    while (isBefore(subMinutes(end, 1), entriesFromApi.at(-1)!.publishedAt)) {
-      console.info('fetch next page', entriesFromApi.at(-1)!.publishedAt)
-      const newEntries = await getEntries({
-        feedIdList,
-        publishedAfter: entriesFromApi.at(-1)!.publishedAt,
-        read: readOnly ? false : undefined,
-        limit: FETCH_PAGE_SIZE,
-      })
-      if (newEntries.length === 0) {
-        break
+  try {
+    const readOnly = store.get(showUnreadOnlyAtom)
+    console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly)
+    let entriesFromApi = await getEntries({
+      feedIdList,
+      publishedAfter: start,
+      read: readOnly ? false : undefined,
+      limit: FETCH_PAGE_SIZE,
+    })
+    if (end && entriesFromApi.at(-1)?.publishedAt) {
+      while (isBefore(subMinutes(end, 1), entriesFromApi.at(-1)!.publishedAt)) {
+        console.info('fetch next page', entriesFromApi.at(-1)!.publishedAt)
+        const newEntries = await getEntries({
+          feedIdList,
+          publishedAfter: entriesFromApi.at(-1)!.publishedAt,
+          read: readOnly ? false : undefined,
+          limit: FETCH_PAGE_SIZE,
+        })
+        if (newEntries.length === 0) {
+          break
+        }
+        entriesFromApi = entriesFromApi.concat(newEntries)
       }
-      entriesFromApi = entriesFromApi.concat(newEntries)
     }
-  }
-  console.info('entriesFromApi', entriesFromApi.length)
-  await createOrUpdateEntriesInDB(entriesFromApi)
+    console.info('entriesFromApi', entriesFromApi.length)
+    await createOrUpdateEntriesInDB(entriesFromApi)
 
-  return entriesFromApi.at(-1)?.publishedAt
+    return entriesFromApi.at(-1)?.publishedAt
+  }
+  finally {
+    store.set(isUpdatingEntryAtom, false)
+  }
 }
 
 export async function fetchAndUpdateEntriesInDB(
