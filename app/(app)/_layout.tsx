@@ -3,15 +3,13 @@ import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
 import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
-import { ActivityIndicator, Platform } from 'react-native'
+import { Platform } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeeds } from '~/api/feed'
-import { Row } from '~/components'
-import { SettingsLink } from '~/components/settings-link'
-import { UnreadFilter } from '~/components/unread-filter'
+import { Row, Text } from '~/components'
 import { ViewActions } from '~/components/view-actions'
 import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
@@ -98,21 +96,16 @@ export default function RootLayout() {
           const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))
           return {
             title: view?.title,
-            headerLeft: () => (
-              <Row gap={18}>
-                <SettingsLink />
-                {isUpdating && <ActivityIndicator />}
-              </Row>
-            ),
-            headerRight: () => (
-              <Row gap={18}>
-                <UnreadFilter />
-                {view?.view !== undefined && <ViewActions view={view.view} />}
-              </Row>
-            ),
-            headerTitleAlign: 'center',
-            headerTitleStyle: styles.title,
-            headerLargeTitleStyle: styles.title,
+            headerTitle(props) {
+              return (
+                <Row flex={1}>
+                  <Text weight="bold">
+                    {isUpdating ? 'Loading...' : props.children}
+                  </Text>
+                </Row>
+              )
+            },
+            headerRight: () => <ViewActions view={view?.view} />,
             headerBlurEffect: 'regular',
             headerTransparent: Platform.select({
               ios: true,
