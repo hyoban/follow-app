@@ -19,7 +19,12 @@ function EntryListContainer() {
   const { data } = useFeedList(viewIndex)
   const feedIdList = useMemo(() => data?.map(i => i.id) ?? [], [data])
   const selectedFeedIdList = useFeedIdListMapStore(state => state.feedIdListMap[viewIndex])
-  return <EntryList feedIdList={selectedFeedIdList.length > 0 ? selectedFeedIdList : feedIdList} />
+  return (
+    <EntryList
+      feedIdList={selectedFeedIdList.length > 0 ? selectedFeedIdList : feedIdList}
+      view={viewIndex}
+    />
+  )
 }
 
 function TabletView() {

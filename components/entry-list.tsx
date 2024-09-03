@@ -409,9 +409,13 @@ const FeedIdList = createContext<{ feedIdList: string[] }>({ feedIdList: [] })
 
 export function EntryList({
   feedIdList,
+  view,
 }: {
   feedIdList: string[]
+  view?: TabViewIndex
 }) {
+  const { view: currentView } = useTabInfo()
+
   const feedIdListRef = useRef(feedIdList)
   useEffect(() => {
     feedIdListRef.current = feedIdList
@@ -460,7 +464,7 @@ export function EntryList({
       },
     )
       .then((publishedAt) => {
-        if (!publishedAt) {
+        if (!publishedAt && view === currentView) {
           Toast.show('No more entries')
           return
         }
@@ -477,7 +481,7 @@ export function EntryList({
       })
     if (updateLimit === 'increase')
       setLimit(limit => limit + FETCH_PAGE_SIZE)
-  }, [data])
+  }, [currentView, data, view])
   const refresh = useCallback((props: { updateLimit: 'increase' | 'reset' }) => {
     setCanLoadMore(false)
     resetCursor()
@@ -495,7 +499,6 @@ export function EntryList({
     }
   }, [feedIdList, refresh])
 
-  const { view } = useTabInfo()
   const { breakpoint } = useStyles()
 
   const markAsReadOnScroll = useAtomValue(markAsReadOnScrollAtom)
