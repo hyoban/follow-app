@@ -5,6 +5,7 @@ import { Divider, IconButton, Iconify, Row } from '~/components'
 import type { TabViewIndex } from '~/store/layout'
 import { viewLayoutMapAtom } from '~/store/layout'
 
+import { AIDaily } from './ai-daily'
 import { MarkAsRead } from './mark-as-read'
 import { SettingsLink } from './settings-link'
 import { UnreadFilter } from './unread-filter'
@@ -19,7 +20,7 @@ export function ViewActions({ view }: { view?: TabViewIndex }) {
 
   return (
     <>
-      <Row gap={18}>
+      <Row gap={14}>
         <IconButton
           onPress={() => {
             setViewLayoutMap((viewLayoutMap) => {
@@ -40,8 +41,9 @@ export function ViewActions({ view }: { view?: TabViewIndex }) {
         <UnreadFilter />
         <MarkAsRead view={view} />
       </Row>
-      <Divider type="vertical" mx={14} />
-      <Row gap={18}>
+      <Divider type="vertical" mx={12} />
+      <Row gap={14}>
+        <AIDaily view={view!} />
         <IconButton
           onPress={() => {
             router.push(`/discover?view=${view}`)

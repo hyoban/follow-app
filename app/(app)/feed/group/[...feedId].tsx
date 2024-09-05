@@ -32,7 +32,7 @@ export default function Page() {
             default: false,
           }),
           headerRight: () => (
-            <Row gap={18}>
+            <Row gap={14}>
               <UnreadFilter />
               <MarkAsRead feedId={feedIdList} closeAfter />
             </Row>
