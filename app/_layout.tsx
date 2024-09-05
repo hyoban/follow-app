@@ -12,11 +12,13 @@ import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
 import { AppState } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
+import { createModalStack, ModalProvider } from 'react-native-modalfy'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { ToastProvider } from 'react-native-toast-notifications'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
+import { AIDailyModal } from '~/components/ai-daily'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
 import { useTheme } from '~/hooks/use-theme'
@@ -33,6 +35,10 @@ function DrizzleStudio() {
 
 SplashScreen.preventAutoHideAsync()
   .catch(console.error)
+
+const stack = createModalStack({
+  AIDailyModal,
+})
 
 export default function Root() {
   const { navigationTheme } = useTheme()
@@ -111,7 +117,9 @@ export default function Root() {
           <ThemeProvider value={navigationTheme}>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <BottomSheetModalProvider>
-                <Slot />
+                <ModalProvider stack={stack}>
+                  <Slot />
+                </ModalProvider>
               </BottomSheetModalProvider>
             </GestureHandlerRootView>
             {__DEV__ && <DrizzleStudio />}

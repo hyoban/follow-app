@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { ScrollView, View } from 'react-native'
 import Markdown from 'react-native-markdown-display'
-import Modal from 'react-native-modal'
+import { useModal } from 'react-native-modalfy'
 import { TabBar, TabView } from 'react-native-tab-view'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
@@ -106,12 +106,13 @@ function AIDailyContent({ view, date }: { view: TabViewIndex, date: DayOf }) {
   )
 }
 
-export function AIDaily({ view }: { view: TabViewIndex }) {
+export function AIDailyModal({ modal }: { modal: { closeModal: () => void, params: { view: TabViewIndex } } }) {
+  const { closeModal } = modal
+  const { view } = modal.params
   const { styles, theme } = useStyles(styleSheet)
 
   const { title: yesterdayTitle } = useParseDailyDate(DayOf.Yesterday)
   const { title: todayTitle } = useParseDailyDate(DayOf.Today)
-  const [modalVisible, setModalVisible] = useState(false)
 
   const [index, setIndex] = useState(0)
   const routes = useMemo(() => [
@@ -120,85 +121,75 @@ export function AIDaily({ view }: { view: TabViewIndex }) {
   ], [todayTitle, yesterdayTitle])
 
   return (
-    <>
-      <Modal isVisible={modalVisible}>
-        <View style={styles.container}>
-          <Column style={styles.modal}>
-            <Row
-              align="center"
-              justify="space-between"
-              px={16}
-              py={12}
-              style={{
-                borderBottomColor: theme.colors.gray3,
-                borderBottomWidth: 1,
-              }}
-            >
-              <Text weight={600}>AI Daily Report</Text>
-              <IconButton
-                onPress={() => {
-                  setModalVisible(false)
-                }}
-              >
-                <IconCloseCuteRe />
-              </IconButton>
-            </Row>
-            <TabView
-              navigationState={{ index, routes }}
-              renderTabBar={props => (
-                <TabBar
-                  {...props}
-                  style={{ backgroundColor: theme.colors.gray2 }}
-                  indicatorStyle={{ backgroundColor: theme.colors.accent9 }}
-                  renderLabel={props => (
-                    <Text
-                      color={props.focused ? theme.colors.accent9 : theme.colors.gray12}
-                      size={16}
-                      weight={600}
-                    >
-                      {props.route.title}
-                    </Text>
-                  )}
-                />
-              )}
-              renderScene={({ route }) => {
-                switch (route.key) {
-                  case 'yesterday': {
-                    return <AIDailyContent view={view} date={DayOf.Yesterday} />
-                  }
-                  case 'today': {
-                    return <AIDailyContent view={view} date={DayOf.Today} />
-                  }
-                  default: {
-                    return null
-                  }
-                }
-              }}
-              onIndexChange={index => setIndex(index)}
-            />
-          </Column>
-        </View>
-      </Modal>
-      <IconButton
-        onPress={() => {
-          setModalVisible(true)
+    <Column style={styles.modal}>
+      <Row
+        align="center"
+        justify="space-between"
+        px={16}
+        py={12}
+        style={{
+          borderBottomColor: theme.colors.gray3,
+          borderBottomWidth: 1,
         }}
       >
-        <IconMagic2CuteRe />
-      </IconButton>
-    </>
+        <Text weight={600}>AI Daily Report</Text>
+        <IconButton
+          onPress={() => { closeModal() }}
+        >
+          <IconCloseCuteRe />
+        </IconButton>
+      </Row>
+      <TabView
+        navigationState={{ index, routes }}
+        renderTabBar={props => (
+          <TabBar
+            {...props}
+            style={{ backgroundColor: theme.colors.gray2 }}
+            indicatorStyle={{ backgroundColor: theme.colors.accent9 }}
+            renderLabel={props => (
+              <Text
+                color={props.focused ? theme.colors.accent9 : theme.colors.gray12}
+                size={16}
+                weight={600}
+              >
+                {props.route.title}
+              </Text>
+            )}
+          />
+        )}
+        renderScene={({ route }) => {
+          switch (route.key) {
+            case 'yesterday': {
+              return <AIDailyContent view={view} date={DayOf.Yesterday} />
+            }
+            case 'today': {
+              return <AIDailyContent view={view} date={DayOf.Today} />
+            }
+            default: {
+              return null
+            }
+          }
+        }}
+        onIndexChange={index => setIndex(index)}
+      />
+    </Column>
+  )
+}
+
+export function AIDaily({ view }: { view?: TabViewIndex }) {
+  const { openModal } = useModal()
+
+  return (
+    <IconButton onPress={() => { openModal('AIDailyModal', { view }) }}>
+      <IconMagic2CuteRe />
+    </IconButton>
   )
 }
 
 const styleSheet = createStyleSheet(theme => ({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
   modal: {
     backgroundColor: theme.colors.gray2,
-    width: '90%',
+    minWidth: 300,
     minHeight: 400,
     borderRadius: 10,
     overflow: 'hidden',
