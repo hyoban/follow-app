@@ -1,6 +1,6 @@
 import type { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { useHeaderHeight } from '@react-navigation/elements'
-import { useScrollToTop } from '@react-navigation/native'
+import { useIsFocused, useScrollToTop } from '@react-navigation/native'
 import type { FlashList } from '@shopify/flash-list'
 import { MasonryFlashList } from '@shopify/flash-list'
 import { formatDistanceToNowStrict } from 'date-fns'
@@ -414,8 +414,6 @@ export function EntryList({
   feedIdList: string[]
   view?: TabViewIndex
 }) {
-  const { view: currentView } = useTabInfo()
-
   const feedIdListRef = useRef(feedIdList)
   useEffect(() => {
     feedIdListRef.current = feedIdList
@@ -454,6 +452,8 @@ export function EntryList({
 
   const [canLoadMore, setCanLoadMore] = useState(true)
 
+  const isFocused = useIsFocused()
+
   const load = useCallback((props: { updateLimit: 'increase' | 'reset' }) => {
     const { updateLimit } = props
     checkNotExistEntries(
@@ -464,7 +464,7 @@ export function EntryList({
       },
     )
       .then((publishedAt) => {
-        if (!publishedAt && view === currentView) {
+        if (!publishedAt && isFocused) {
           Toast.show('No more entries')
           return
         }
@@ -481,7 +481,7 @@ export function EntryList({
       })
     if (updateLimit === 'increase')
       setLimit(limit => limit + FETCH_PAGE_SIZE)
-  }, [currentView, data, view])
+  }, [data, isFocused])
   const refresh = useCallback((props: { updateLimit: 'increase' | 'reset' }) => {
     setCanLoadMore(false)
     resetCursor()
