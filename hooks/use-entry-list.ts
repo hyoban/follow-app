@@ -7,14 +7,19 @@ import { addUnreadEntryListAtom, setUnreadEntryListAtom, showUnreadOnlyAtom, unr
 
 import { useQuerySubscription } from './use-query-subscription'
 
+function isArrayEmpty(arr?: any[]) {
+  return !arr || arr.length === 0
+}
+
 export function useEntryList(
-  feedIdList: string[],
+  feedIdList?: string[],
+  entryIdList?: string[],
 ) {
   const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
   const sub = useQuerySubscription(
     db.query.entries.findMany({
-      where(fields, { inArray }) {
-        return inArray(fields.feedId, feedIdList ?? [])
+      where(fields, { inArray, or }) {
+        return or(inArray(fields.feedId, feedIdList ?? []), inArray(fields.id, entryIdList ?? []))
       },
       orderBy(fields, { desc }) {
         return [desc(fields.publishedAt)]
@@ -27,7 +32,7 @@ export function useEntryList(
     {
       afterRevalidate(data) {
         const showUnreadOnly = getDefaultStore().get(showUnreadOnlyAtom)
-        if (!data)
+        if (!data || !feedIdList)
           return
         if (showUnreadOnly) {
           addUnreadItems(
@@ -51,7 +56,7 @@ export function useEntryList(
   const unreadItems = unreadEntryMap[unstable_serialize(feedIdList)]
 
   useEffect(() => {
-    if (!unreadItems && sub.data) {
+    if (!unreadItems && sub.data && feedIdList) {
       setUnreadItems(
         feedIdList,
         sub.data.filter(i => !i.read).map(i => i.id),
@@ -61,6 +66,6 @@ export function useEntryList(
 
   return {
     ...sub,
-    data: sub.data?.filter(i => !showUnreadOnly || !unreadItems || unreadItems.has(i.id)),
+    data: sub.data?.filter(i => isArrayEmpty(feedIdList) || !showUnreadOnly || !unreadItems || unreadItems.has(i.id)),
   }
 }

@@ -1,6 +1,7 @@
+import { useRouter } from 'expo-router'
 import { useMemo, useState } from 'react'
 import { ScrollView, View } from 'react-native'
-import { useModal } from 'react-native-modalfy'
+import { modalfy, useModal } from 'react-native-modalfy'
 import { TabBar, TabView } from 'react-native-tab-view'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
@@ -91,6 +92,7 @@ function AIDailyContent({ view, date }: { view: TabViewIndex, date: DayOf }) {
       return json.data
     },
   )
+  const router = useRouter()
   return (
     <ScrollView style={styles.content}>
       {isLoading ? (
@@ -100,7 +102,16 @@ function AIDailyContent({ view, date }: { view: TabViewIndex, date: DayOf }) {
           <ActivityIndicator />
         </View>
       ) : (
-        <Markdown>{data ?? ''}</Markdown>
+        <Markdown
+          onLinkPress={(url) => {
+            const { closeAllModals } = modalfy()
+            closeAllModals()
+            router.navigate(`/feed/detail/${url}`)
+            return false
+          }}
+        >
+          {data ?? ''}
+        </Markdown>
       )}
     </ScrollView>
   )
