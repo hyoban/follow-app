@@ -1,7 +1,6 @@
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
-import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
 import { Platform } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
@@ -9,13 +8,12 @@ import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeeds } from '~/api/feed'
-import { Row, Text } from '~/components'
+import { TabHeaderTitle } from '~/components/tab-header-title'
 import { ViewActions } from '~/components/view-actions'
 import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { getFontFamily } from '~/lib/utils'
-import { isUpdatingEntryAtom, isUpdatingFeedAtom } from '~/store/loading'
 
 TrackPlayer.registerPlaybackService(() => async () => {
   TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())
@@ -81,8 +79,6 @@ export default function RootLayout() {
   }, [])
 
   const { styles } = useStyles(styleSheet)
-  const isUpdatingFeed = useAtomValue(isUpdatingFeedAtom)
-  const isUpdatingEntry = useAtomValue(isUpdatingEntryAtom)
 
   const { user } = useCurrentUser()
 
@@ -97,15 +93,7 @@ export default function RootLayout() {
           const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))
           return {
             title: view?.title,
-            headerTitle(props) {
-              return (
-                <Row flex={1}>
-                  <Text weight="bold">
-                    {isUpdatingFeed || isUpdatingEntry ? 'Loading...' : props.children}
-                  </Text>
-                </Row>
-              )
-            },
+            headerTitle: props => <TabHeaderTitle {...props} />,
             headerRight: () => <ViewActions view={view?.view} />,
             headerBlurEffect: 'regular',
             headerTransparent: Platform.select({

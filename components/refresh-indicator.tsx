@@ -1,8 +1,7 @@
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useAtomValue } from 'jotai'
-import { useEffect } from 'react'
 import { Platform, Pressable } from 'react-native'
-import Animated, { Easing, FadeInUp, FadeOutUp, useAnimatedStyle, useSharedValue, withRepeat, withTiming } from 'react-native-reanimated'
+import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
 
@@ -12,9 +11,7 @@ import { useQuerySubscription } from '~/hooks/use-query-subscription'
 import { isUpdatingEntryAtom } from '~/store/loading'
 
 import { Iconify, Row, Text } from '.'
-
-const duration = 2000
-const easing = Easing.bezier(0.25, -0.5, 0.25, 1)
+import { ActivityIndicator } from './activity-indicator'
 
 export function RefreshIndicator({
   feedIdList,
@@ -56,15 +53,6 @@ export function RefreshIndicator({
       return data.has_new ?? false
     },
   )
-  const sv = useSharedValue<number>(0)
-
-  useEffect(() => {
-    sv.value = withRepeat(withTiming(1, { duration, easing }), -1)
-  }, [])
-
-  const animatedStyle = useAnimatedStyle(() => ({
-    transform: [{ rotate: `${sv.value * 360}deg` }],
-  }))
 
   if (!hasNew)
     return null
@@ -94,13 +82,7 @@ export function RefreshIndicator({
           align="center"
         >
           {isUpdating ? (
-            <Animated.View style={animatedStyle}>
-              <Iconify
-                icon="mgc:loading-3-cute-re"
-                size={16}
-                color={theme.colors.accentContrast}
-              />
-            </Animated.View>
+            <ActivityIndicator size={16} color="accent" />
           ) : (
             <Iconify
               icon="mingcute:arrow-up-fill"
