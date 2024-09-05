@@ -11,8 +11,8 @@ import type { TabViewIndex } from '~/store/layout'
 
 import { ActivityIndicator } from './activity-indicator'
 import { IconButton } from './button'
-import { Column } from './flex'
-import { IconMagic2CuteRe } from './icons'
+import { Column, Row } from './flex'
+import { IconCloseCuteRe, IconMagic2CuteRe } from './icons'
 import { Text } from './text'
 
 enum DayOf {
@@ -118,6 +118,25 @@ export function AIDaily({ view }: { view: TabViewIndex }) {
       <Modal isVisible={modalVisible}>
         <View style={styles.container}>
           <Column style={styles.modal}>
+            <Row
+              align="center"
+              justify="space-between"
+              px={16}
+              py={12}
+              style={{
+                borderBottomColor: theme.colors.gray3,
+                borderBottomWidth: 1,
+              }}
+            >
+              <Text weight={600}>AI Daily Report</Text>
+              <IconButton
+                onPress={() => {
+                  setModalVisible(false)
+                }}
+              >
+                <IconCloseCuteRe />
+              </IconButton>
+            </Row>
             <TabView
               navigationState={{ index, routes }}
               renderTabBar={props => (
@@ -186,10 +205,5 @@ const styleSheet = createStyleSheet(theme => ({
     flexDirection: 'row',
     borderBottomColor: theme.colors.gray3,
     borderBottomWidth: 1,
-  },
-  tabItem: {
-    flex: 1,
-    alignItems: 'center',
-    padding: 16,
   },
 }))
