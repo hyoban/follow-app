@@ -17,7 +17,7 @@ export function TabHeaderTitle(props: {
       {isUpdatingFeed || isUpdatingEntry ? (
         <>
           <ActivityIndicator />
-          <Text weight="bold">Loading...</Text>
+          <Text weight="bold">Updating...</Text>
         </>
       ) : (
         <Text weight="bold">{props.children}</Text>
