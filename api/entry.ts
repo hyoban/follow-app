@@ -130,17 +130,19 @@ function toArray(value: string | string[]) {
   return Array.isArray(value) ? value : [value]
 }
 
+export interface FlagEntryReadStatusProps {
+  entryId?: string | string[]
+  feedId?: string | string[]
+  view?: TabViewIndex
+  read?: boolean
+}
+
 export async function flagEntryReadStatus({
   entryId,
   feedId,
   view,
   read = true,
-}: {
-  entryId?: string | string[]
-  feedId?: string | string[]
-  view?: TabViewIndex
-  read?: boolean
-}) {
+}: FlagEntryReadStatusProps) {
   const feedIdList = toArray(feedId ?? [])
   const entryIdList = toArray(entryId ?? [])
   if (feedIdList.length === 0 && entryIdList.length === 0 && view === undefined) {

@@ -1,11 +1,11 @@
 import { useRouter } from 'expo-router'
 import { useAtom } from 'jotai'
 
-import { flagEntryReadStatus } from '~/api/entry'
 import { Divider, IconButton, Iconify, Row } from '~/components'
 import type { TabViewIndex } from '~/store/layout'
 import { viewLayoutMapAtom } from '~/store/layout'
 
+import { MarkAsRead } from './mark-as-read'
 import { SettingsLink } from './settings-link'
 import { UnreadFilter } from './unread-filter'
 
@@ -38,14 +38,7 @@ export function ViewActions({ view }: { view?: TabViewIndex }) {
           }
         </IconButton>
         <UnreadFilter />
-        <IconButton
-          onPress={() => {
-            flagEntryReadStatus({ view })
-              .catch(console.error)
-          }}
-        >
-          <Iconify icon="mgc:check-circle-cute-re" />
-        </IconButton>
+        <MarkAsRead view={view} />
       </Row>
       <Divider type="vertical" mx={14} />
       <Row gap={18}>
