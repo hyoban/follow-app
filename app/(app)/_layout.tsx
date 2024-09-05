@@ -9,6 +9,7 @@ import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeeds } from '~/api/feed'
 import { TabHeaderTitle } from '~/components/tab-header-title'
+import { UserActions } from '~/components/user-actions'
 import { ViewActions } from '~/components/view-actions'
 import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
@@ -93,8 +94,10 @@ export default function RootLayout() {
           const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))
           return {
             title: view?.title,
+            headerLeft: () => <UserActions view={view?.view} />,
             headerTitle: props => <TabHeaderTitle {...props} />,
             headerRight: () => <ViewActions view={view?.view} />,
+            headerTitleAlign: 'center',
             headerBlurEffect: 'regular',
             headerTransparent: Platform.select({
               ios: true,

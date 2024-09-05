@@ -13,7 +13,7 @@ export function TabHeaderTitle(props: {
   const isUpdatingFeed = useAtomValue(isUpdatingFeedAtom)
   const isUpdatingEntry = useAtomValue(isUpdatingEntryAtom)
   return (
-    <Row flex={1} gap={4} align="center">
+    <Row gap={4} align="center">
       {isUpdatingFeed || isUpdatingEntry ? (
         <>
           <ActivityIndicator />
