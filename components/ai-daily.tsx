@@ -92,10 +92,16 @@ function AIDailyContent({ view, date }: { view: TabViewIndex, date: DayOf }) {
     },
   )
   return (
-    <ScrollView
-      style={styles.content}
-    >
-      { isLoading ? <ActivityIndicator /> : <Markdown>{data ?? ''}</Markdown>}
+    <ScrollView style={styles.content}>
+      {isLoading ? (
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
+          <ActivityIndicator />
+        </View>
+      ) : (
+        <Markdown>{data ?? ''}</Markdown>
+      )}
     </ScrollView>
   )
 }
