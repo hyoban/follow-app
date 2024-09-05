@@ -4,6 +4,7 @@ import { Video } from 'expo-av'
 import * as Clipboard from 'expo-clipboard'
 import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-router'
 import * as Sharing from 'expo-sharing'
+import type { InferResponseType } from 'hono/client'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
@@ -22,7 +23,7 @@ import { FeedContent } from '~/components/feed-content'
 import { Image } from '~/components/image'
 import { TipPowerBottomSheet } from '~/components/tip-power-bottom-sheet'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
-import type { Entry, Feed, User } from '~/db/schema'
+import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { openExternalUrl, readability } from '~/lib/utils'
 import { enableReadabilityMapAtom, showFooterAtom, toggleEnableReadabilityMapAtom } from '~/store/entry'
@@ -30,14 +31,9 @@ import { isNotTabletLandscape, isTabletLandscape } from '~/theme/breakpoints'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
-interface EntryReadHistories {
-  users: Record<string, Omit<User, 'emailVerified'>>
-  entryReadHistories: {
-    entryId: string
-    userIds: string[]
-    readCount: number
-  } | null
-}
+type EntryReadHistories = InferResponseType<typeof apiClient.entries.$get>['data']
+type ValueOf<T> = T[keyof T]
+type UserInReadHistories = ValueOf<Exclude<EntryReadHistories, undefined>['users']>
 
 interface EntryFooterNavBarProps {
   entry?: Entry & { feed: Feed }
@@ -75,7 +71,7 @@ const stylesheet = createStyleSheet((theme, runtime) => ({
   }),
 }))
 
-function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> }) {
+function EntryReadUsers({ users }: { users?: UserInReadHistories[] }) {
   const { styles } = useStyles(stylesheet)
   const readUserAvatars = users?.map(i => i?.image).filter(i => i !== null) ?? []
 
@@ -248,7 +244,7 @@ export default function Page() {
 
   const { data: readHistories } = useSWR(
     ['entry-read-histories', entryId],
-    async () => (await apiClient.entries['read-histories'][entryId]?.$get?.())?.json().then(res => (res as any).data as EntryReadHistories),
+    async ([_, id]) => (await (await apiClient.entries.$get({ query: { id } })).json()).data,
   )
 
   useEffect(

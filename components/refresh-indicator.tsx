@@ -42,11 +42,10 @@ export function RefreshIndicator({
       : null,
     async () => {
       const { data } = await (
-        // @ts-expect-error
         await apiClient.entries['check-new'].$get({
           query: {
             ...(feedIdList.length > 1 ? { feedIdList } : { feedId: feedIdList[0] }),
-            insertedAfter: Date.parse(latestData?.insertedAt ?? (new Date()).toISOString()),
+            insertedAfter: String(Date.parse(latestData?.insertedAt ?? (new Date()).toISOString())),
           },
         })
       ).json() as { data: { has_new: boolean, lastest_at?: string } }
