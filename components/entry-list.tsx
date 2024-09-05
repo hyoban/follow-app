@@ -13,7 +13,6 @@ import type { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSw
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
 import type { SharedValue } from 'react-native-reanimated'
 import Reanimated, { useAnimatedStyle } from 'react-native-reanimated'
-import { Toast } from 'react-native-toast-notifications'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 import { unstable_serialize } from 'swr'
@@ -25,6 +24,7 @@ import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
 import { useTabInfo } from '~/hooks/use-tab-info'
+import { toast } from '~/lib/toast'
 import { getDeepLinkUrl, openExternalUrl } from '~/lib/utils'
 import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
@@ -465,7 +465,7 @@ export function EntryList({
     )
       .then((publishedAt) => {
         if (!publishedAt && isFocused) {
-          Toast.show('No more entries')
+          toast('No more entries')
           return
         }
         lastItemPublishedAt.current = publishedAt

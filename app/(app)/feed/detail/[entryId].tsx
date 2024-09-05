@@ -12,7 +12,6 @@ import ContextMenu from 'react-native-context-menu-view'
 import PagerView from 'react-native-pager-view'
 import Animated, { FadeIn, runOnJS, SlideInDown, SlideOutDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Toast } from 'react-native-toast-notifications'
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
 
@@ -25,6 +24,7 @@ import { TipPowerBottomSheet } from '~/components/tip-power-bottom-sheet'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
 import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
+import { toast } from '~/lib/toast'
 import { openExternalUrl, readability } from '~/lib/utils'
 import { enableReadabilityMapAtom, showFooterAtom, toggleEnableReadabilityMapAtom } from '~/store/entry'
 import { isNotTabletLandscape, isTabletLandscape } from '~/theme/breakpoints'
@@ -133,7 +133,7 @@ function EntryToolbar({ entry }: { entry: Entry & { feed: Feed } }) {
         onPress={() => {
           Clipboard.setStringAsync(entry.url!)
             .then(() => {
-              Toast.show('Copied to clipboard', { type: 'success' })
+              toast('Copied to clipboard', { type: 'success' })
             })
             .catch(console.error)
         }}
@@ -464,7 +464,7 @@ function MainContentScrollView({
               case 'Copy Link': {
                 Clipboard.setStringAsync(entry.url!)
                   .then(() => {
-                    Toast.show('Copied to clipboard', { type: 'success' })
+                    toast('Copied to clipboard', { type: 'success' })
                   })
                   .catch(console.error)
 

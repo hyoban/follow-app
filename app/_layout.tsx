@@ -107,7 +107,7 @@ export default function Root() {
       }}
     >
       <PortalProvider>
-        <ToastProvider offsetTop={100} duration={1000} placement="top">
+        <ToastProvider offsetTop={100} offsetBottom={100}>
           <ThemeProvider value={navigationTheme}>
             <GestureHandlerRootView style={{ flex: 1 }}>
               <BottomSheetModalProvider>
