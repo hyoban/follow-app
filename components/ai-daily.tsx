@@ -9,6 +9,7 @@ import useSWR from 'swr'
 import { apiClient } from '~/api/client'
 import type { TabViewIndex } from '~/store/layout'
 
+import { ActivityIndicator } from './activity-indicator'
 import { IconButton } from './button'
 import { Column } from './flex'
 import { IconMagic2CuteRe } from './icons'
@@ -82,7 +83,7 @@ function useParseDailyDate(day: DayOf) {
 function AIDailyContent({ view, date }: { view: TabViewIndex, date: DayOf }) {
   const { styles } = useStyles(styleSheet)
   const { startDate } = useParseDailyDate(date)
-  const { data } = useSWR(
+  const { data, isLoading } = useSWR(
     ['ai-daily', view, startDate],
     async ([_key, view, startDate]) => {
       const res = await apiClient.ai.daily.$get({ query: { view: `${view}`, startDate: `${startDate}` } })
@@ -94,7 +95,7 @@ function AIDailyContent({ view, date }: { view: TabViewIndex, date: DayOf }) {
     <ScrollView
       style={styles.content}
     >
-      <Markdown>{data ?? ''}</Markdown>
+      { isLoading ? <ActivityIndicator /> : <Markdown>{data ?? ''}</Markdown>}
     </ScrollView>
   )
 }
