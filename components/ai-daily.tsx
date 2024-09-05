@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react'
 import { ScrollView, View } from 'react-native'
-import Markdown from 'react-native-markdown-display'
 import { useModal } from 'react-native-modalfy'
 import { TabBar, TabView } from 'react-native-tab-view'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
 
 import { apiClient } from '~/api/client'
+import { Markdown } from '~/components/markdown'
 import type { TabViewIndex } from '~/store/layout'
 
 import { ActivityIndicator } from './activity-indicator'
