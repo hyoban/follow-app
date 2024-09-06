@@ -1,26 +1,25 @@
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { Platform } from 'react-native'
-import { useStyles } from 'react-native-unistyles'
 
 import { Container, Row } from '~/components'
 import { EntryList } from '~/components/entry-list'
+import { MarkAsRead } from '~/components/mark-as-read'
 import { UnreadFilter } from '~/components/unread-filter'
-import { commonStylesheet } from '~/theme/common'
 
 type PageLocalSearchParams = {
   feedId: string[]
   title: string
   view: string
   backTitle: string
+  collected?: string
 }
 
 export default function Page() {
-  const { styles } = useStyles(commonStylesheet)
-
   const {
     feedId: feedIdList,
     title: headerTitle,
     backTitle: headerBackTitle,
+    collected,
   } = useLocalSearchParams<PageLocalSearchParams>()
 
   return (
@@ -29,21 +28,21 @@ export default function Page() {
         options={{
           headerTitle,
           headerBackTitle,
-          headerTitleStyle: styles.highContrastText,
           headerBlurEffect: 'regular',
           headerTransparent: Platform.select({
             ios: true,
-            android: false,
+            default: false,
           }),
           headerRight: () => (
-            <Row gap={18}>
+            <Row gap={14}>
               <UnreadFilter />
+              <MarkAsRead feedId={feedIdList} closeAfter />
             </Row>
           ),
         }}
       />
       <Container>
-        <EntryList feedIdList={feedIdList ?? []} />
+        <EntryList feedIdList={feedIdList ?? []} collectedOnly={collected === 'true'} />
       </Container>
     </>
   )

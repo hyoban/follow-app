@@ -1,4 +1,5 @@
 import { useHeaderHeight } from '@react-navigation/elements'
+import { useAtomValue } from 'jotai'
 import { Platform, Pressable } from 'react-native'
 import Animated, { FadeInUp, FadeOutUp } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
@@ -7,18 +8,19 @@ import useSWR from 'swr'
 import { apiClient } from '~/api/client'
 import { db } from '~/db'
 import { useQuerySubscription } from '~/hooks/use-query-subscription'
+import { isUpdatingEntryAtom } from '~/store/loading'
 
 import { Iconify, Row, Text } from '.'
+import { ActivityIndicator } from './activity-indicator'
 
 export function RefreshIndicator({
   feedIdList,
   onRefresh,
-  cursor,
 }: {
   feedIdList: string[]
   onRefresh: () => void
-  cursor?: string
 }) {
+  const isUpdating = useAtomValue(isUpdatingEntryAtom)
   const { theme } = useStyles()
   const headerHeight = useHeaderHeight()
 
@@ -40,19 +42,18 @@ export function RefreshIndicator({
       : null,
     async () => {
       const { data } = await (
-        // @ts-expect-error
-        apiClient.entries['check-new'].$get({
+        await apiClient.entries['check-new'].$get({
           query: {
             ...(feedIdList.length > 1 ? { feedIdList } : { feedId: feedIdList[0] }),
-            insertedAfter: Date.parse(latestData?.insertedAt ?? (new Date()).toISOString()),
+            insertedAfter: String(Date.parse(latestData?.insertedAt ?? (new Date()).toISOString())),
           },
-        }) as Promise<{ data: { has_new: boolean, lastest_at?: string } }>
-      )
+        })
+      ).json() as { data: { has_new: boolean, lastest_at?: string } }
       return data.has_new ?? false
     },
   )
 
-  if (!cursor || !hasNew)
+  if (!hasNew)
     return null
 
   return (
@@ -70,9 +71,7 @@ export function RefreshIndicator({
         zIndex: 999,
       }}
     >
-      <Pressable
-        onPress={() => { onRefresh() }}
-      >
+      <Pressable onPress={() => { onRefresh() }}>
         <Row
           bg={theme.colors.accent9}
           style={{ borderRadius: 9999 }}
@@ -81,11 +80,15 @@ export function RefreshIndicator({
           gap={6}
           align="center"
         >
-          <Iconify
-            icon="mingcute:arrow-up-fill"
-            size={14}
-            color={theme.colors.accentContrast}
-          />
+          {isUpdating ? (
+            <ActivityIndicator size={16} color="accent" />
+          ) : (
+            <Iconify
+              icon="mingcute:arrow-up-fill"
+              size={16}
+              color={theme.colors.accentContrast}
+            />
+          )}
           <Text size={12} weight="600" color="accentContrast">
             Refresh to see new entries
           </Text>

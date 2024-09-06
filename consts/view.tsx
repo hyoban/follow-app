@@ -1,6 +1,13 @@
 import type { Routes } from 'expo-router'
 
-import { Iconify } from '~/components'
+import {
+  IconAnnouncementCuteFi,
+  IconMicCuteFi,
+  IconPaperCuteFi,
+  IconPicCuteFi,
+  IconTwitterCuteFi,
+  IconVideoCuteFi,
+} from '~/components/icons'
 import type { TabViewIndex } from '~/store/layout'
 
 export type TabView = {
@@ -18,7 +25,7 @@ export const tabViewList: TabView[] = [
     name: 'index',
     path: '/',
     title: 'Articles',
-    icon: (color: string) => <Iconify icon="mingcute:paper-fill" color={color} />,
+    icon: (color: string) => <IconPaperCuteFi color={color} />,
     color: 'orange',
   },
   {
@@ -26,7 +33,7 @@ export const tabViewList: TabView[] = [
     name: 'social',
     path: '/social',
     title: 'Social Media',
-    icon: (color: string) => <Iconify icon="mingcute:twitter-fill" color={color} />,
+    icon: (color: string) => <IconTwitterCuteFi color={color} />,
     color: 'sky',
   },
   {
@@ -34,7 +41,7 @@ export const tabViewList: TabView[] = [
     name: 'picture',
     path: '/picture',
     title: 'Pictures',
-    icon: (color: string) => <Iconify icon="mingcute:pic-fill" color={color} />,
+    icon: (color: string) => <IconPicCuteFi color={color} />,
     color: 'green',
   },
   {
@@ -42,7 +49,7 @@ export const tabViewList: TabView[] = [
     name: 'video',
     path: '/video',
     title: 'Videos',
-    icon: (color: string) => <Iconify icon="mingcute:video-fill" color={color} />,
+    icon: (color: string) => <IconVideoCuteFi color={color} />,
     color: 'red',
   },
   {
@@ -50,7 +57,7 @@ export const tabViewList: TabView[] = [
     name: 'audio',
     path: '/audio',
     title: 'Audios',
-    icon: (color: string) => <Iconify icon="mingcute:mic-fill" color={color} />,
+    icon: (color: string) => <IconMicCuteFi color={color} />,
     color: 'purple',
   },
   {
@@ -58,7 +65,7 @@ export const tabViewList: TabView[] = [
     name: 'notification',
     path: '/notification',
     title: 'Notifications',
-    icon: (color: string) => <Iconify icon="mingcute:announcement-fill" color={color} />,
+    icon: (color: string) => <IconAnnouncementCuteFi color={color} />,
     color: 'yellow',
   },
 ]

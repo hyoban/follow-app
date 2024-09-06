@@ -1,50 +1,24 @@
-import { useRouter } from 'expo-router'
 import { useAtom } from 'jotai'
-import { useStyles } from 'react-native-unistyles'
 
-import { flagEntryReadStatus } from '~/api/entry'
-import { Iconify } from '~/components'
+import { IconButton, Iconify, Row } from '~/components'
 import type { TabViewIndex } from '~/store/layout'
 import { viewLayoutMapAtom } from '~/store/layout'
 
-import Menu from './menu'
+import { MarkAsRead } from './mark-as-read'
+import { UnreadFilter } from './unread-filter'
 
-export function ViewActions({ view }: { view: TabViewIndex }) {
+export function ViewActions({ view }: { view?: TabViewIndex }) {
   const [viewLayoutMap, setViewLayoutMap] = useAtom(viewLayoutMapAtom)
-  const router = useRouter()
-  const { breakpoint } = useStyles()
+
+  if (view === undefined) {
+    return null
+  }
+
   return (
-    <Menu
-      actions={[
-        {
-          id: 'mark-as-read',
-          title: 'Mark as Read',
-          image: 'circlebadge.fill',
-        },
-        {
-          id: 'switch-layout',
-          title: `Switch layout to ${viewLayoutMap[view] === 'detail' ? 'List' : 'Detail'}`,
-          image: 'list.bullet',
-        },
-        {
-          id: 'add-feed',
-          title: 'Add Feed',
-          image: 'plus',
-        },
-      ].filter(({ id }) => {
-        if (id === 'switch-layout') {
-          return breakpoint !== 'tablet'
-        }
-        return true
-      })}
-      onPressAction={({ nativeEvent }) => {
-        switch (nativeEvent.event) {
-          case 'mark-as-read': {
-            flagEntryReadStatus({ view })
-              .catch(console.error)
-            break
-          }
-          case 'switch-layout': {
+    <>
+      <Row gap={14}>
+        <IconButton
+          onPress={() => {
             setViewLayoutMap((viewLayoutMap) => {
               const oldViewLayoutMap = viewLayoutMap
               return {
@@ -52,21 +26,17 @@ export function ViewActions({ view }: { view: TabViewIndex }) {
                 [view]: viewLayoutMap[view] === 'detail' ? 'list' : 'detail',
               }
             })
-            break
+          }}
+        >
+          {
+            viewLayoutMap[view] === 'detail'
+              ? <Iconify icon="mingcute:align-left-line" />
+              : <Iconify icon="mingcute:align-left-2-line" />
           }
-          case 'add-feed': {
-            router.push(`/discover?view=${view}`)
-            break
-          }
-          default: {
-            break
-          }
-        }
-      }}
-    >
-      <Iconify
-        icon="mingcute:more-2-fill"
-      />
-    </Menu>
+        </IconButton>
+        <UnreadFilter />
+        <MarkAsRead view={view} />
+      </Row>
+    </>
   )
 }

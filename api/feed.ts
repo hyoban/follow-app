@@ -15,7 +15,7 @@ export async function createFeed(
   feed: Omit<Feed, 'unread' | 'view' | 'category' | 'isPrivate'>,
   options: { view: TabViewIndex, category: string, isPrivate: boolean },
 ) {
-  const reads = await apiClient.reads.$get({ query: {} })
+  const reads = await (await apiClient.reads.$get({ query: {} })).json()
   const feedWithUnread: Feed = {
     ...feed,
     unread: reads.data[feed.id] ?? 0,
@@ -33,8 +33,8 @@ export async function deleteFeed(feedId: string) {
 }
 
 export async function getFeeds(): Promise<Feed[]> {
-  const subscriptions = await apiClient.subscriptions.$get({ query: {} })
-  const reads = await apiClient.reads.$get({ query: {} })
+  const subscriptions = await (await apiClient.subscriptions.$get({ query: {} })).json()
+  const reads = await (await apiClient.reads.$get({ query: {} })).json()
 
   return subscriptions.data.map(subscription => ({
     ...subscription,
@@ -76,32 +76,35 @@ export async function syncFeeds() {
 
   store.set(isUpdatingFeedAtom, true)
 
-  const feedsFromApi = await getFeeds()
-  const existFeedIds = feedsFromApi.map(feed => feed.id)
+  try {
+    const feedsFromApi = await getFeeds()
+    const existFeedIds = feedsFromApi.map(feed => feed.id)
 
-  await Promise.all([
-    ...feedsFromApi.map(async (feed) => {
-      const feedInDB = await db.query.feeds.findFirst({
-        where: eq(feeds.id, feed.id),
-      })
-      if (!feedInDB) {
-        console.info('Insert feed', feed.title)
-        return await db.insert(feeds)
-          .values(feed)
-      }
-      if (needUpdate(feed, feedInDB)) {
-        console.info('Update feed', feed.title)
-        return await db.update(feeds)
-          .set(feed)
-          .where(eq(feeds.id, feed.id))
-      }
-    }),
+    await Promise.all([
+      ...feedsFromApi.map(async (feed) => {
+        const feedInDB = await db.query.feeds.findFirst({
+          where: eq(feeds.id, feed.id),
+        })
+        if (!feedInDB) {
+          console.info('Insert feed', feed.title)
+          return await db.insert(feeds)
+            .values(feed)
+        }
+        if (needUpdate(feed, feedInDB)) {
+          console.info('Update feed', feed.title)
+          return await db.update(feeds)
+            .set(feed)
+            .where(eq(feeds.id, feed.id))
+        }
+      }),
 
-    db.delete(feeds).where(notInArray(feeds.id, existFeedIds)),
-    db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
-  ])
-
-  store.set(isUpdatingFeedAtom, false)
+      db.delete(feeds).where(notInArray(feeds.id, existFeedIds)),
+      db.delete(entries).where(notInArray(entries.feedId, existFeedIds)),
+    ])
+  }
+  finally {
+    store.set(isUpdatingFeedAtom, false)
+  }
 }
 
 function needUpdate(data: any, dataInDB: any) {

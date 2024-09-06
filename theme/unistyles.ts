@@ -20,6 +20,3 @@ UnistylesRegistry
     light: lightTheme,
     dark: darkTheme,
   })
-  .addConfig({
-    adaptiveThemes: true,
-  })

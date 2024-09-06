@@ -1,6 +1,4 @@
 import * as hono_hono_base from 'hono/hono-base';
-import * as hono_utils_http_status from 'hono/utils/http-status';
-import * as hono from 'hono';
 import type { HttpBindings } from '@hono/node-server';
 import * as drizzle_orm from 'drizzle-orm';
 import type { InferInsertModel } from 'drizzle-orm';
@@ -12,6 +10,11 @@ type Env = {
     Bindings: HttpBindings;
 };
 
+declare const languageSchema: z.ZodEnum<["en", "ja", "zh-CN", "zh-TW"]>;
+declare const conditionFieldSchema: z.ZodEnum<["view", "title", "site_url", "feed_url", "category"]>;
+declare const conditionOperatorSchema: z.ZodEnum<["contains", "not_contains", "eq", "not_eq", "gt", "lt", "regex"]>;
+declare const ruleFieldSchema: z.ZodEnum<["all", "title", "content", "author", "url", "order"]>;
+declare const ruleOperatorSchema: z.ZodEnum<["contains", "not_contains", "eq", "not_eq", "gt", "lt", "regex"]>;
 declare const actions: drizzle_orm_pg_core.PgTableWithColumns<{
     name: "actions";
     schema: undefined;
@@ -35,51 +38,55 @@ declare const actions: drizzle_orm_pg_core.PgTableWithColumns<{
         rules: drizzle_orm_pg_core.PgColumn<{
             name: "rules";
             tableName: "actions";
-            dataType: "array";
-            columnType: "PgArray";
-            data: unknown[];
-            driverParam: string | unknown[];
+            dataType: "json";
+            columnType: "PgJsonb";
+            data: {
+                name: string;
+                condition: {
+                    field: z.infer<typeof conditionFieldSchema>;
+                    operator: z.infer<typeof conditionOperatorSchema>;
+                    value: string;
+                }[];
+                result: {
+                    translation?: z.infer<typeof languageSchema>;
+                    summary?: boolean;
+                    rewriteRules?: {
+                        from: string;
+                        to: string;
+                    }[];
+                    blockRules?: {
+                        field: z.infer<typeof ruleFieldSchema>;
+                        operator: z.infer<typeof ruleOperatorSchema>;
+                        value: string | number;
+                    }[];
+                };
+            }[];
+            driverParam: unknown;
             notNull: false;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
             enumValues: undefined;
-            baseColumn: drizzle_orm.Column<{
-                name: "rules";
-                tableName: "actions";
-                dataType: "json";
-                columnType: "PgJsonb";
-                data: unknown;
-                driverParam: unknown;
-                notNull: false;
-                hasDefault: false;
-                isPrimaryKey: false;
-                isAutoincrement: false;
-                hasRuntimeDefault: false;
-                enumValues: undefined;
-                baseColumn: never;
-                generated: undefined;
-            }, object, object>;
+            baseColumn: never;
             generated: undefined;
         }, {}, {}>;
     };
     dialect: "pg";
 }>;
-declare const languageSchema: z.ZodEnum<["en", "ja", "zh-CN", "zh-TW"]>;
 declare const actionsItemOpenAPISchema: z.ZodObject<{
     name: z.ZodString;
     condition: z.ZodArray<z.ZodObject<{
-        field: z.ZodEnum<["view", "title", "site_url", "feed_url"]>;
+        field: z.ZodEnum<["view", "title", "site_url", "feed_url", "category"]>;
         operator: z.ZodEnum<["contains", "not_contains", "eq", "not_eq", "gt", "lt", "regex"]>;
         value: z.ZodString;
     }, "strip", z.ZodTypeAny, {
         value: string;
-        field: "title" | "view" | "site_url" | "feed_url";
+        field: "title" | "view" | "site_url" | "category" | "feed_url";
         operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
     }, {
         value: string;
-        field: "title" | "view" | "site_url" | "feed_url";
+        field: "title" | "view" | "site_url" | "category" | "feed_url";
         operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
     }>, "many">;
     result: z.ZodObject<{
@@ -137,7 +144,7 @@ declare const actionsItemOpenAPISchema: z.ZodObject<{
     name: string;
     condition: {
         value: string;
-        field: "title" | "view" | "site_url" | "feed_url";
+        field: "title" | "view" | "site_url" | "category" | "feed_url";
         operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
     }[];
     result: {
@@ -157,7 +164,7 @@ declare const actionsItemOpenAPISchema: z.ZodObject<{
     name: string;
     condition: {
         value: string;
-        field: "title" | "view" | "site_url" | "feed_url";
+        field: "title" | "view" | "site_url" | "category" | "feed_url";
         operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
     }[];
     result: {
@@ -176,25 +183,25 @@ declare const actionsItemOpenAPISchema: z.ZodObject<{
 }>;
 declare const actionsOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
     userId: z.ZodString;
-    rules: z.ZodNullable<z.ZodArray<z.ZodType<string | number | boolean | {
+    rules: z.ZodNullable<z.ZodType<string | number | boolean | {
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
     } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null, z.ZodTypeDef, string | number | boolean | {
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
-    } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null>, "many">>;
+    } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null>>;
 }, "rules">, {
     rules: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodObject<{
         name: z.ZodString;
         condition: z.ZodArray<z.ZodObject<{
-            field: z.ZodEnum<["view", "title", "site_url", "feed_url"]>;
+            field: z.ZodEnum<["view", "title", "site_url", "feed_url", "category"]>;
             operator: z.ZodEnum<["contains", "not_contains", "eq", "not_eq", "gt", "lt", "regex"]>;
             value: z.ZodString;
         }, "strip", z.ZodTypeAny, {
             value: string;
-            field: "title" | "view" | "site_url" | "feed_url";
+            field: "title" | "view" | "site_url" | "category" | "feed_url";
             operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
         }, {
             value: string;
-            field: "title" | "view" | "site_url" | "feed_url";
+            field: "title" | "view" | "site_url" | "category" | "feed_url";
             operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
         }>, "many">;
         result: z.ZodObject<{
@@ -252,7 +259,7 @@ declare const actionsOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
         name: string;
         condition: {
             value: string;
-            field: "title" | "view" | "site_url" | "feed_url";
+            field: "title" | "view" | "site_url" | "category" | "feed_url";
             operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
         }[];
         result: {
@@ -272,7 +279,7 @@ declare const actionsOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
         name: string;
         condition: {
             value: string;
-            field: "title" | "view" | "site_url" | "feed_url";
+            field: "title" | "view" | "site_url" | "category" | "feed_url";
             operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
         }[];
         result: {
@@ -295,7 +302,7 @@ declare const actionsOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
         name: string;
         condition: {
             value: string;
-            field: "title" | "view" | "site_url" | "feed_url";
+            field: "title" | "view" | "site_url" | "category" | "feed_url";
             operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
         }[];
         result: {
@@ -318,7 +325,7 @@ declare const actionsOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
         name: string;
         condition: {
             value: string;
-            field: "title" | "view" | "site_url" | "feed_url";
+            field: "title" | "view" | "site_url" | "category" | "feed_url";
             operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
         }[];
         result: {
@@ -458,6 +465,8 @@ type MediaModel = {
     url: string;
     type: "photo" | "video";
     preview_image_url?: string;
+    width?: number;
+    height?: number;
 };
 type AttachmentsModel = {
     url: string;
@@ -665,32 +674,17 @@ declare const entries: drizzle_orm_pg_core.PgTableWithColumns<{
         media: drizzle_orm_pg_core.PgColumn<{
             name: "media";
             tableName: "entries";
-            dataType: "array";
-            columnType: "PgArray";
-            data: unknown[];
-            driverParam: string | unknown[];
+            dataType: "json";
+            columnType: "PgJsonb";
+            data: MediaModel[];
+            driverParam: unknown;
             notNull: false;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
             enumValues: undefined;
-            baseColumn: drizzle_orm.Column<{
-                name: "media";
-                tableName: "entries";
-                dataType: "json";
-                columnType: "PgJsonb";
-                data: unknown;
-                driverParam: unknown;
-                notNull: false;
-                hasDefault: false;
-                isPrimaryKey: false;
-                isAutoincrement: false;
-                hasRuntimeDefault: false;
-                enumValues: undefined;
-                baseColumn: never;
-                generated: undefined;
-            }, object, object>;
+            baseColumn: never;
             generated: undefined;
         }, {}, {}>;
         categories: drizzle_orm_pg_core.PgColumn<{
@@ -727,32 +721,17 @@ declare const entries: drizzle_orm_pg_core.PgTableWithColumns<{
         attachments: drizzle_orm_pg_core.PgColumn<{
             name: "attachments";
             tableName: "entries";
-            dataType: "array";
-            columnType: "PgArray";
-            data: unknown[];
-            driverParam: string | unknown[];
+            dataType: "json";
+            columnType: "PgJsonb";
+            data: AttachmentsModel[];
+            driverParam: unknown;
             notNull: false;
             hasDefault: false;
             isPrimaryKey: false;
             isAutoincrement: false;
             hasRuntimeDefault: false;
             enumValues: undefined;
-            baseColumn: drizzle_orm.Column<{
-                name: "attachments";
-                tableName: "entries";
-                dataType: "json";
-                columnType: "PgJsonb";
-                data: unknown;
-                driverParam: unknown;
-                notNull: false;
-                hasDefault: false;
-                isPrimaryKey: false;
-                isAutoincrement: false;
-                hasRuntimeDefault: false;
-                enumValues: undefined;
-                baseColumn: never;
-                generated: undefined;
-            }, object, object>;
+            baseColumn: never;
             generated: undefined;
         }, {}, {}>;
     };
@@ -771,17 +750,17 @@ declare const entriesOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
     authorAvatar: z.ZodNullable<z.ZodString>;
     insertedAt: z.ZodString;
     publishedAt: z.ZodString;
-    media: z.ZodNullable<z.ZodArray<z.ZodType<string | number | boolean | {
+    media: z.ZodNullable<z.ZodType<string | number | boolean | {
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
     } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null, z.ZodTypeDef, string | number | boolean | {
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
-    } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null>, "many">>;
+    } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null>>;
     categories: z.ZodNullable<z.ZodArray<z.ZodString, "many">>;
-    attachments: z.ZodNullable<z.ZodArray<z.ZodType<string | number | boolean | {
+    attachments: z.ZodNullable<z.ZodType<string | number | boolean | {
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
     } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null, z.ZodTypeDef, string | number | boolean | {
         [key: string]: string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null;
-    } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null>, "many">>;
+    } | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | (string | number | boolean | any | any | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null)[] | null>>;
 }, "media" | "attachments">, {
     attachments: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodObject<{
         url: z.ZodString;
@@ -805,14 +784,20 @@ declare const entriesOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
     media: z.ZodNullable<z.ZodOptional<z.ZodArray<z.ZodObject<{
         url: z.ZodString;
         type: z.ZodEnum<["photo", "video"]>;
+        width: z.ZodOptional<z.ZodNumber>;
+        height: z.ZodOptional<z.ZodNumber>;
         preview_image_url: z.ZodOptional<z.ZodString>;
     }, "strip", z.ZodTypeAny, {
         type: "photo" | "video";
         url: string;
+        width?: number | undefined;
+        height?: number | undefined;
         preview_image_url?: string | undefined;
     }, {
         type: "photo" | "video";
         url: string;
+        width?: number | undefined;
+        height?: number | undefined;
         preview_image_url?: string | undefined;
     }>, "many">>>;
 }>, "strip", z.ZodTypeAny, {
@@ -832,6 +817,8 @@ declare const entriesOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
     media?: {
         type: "photo" | "video";
         url: string;
+        width?: number | undefined;
+        height?: number | undefined;
         preview_image_url?: string | undefined;
     }[] | null | undefined;
     attachments?: {
@@ -858,6 +845,8 @@ declare const entriesOpenAPISchema: z.ZodObject<z.objectUtil.extendShape<Omit<{
     media?: {
         type: "photo" | "video";
         url: string;
+        width?: number | undefined;
+        height?: number | undefined;
         preview_image_url?: string | undefined;
     }[] | null | undefined;
     attachments?: {
@@ -1344,6 +1333,25 @@ declare const invitations: drizzle_orm_pg_core.PgTableWithColumns<{
         }, {}, {}>;
     };
     dialect: "pg";
+}>;
+declare const invitationsOpenAPISchema: zod.ZodObject<{
+    code: zod.ZodString;
+    createdAt: zod.ZodNullable<zod.ZodString>;
+    fromUserId: zod.ZodString;
+    toUserId: zod.ZodNullable<zod.ZodString>;
+}, zod.UnknownKeysParam, zod.ZodTypeAny, {
+    code: string;
+    createdAt: string | null;
+    fromUserId: string;
+    toUserId: string | null;
+}, {
+    code: string;
+    createdAt: string | null;
+    fromUserId: string;
+    toUserId: string | null;
+}>;
+declare const invitationsRelations: drizzle_orm.Relations<"invitations", {
+    users: drizzle_orm.One<"user", false>;
 }>;
 
 declare const subscriptions: drizzle_orm_pg_core.PgTableWithColumns<{
@@ -2433,7 +2441,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    type?: "completed" | "failed" | undefined;
+                    type?: string | string[] | undefined;
                 };
             };
             output: {
@@ -2448,7 +2456,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     };
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2457,7 +2465,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    id: string;
+                    id: string | string[];
                 };
             };
             output: {
@@ -2472,7 +2480,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     createdAt: string;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2484,7 +2492,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                 code: 0;
                 data: string;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2498,7 +2506,27 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
+            status: 200;
+        };
+    };
+    "/invitations": {
+        $get: {
+            input: {};
+            output: {
+                code: 0;
+                data: {
+                    code: string;
+                    createdAt: string | null;
+                    users: {
+                        name: string | null;
+                        id: string;
+                        image: string | null;
+                    } | null;
+                    toUserId: string | null;
+                }[];
+            };
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2518,7 +2546,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     transactionHash: string;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2526,13 +2554,13 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    type?: "tip" | "mint" | "burn" | "withdraw" | undefined;
-                    hash?: string | undefined;
-                    fromOrToUserId?: string | undefined;
-                    fromUserId?: string | undefined;
-                    toUserId?: string | undefined;
-                    toFeedId?: string | undefined;
-                    createdAfter?: string | undefined;
+                    type?: string | string[] | undefined;
+                    hash?: string | string[] | undefined;
+                    fromOrToUserId?: string | string[] | undefined;
+                    fromUserId?: string | string[] | undefined;
+                    toUserId?: string | string[] | undefined;
+                    toFeedId?: string | string[] | undefined;
+                    createdAfter?: string | string[] | undefined;
                 };
             };
             output: {
@@ -2581,7 +2609,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     } | null;
                 }[];
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2594,7 +2622,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     transactionHash: string;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2607,7 +2635,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     ttl: number;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2615,7 +2643,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    feedId?: string | undefined;
+                    feedId?: string | string[] | undefined;
                 };
             };
             output: {
@@ -2626,7 +2654,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     powerToken: string;
                 }[];
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2643,7 +2671,18 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     transactionHash: string;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
+            status: 200;
+        };
+    };
+    "/wallets/transactions/claim-check": {
+        $get: {
+            input: {};
+            output: {
+                code: 0;
+                data: boolean;
+            };
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2651,8 +2690,8 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    userId?: string | undefined;
-                    address?: string | undefined;
+                    userId?: string | string[] | undefined;
+                    address?: string | string[] | undefined;
                 };
             };
             output: {
@@ -2666,7 +2705,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     cashablePowerToken: string;
                 }[];
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $post: {
@@ -2674,15 +2713,11 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
                 data: {
-                    userId: string;
-                    createdAt: string;
-                    address: string | null;
+                    address: string;
                     addressIndex: number;
-                    dailyPowerToken: string;
-                    cashablePowerToken: string;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2691,9 +2726,9 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    id: string;
-                    language: "en" | "ja" | "zh-CN" | "zh-TW";
-                    fields: string;
+                    id: string | string[];
+                    language: string | string[];
+                    fields: string | string[];
                 };
             };
             output: {
@@ -2703,7 +2738,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     title?: string | undefined;
                 } | undefined;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2711,15 +2746,15 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    id: string;
-                    language?: "en" | "ja" | "zh-CN" | "zh-TW" | undefined;
+                    id: string | string[];
+                    language?: string | string[] | undefined;
                 };
             };
             output: {
                 code: 0;
                 data?: string | undefined;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2727,15 +2762,15 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    view: "0" | "1";
-                    startDate: string;
+                    view: string | string[];
+                    startDate: string | string[];
                 };
             };
             output: {
                 code: 0;
                 data: string;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2751,7 +2786,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                         name: string;
                         condition: {
                             value: string;
-                            field: "title" | "view" | "site_url" | "feed_url";
+                            field: "title" | "view" | "site_url" | "category" | "feed_url";
                             operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
                         }[];
                         result: {
@@ -2770,7 +2805,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     }[] | null | undefined;
                 } | undefined;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $put: {
@@ -2780,7 +2815,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                         name: string;
                         condition: {
                             value: string;
-                            field: "title" | "view" | "site_url" | "feed_url";
+                            field: "title" | "view" | "site_url" | "category" | "feed_url";
                             operator: "contains" | "not_contains" | "eq" | "not_eq" | "gt" | "lt" | "regex";
                         }[];
                         result: {
@@ -2802,7 +2837,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2817,7 +2852,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $delete: {
@@ -2829,13 +2864,13 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $get: {
             input: {
                 query: {
-                    view?: string | undefined;
+                    view?: string | string[] | undefined;
                 };
             };
             output: {
@@ -2844,7 +2879,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     [x: string]: number;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2862,7 +2897,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2875,7 +2910,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     count: number;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2884,14 +2919,14 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    entryId: string;
+                    entryId: string | string[];
                 };
             };
             output: {
                 code: 0;
                 data: boolean;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $post: {
@@ -2903,7 +2938,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $delete: {
@@ -2915,7 +2950,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2924,13 +2959,13 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    view?: string | undefined;
+                    view?: string | string[] | undefined;
                 };
             };
             output: {
                 data?: string[] | undefined;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $delete: {
@@ -2943,7 +2978,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $patch: {
@@ -2956,7 +2991,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2965,7 +3000,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    feedId: string;
+                    feedId: string | string[];
                 };
             };
             output: {
@@ -2977,7 +3012,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     content: string;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2991,7 +3026,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -2999,8 +3034,8 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    id?: string | undefined;
-                    url?: string | undefined;
+                    id?: string | string[] | undefined;
+                    url?: string | string[] | undefined;
                 };
             };
             output: {
@@ -3033,7 +3068,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     } | undefined;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -3041,13 +3076,13 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    id: string;
+                    id: string | string[];
                 };
             };
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -3093,6 +3128,8 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                         media?: {
                             type: "photo" | "video";
                             url: string;
+                            width?: number | undefined;
+                            height?: number | undefined;
                             preview_image_url?: string | undefined;
                         }[] | null | undefined;
                         attachments?: {
@@ -3108,7 +3145,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     subscriptionCount?: number | undefined;
                 }[];
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -3116,8 +3153,8 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    category?: string | undefined;
-                    namespace?: string | undefined;
+                    category?: string | string[] | undefined;
+                    namespace?: string | string[] | undefined;
                 };
             };
             output: {
@@ -3144,7 +3181,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     };
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -3160,7 +3197,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     expires: string;
                 };
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -3176,25 +3213,65 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
 } & {
-    [x: `/entries/read-histories/${string}`]: {
-        [x: `$${Lowercase<string>}`]: {
-            input: Partial<hono.ValidationTargets>;
-            output: any;
-            outputFormat: string;
-            status: hono_utils_http_status.StatusCode;
+    "/entries/read-histories/:id": {
+        $get: {
+            input: {
+                param: {
+                    id?: string | undefined;
+                };
+            } & {
+                query: {
+                    page?: string | string[] | undefined;
+                    size?: string | string[] | undefined;
+                };
+            };
+            output: {
+                code: 0;
+                data: {
+                    users: {
+                        [x: string]: {
+                            name: string | null;
+                            id: string;
+                            image: string | null;
+                            handle: string | null;
+                        };
+                    };
+                    entryReadHistories: {
+                        userIds: string[];
+                        readCount: number;
+                    } | null;
+                };
+            };
+            outputFormat: "json" | "text";
+            status: 200;
         };
     };
-    [x: `/entries/check-new/${string}`]: {
-        [x: `$${Lowercase<string>}`]: {
-            input: Partial<hono.ValidationTargets>;
-            output: any;
-            outputFormat: string;
-            status: hono_utils_http_status.StatusCode;
+    "/entries/check-new": {
+        $get: {
+            input: {
+                query: {
+                    insertedAfter: string | string[];
+                    view?: string | string[] | undefined;
+                    feedId?: string | string[] | undefined;
+                    feedIdList?: string | string[] | undefined;
+                    read?: string | string[] | undefined;
+                };
+            };
+            output: {
+                code: 0;
+                data: {
+                    has_new: boolean;
+                    lastest_at?: string | undefined;
+                    entry_id?: string | undefined;
+                };
+            };
+            outputFormat: "json" | "text";
+            status: 200;
         };
     };
     "/entries": {
@@ -3209,11 +3286,13 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     publishedAfter?: string | undefined;
                     publishedBefore?: string | undefined;
                     collected?: boolean | undefined;
+                    isCollection?: boolean | undefined;
+                    isArchived?: boolean | undefined;
                 };
             };
             output: {
                 code: 0;
-                total: number;
+                remaining: number;
                 data?: {
                     entries: {
                         description: string | null;
@@ -3230,9 +3309,9 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                         media?: {
                             type: "photo" | "video";
                             url: string;
-                            preview_image_url?: string | undefined;
-                            height?: number | undefined;
                             width?: number | undefined;
+                            height?: number | undefined;
+                            preview_image_url?: string | undefined;
                         }[] | null | undefined;
                         attachments?: {
                             url: string;
@@ -3270,14 +3349,15 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                         }[] | undefined;
                     } | undefined;
                 }[] | undefined;
+                total?: number | undefined;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $get: {
             input: {
                 query: {
-                    id: string;
+                    id: string | string[];
                 };
             };
             output: {
@@ -3299,6 +3379,8 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                         media?: {
                             type: "photo" | "video";
                             url: string;
+                            width?: number | undefined;
+                            height?: number | undefined;
                             preview_image_url?: string | undefined;
                         }[] | null | undefined;
                         attachments?: {
@@ -3350,7 +3432,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     } | undefined;
                 } | undefined;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -3358,7 +3440,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    id: string;
+                    id: string | string[];
                 };
             };
             output: {
@@ -3380,6 +3462,8 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     media?: {
                         type: "photo" | "video";
                         url: string;
+                        width?: number | undefined;
+                        height?: number | undefined;
                         preview_image_url?: string | undefined;
                     }[] | null | undefined;
                     attachments?: {
@@ -3391,7 +3475,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     }[] | null | undefined;
                 }[];
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -3400,8 +3484,8 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
         $get: {
             input: {
                 query: {
-                    view?: string | undefined;
-                    userId?: string | undefined;
+                    view?: string | string[] | undefined;
+                    userId?: string | string[] | undefined;
                 };
             };
             output: {
@@ -3430,7 +3514,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
                     isPrivate: boolean;
                 }[];
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $post: {
@@ -3445,7 +3529,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $delete: {
@@ -3458,7 +3542,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
         $patch: {
@@ -3473,7 +3557,7 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
@@ -3491,11 +3575,11 @@ declare const _routes: hono_hono_base.HonoBase<Env, {
             output: {
                 code: 0;
             };
-            outputFormat: "json";
+            outputFormat: "json" | "text";
             status: 200;
         };
     };
 }, "/">;
 type AppType = typeof _routes;
 
-export { type ActionsModel, type AppType, type AttachmentsModel, type EntriesModel, type EntryReadHistoriesModel, type FeedModel, type MediaModel, type SettingsModel, accounts, actions, actionsItemOpenAPISchema, actionsOpenAPISchema, actionsRelations, collections, collectionsOpenAPISchema, collectionsRelations, entries, entriesOpenAPISchema, entriesRelations, entryReadHistories, entryReadHistoriesOpenAPISchema, entryReadHistoriesRelations, feedPowerTokens, feedPowerTokensOpenAPISchema, feedPowerTokensRelations, feeds, feedsInputSchema, feedsOpenAPISchema, feedsRelations, invitations, languageSchema, sessions, subscriptions, subscriptionsOpenAPISchema, subscriptionsRelations, timeline, timelineOpenAPISchema, timelineRelations, transactionType, transactions, transactionsOpenAPISchema, transactionsRelations, users, usersOpenApiSchema, usersRelations, verificationTokens, wallets, walletsOpenAPISchema, walletsRelations };
+export { type ActionsModel, type AppType, type AttachmentsModel, type EntriesModel, type EntryReadHistoriesModel, type FeedModel, type MediaModel, type SettingsModel, accounts, actions, actionsItemOpenAPISchema, actionsOpenAPISchema, actionsRelations, collections, collectionsOpenAPISchema, collectionsRelations, entries, entriesOpenAPISchema, entriesRelations, entryReadHistories, entryReadHistoriesOpenAPISchema, entryReadHistoriesRelations, feedPowerTokens, feedPowerTokensOpenAPISchema, feedPowerTokensRelations, feeds, feedsInputSchema, feedsOpenAPISchema, feedsRelations, invitations, invitationsOpenAPISchema, invitationsRelations, languageSchema, sessions, subscriptions, subscriptionsOpenAPISchema, subscriptionsRelations, timeline, timelineOpenAPISchema, timelineRelations, transactionType, transactions, transactionsOpenAPISchema, transactionsRelations, users, usersOpenApiSchema, usersRelations, verificationTokens, wallets, walletsOpenAPISchema, walletsRelations };

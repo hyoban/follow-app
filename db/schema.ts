@@ -93,6 +93,7 @@ export const entries = sqliteTable(
       .$type<AttachmentsModel[]>(),
 
     read: integer('read', { mode: 'boolean' }).notNull(),
+    collections: text('collections'),
   },
 )
 

@@ -1,4 +1,4 @@
-import type { DimensionValue } from 'react-native'
+import type { ColorValue, DimensionValue } from 'react-native'
 
 export type Padding = {
   p?: DimensionValue
@@ -33,8 +33,8 @@ export type Height = {
 }
 
 export type BackgroundColor = {
-  bg?: 'app' | 'subtle' | 'component' | string & {}
-  text?: string
+  bg?: ColorValue
+  text?: ColorValue
 }
 
 export type CommonProps = Padding & Margin & Width & Height & BackgroundColor

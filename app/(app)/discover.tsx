@@ -1,5 +1,6 @@
 import { useRouter } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
+import type { InferResponseType } from 'hono/client'
 import { useState } from 'react'
 import { ActivityIndicator, Platform, ScrollView, TextInput } from 'react-native'
 import { useStyles } from 'react-native-unistyles'
@@ -11,7 +12,6 @@ import { Column, Container, Iconify, Row, Text, TextButton } from '~/components'
 import { SiteImage } from '~/components/site-image'
 import { useTabInfo } from '~/hooks/use-tab-info'
 
-type InferResponseType<T> = T extends (args: any, options: any | undefined) => Promise<infer R> ? NonNullable<R> : never
 type DiscoverList = InferResponseType<typeof apiClient.discover.$post>['data']
 
 function FollowButton({ item }: { item: DiscoverList[number] }) {
@@ -83,7 +83,7 @@ function DiscoverItem({ item, children }: { item: DiscoverList[number], children
         </Column>
       </Row>
       <Row align="center" gap={4}>
-        <Iconify icon="mingcute:right-line" size={18} />
+        <Iconify icon="mgc:right-cute-fi" size={18} />
         <Text
           size={14}
           numberOfLines={1}
@@ -105,7 +105,7 @@ export default function DiscoverPage() {
   const [keyword, setKeyword] = useState('')
   const { trigger, data, isMutating } = useSWRMutation(
     ['discover', keyword],
-    ([_, keyword]) => apiClient.discover.$post({ json: { keyword } }),
+    async ([_, keyword]) => (await apiClient.discover.$post({ json: { keyword } })).json(),
   )
 
   return (

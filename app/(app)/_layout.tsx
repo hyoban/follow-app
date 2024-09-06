@@ -1,23 +1,20 @@
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native'
 import * as Notifications from 'expo-notifications'
 import { Redirect, Stack } from 'expo-router'
-import { useAtomValue } from 'jotai'
 import { useEffect } from 'react'
-import { ActivityIndicator, Platform } from 'react-native'
+import { Platform } from 'react-native'
 import BackgroundFetch from 'react-native-background-fetch'
 import TrackPlayer, { Capability, Event } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
 
 import { syncFeeds } from '~/api/feed'
-import { Row } from '~/components'
-import { SettingsLink } from '~/components/settings-link'
-import { UnreadFilter } from '~/components/unread-filter'
+import { TabHeaderTitle } from '~/components/tab-header-title'
+import { UserActions } from '~/components/user-actions'
 import { ViewActions } from '~/components/view-actions'
 import { tabViewList } from '~/consts/view'
 import { db } from '~/db'
 import { useCurrentUser } from '~/hooks/use-current-user'
 import { getFontFamily } from '~/lib/utils'
-import { isUpdatingFeedAtom } from '~/store/loading'
 
 TrackPlayer.registerPlaybackService(() => async () => {
   TrackPlayer.addEventListener(Event.RemotePlay, () => TrackPlayer.play())
@@ -83,7 +80,6 @@ export default function RootLayout() {
   }, [])
 
   const { styles } = useStyles(styleSheet)
-  const isUpdating = useAtomValue(isUpdatingFeedAtom)
 
   const { user } = useCurrentUser()
 
@@ -98,21 +94,10 @@ export default function RootLayout() {
           const view = tabViewList.find(view => view.name === getFocusedRouteNameFromRoute(route))
           return {
             title: view?.title,
-            headerLeft: () => (
-              <Row gap={18}>
-                <SettingsLink />
-                {isUpdating && <ActivityIndicator />}
-              </Row>
-            ),
-            headerRight: () => (
-              <Row gap={18}>
-                <UnreadFilter />
-                {view?.view !== undefined && <ViewActions view={view.view} />}
-              </Row>
-            ),
+            headerLeft: () => <UserActions view={view?.view} />,
+            headerTitle: props => <TabHeaderTitle {...props} />,
+            headerRight: () => <ViewActions view={view?.view} />,
             headerTitleAlign: 'center',
-            headerTitleStyle: styles.title,
-            headerLargeTitleStyle: styles.title,
             headerBlurEffect: 'regular',
             headerTransparent: Platform.select({
               ios: true,
@@ -124,9 +109,7 @@ export default function RootLayout() {
       <Stack.Screen
         name="settings"
         options={{
-          presentation: 'modal',
           title: 'Settings',
-          headerStyle: styles.header,
           headerTitleStyle: styles.title,
         }}
       />
@@ -135,7 +118,6 @@ export default function RootLayout() {
         options={{
           presentation: 'modal',
           title: 'Discover',
-          headerStyle: styles.header,
           headerTitleStyle: styles.title,
         }}
       />
@@ -143,12 +125,8 @@ export default function RootLayout() {
   )
 }
 
-const styleSheet = createStyleSheet(theme => ({
-  header: {
-    backgroundColor: theme.colors.gray2,
-  },
+const styleSheet = createStyleSheet(() => ({
   title: {
-    color: theme.colors.gray12,
     fontFamily: getFontFamily('bold'),
     fontWeight: 'bold',
   },

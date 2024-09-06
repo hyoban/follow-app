@@ -1,26 +1,28 @@
 import { isBefore, subMinutes } from 'date-fns'
 import { and, eq, inArray, sql } from 'drizzle-orm'
+import type { InferRequestType } from 'hono/client'
 import { getDefaultStore } from 'jotai'
 
 import { FETCH_PAGE_SIZE } from '~/consts/limit'
 import { db } from '~/db'
 import { entries, feeds } from '~/db/schema'
-import { showUnreadOnlyAtom } from '~/store/entry-list'
+import { showUnreadOnlyAtom } from '~/store/entry'
 import type { TabViewIndex } from '~/store/layout'
+import { isUpdatingEntryAtom } from '~/store/loading'
 
 import { apiClient } from './client'
 
-type InferRequestType<T> = T extends (args: infer R, options: any | undefined) => Promise<unknown> ? NonNullable<R> : never
 type GetEntriesProps = InferRequestType<typeof apiClient.entries.$post>['json']
 export async function getEntries(
   props?: GetEntriesProps,
 ) {
-  const entries = await apiClient.entries.$post({ json: { ...props } })
+  const entries = await (await apiClient.entries.$post({ json: { ...props } })).json()
   return entries.data?.map(entry => ({
     ...entry,
     ...entry.entries,
     feedId: entry.feeds.id,
     read: entry.read ?? false,
+    collections: entry.collections?.createdAt ?? null,
   })) ?? []
 }
 
@@ -42,7 +44,7 @@ export async function createOrUpdateEntriesInDB(
 
       let isSame = true
       for (const key of Object.keys(entryInDB)) {
-        if (key !== 'read') {
+        if (!['read', 'collections'].includes(key)) {
           continue
         }
 
@@ -76,40 +78,68 @@ export async function checkNotExistEntries({
   feedIdList,
   start,
   end,
+  collectedOnly,
+  view,
 }: {
   feedIdList: string[]
   start?: string
   end?: string
+  collectedOnly?: boolean
+  view?: TabViewIndex
 }) {
   const store = getDefaultStore()
+  store.set(isUpdatingEntryAtom, true)
 
-  const readOnly = store.get(showUnreadOnlyAtom)
-  console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly)
-  let entriesFromApi = await getEntries({
-    feedIdList,
-    publishedAfter: start,
-    read: readOnly ? false : undefined,
-    limit: FETCH_PAGE_SIZE,
-  })
-  if (end && entriesFromApi.at(-1)?.publishedAt) {
-    while (isBefore(subMinutes(end, 1), entriesFromApi.at(-1)!.publishedAt)) {
-      console.info('fetch next page', entriesFromApi.at(-1)!.publishedAt)
-      const newEntries = await getEntries({
-        feedIdList,
-        publishedAfter: entriesFromApi.at(-1)!.publishedAt,
-        read: readOnly ? false : undefined,
+  try {
+    const readOnly = store.get(showUnreadOnlyAtom)
+    console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly, collectedOnly)
+    let entriesFromApi = collectedOnly
+      ? await getEntries({
+        collected: true,
+        view,
+
+        publishedAfter: start,
         limit: FETCH_PAGE_SIZE,
       })
-      if (newEntries.length === 0) {
-        break
-      }
-      entriesFromApi = entriesFromApi.concat(newEntries)
-    }
-  }
-  console.info('entriesFromApi', entriesFromApi.length)
-  await createOrUpdateEntriesInDB(entriesFromApi)
+      : await getEntries({
+        feedIdList,
+        read: readOnly ? false : undefined,
 
-  return entriesFromApi.at(-1)?.publishedAt
+        publishedAfter: start,
+        limit: FETCH_PAGE_SIZE,
+      })
+    if (end && entriesFromApi.at(-1)?.publishedAt) {
+      while (isBefore(subMinutes(end, 1), entriesFromApi.at(-1)!.publishedAt)) {
+        console.info('fetch next page', entriesFromApi.at(-1)!.publishedAt)
+        const newEntries = collectedOnly
+          ? await getEntries({
+            collected: true,
+            view,
+
+            publishedAfter: entriesFromApi.at(-1)!.publishedAt,
+            limit: FETCH_PAGE_SIZE,
+          })
+          : await getEntries({
+            feedIdList,
+            read: readOnly ? false : undefined,
+
+            publishedAfter: entriesFromApi.at(-1)!.publishedAt,
+            limit: FETCH_PAGE_SIZE,
+          })
+        if (newEntries.length === 0) {
+          break
+        }
+        entriesFromApi = entriesFromApi.concat(newEntries)
+      }
+    }
+    console.info('entriesFromApi', entriesFromApi.length)
+    await createOrUpdateEntriesInDB(entriesFromApi)
+
+    return entriesFromApi.at(-1)?.publishedAt
+  }
+  finally {
+    store.set(isUpdatingEntryAtom, false)
+  }
 }
 
 export async function fetchAndUpdateEntriesInDB(
@@ -123,17 +153,19 @@ function toArray(value: string | string[]) {
   return Array.isArray(value) ? value : [value]
 }
 
+export interface FlagEntryReadStatusProps {
+  entryId?: string | string[]
+  feedId?: string | string[]
+  view?: TabViewIndex
+  read?: boolean
+}
+
 export async function flagEntryReadStatus({
   entryId,
   feedId,
   view,
   read = true,
-}: {
-  entryId?: string | string[]
-  feedId?: string | string[]
-  view?: TabViewIndex
-  read?: boolean
-}) {
+}: FlagEntryReadStatusProps) {
   const feedIdList = toArray(feedId ?? [])
   const entryIdList = toArray(entryId ?? [])
   if (feedIdList.length === 0 && entryIdList.length === 0 && view === undefined) {
@@ -202,11 +234,30 @@ export async function flagEntryReadStatus({
   )
 }
 
+export async function flagEntryCollectionStatus({
+  entryId,
+  collected,
+}: {
+  entryId: string
+  collected: boolean
+}) {
+  await db.update(entries)
+    .set({
+      collections: collected ? (new Date()).toISOString() : null,
+    })
+    .where(eq(entries.id, entryId))
+  if (collected) {
+    await apiClient.collections.$post({ json: { entryId } })
+  }
+  else {
+    await apiClient.collections.$delete({ json: { entryId } })
+  }
+}
+
 export async function loadEntryContent(
   entryId: string,
 ) {
-  const res = await apiClient.entries
-    .$get({ query: { id: entryId } })
+  const res = await (await apiClient.entries.$get({ query: { id: entryId } })).json()
   return await db.update(entries)
     .set({ content: res.data?.entries.content })
     .where(eq(entries.id, entryId))

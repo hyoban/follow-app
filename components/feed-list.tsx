@@ -1,24 +1,17 @@
 import { useHeaderHeight } from '@react-navigation/elements'
 import { useScrollToTop } from '@react-navigation/native'
 import { useRouter } from 'expo-router'
-import { atom, getDefaultStore, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo, useRef } from 'react'
-import { Alert, Platform, Pressable } from 'react-native'
+import { atom, useAtomValue, useSetAtom } from 'jotai'
+import { useMemo, useRef } from 'react'
+import { Alert, Platform, Pressable, ScrollView } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
-import Animated, {
-  Easing,
-  Keyframe,
-  LayoutAnimationConfig,
-  useAnimatedStyle,
-  useSharedValue,
-  withSpring,
-} from 'react-native-reanimated'
+import Animated, { FadeIn, FadeOut, LinearTransition, useAnimatedStyle, useDerivedValue, useSharedValue, withTiming } from 'react-native-reanimated'
 import { useStyles } from 'react-native-unistyles'
 import { unstable_serialize } from 'swr'
 
 import { flagEntryReadStatus } from '~/api/entry'
 import { deleteFeed, syncFeeds } from '~/api/feed'
-import { Iconify, Row, Text } from '~/components'
+import { Divider, Iconify, Row, Text } from '~/components'
 import { Image } from '~/components/image'
 import { SiteIcon } from '~/components/site-icon'
 import type { Feed } from '~/db/schema'
@@ -27,32 +20,47 @@ import { useTabInfo } from '~/hooks/use-tab-info'
 import { useFeedIdListMapStore } from '~/store/feed'
 import type { TabViewIndex } from '~/store/layout'
 import { atomWithStorage } from '~/store/storage'
+import { isTablet } from '~/theme/breakpoints'
+
+import { IconStarCuteFi } from './icons'
+import { ListEmpty } from './list-empty'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
+
+const expandedSectionsAtom = atomWithStorage<string[]>('expanded-sections', [])
+const toggleExpandedSectionAtom = atom(null, (get, set, update: string) => {
+  const expandedSections = get(expandedSectionsAtom)
+  if (expandedSections.includes(update)) {
+    set(expandedSectionsAtom, expandedSections.filter(i => i !== update))
+  }
+  else {
+    set(expandedSectionsAtom, [...expandedSections, update])
+  }
+})
 
 function FeedFolder({
   category,
   feedIdList,
+  feedList,
   unread,
 }: {
   category: string
   feedIdList: string[]
+  feedList: Feed[]
   unread: number
 }) {
   const expandedSections = useAtomValue(expandedSectionsAtom)
   const handleToggle = useSetAtom(toggleExpandedSectionAtom)
-  const isExpanded = expandedSections.includes(category)
+  const isExpanded = useSharedValue(expandedSections.includes(category))
 
-  const rotate = useSharedValue(isExpanded ? '90deg' : '0deg')
-  useEffect(
-    () => {
-      const store = getDefaultStore()
-      const isExpanded = store.get(expandedSectionsAtom).includes(category)
-      rotate.value = isExpanded ? '90deg' : '0deg'
-    },
-    [category, rotate],
+  const rotate = useDerivedValue(() =>
+    withTiming(isExpanded.value ? '90deg' : '0deg', {
+      duration: 200,
+    }),
   )
-  const animatedStyle = useAnimatedStyle(() => ({ transform: [{ rotate: rotate.value }] }))
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ rotate: rotate.value }],
+  }))
 
   const { view, title } = useTabInfo()
   const { breakpoint, theme } = useStyles()
@@ -62,11 +70,15 @@ function FeedFolder({
   const showBackGround = selectedFeedIdList.length > 0 && unstable_serialize(selectedFeedIdList) === unstable_serialize(feedIdList)
 
   return (
-    <>
+    <Animated.View
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
+      layout={LinearTransition.duration(200)}
+    >
       <ContextMenuWrapper feedIdList={feedIdList}>
         <Pressable
           onPress={() => {
-            if (breakpoint === 'tablet') {
+            if (isTablet(breakpoint)) {
               if (view !== undefined) {
                 update(view, feedIdList)
               }
@@ -87,14 +99,10 @@ function FeedFolder({
               style={animatedStyle}
               onPress={() => {
                 handleToggle(category)
-                  .catch(console.error)
-                rotate.value = withSpring(
-                  isExpanded ? '0deg' : '90deg',
-                  { duration: 500, dampingRatio: 1 },
-                )
+                isExpanded.value = !isExpanded.value
               }}
             >
-              <Iconify icon="mingcute:right-fill" />
+              <Iconify icon="mgc:right-cute-fi" />
             </AnimatedPressable>
             <Text style={{ flex: 1 }}>
               {category}
@@ -105,8 +113,11 @@ function FeedFolder({
           </Row>
         </Pressable>
       </ContextMenuWrapper>
-      <Row h={1} bg="component" w="100%" />
-    </>
+      <Divider type="horizontal" />
+      {expandedSections.includes(category) && feedList.map(feed => (
+        <FeedItem key={feed.id} feed={feed} />
+      ))}
+    </Animated.View>
   )
 }
 
@@ -180,14 +191,18 @@ function FeedItem({
   const update = useFeedIdListMapStore(state => state.updateFeedIdListMap)
   const showBackGround = selectedFeedIdList.length > 0 && selectedFeedIdList.at(-1) === feed.id
   return (
-    <>
+    <Animated.View
+      entering={FadeIn.duration(200)}
+      exiting={FadeOut.duration(200)}
+      layout={LinearTransition.duration(200)}
+    >
       <ContextMenuWrapper
         feedIdList={[feed.id]}
         feed={feed}
       >
         <Pressable
           onPress={() => {
-            if (breakpoint === 'tablet') {
+            if (isTablet(breakpoint)) {
               if (view !== undefined) {
                 update(view, [feed.id])
               }
@@ -229,7 +244,7 @@ function FeedItem({
                 {feed.title}
               </Text>
               {feed.errorAt && (
-                <Iconify icon="mingcute:wifi-off-line" color={theme.colors.red10} />
+                <Iconify icon="mgc:wifi-off-cute-re" color={theme.colors.red10} />
               )}
             </Row>
             {feed.unread > 0 && (
@@ -238,8 +253,8 @@ function FeedItem({
           </Row>
         </Pressable>
       </ContextMenuWrapper>
-      <Row h={1} bg="component" w="100%" />
-    </>
+      <Divider type="horizontal" />
+    </Animated.View>
   )
 }
 
@@ -253,61 +268,6 @@ function groupBy<T>(array: T[], key: (item: T) => string) {
     return acc
   }, {} as Record<string, T[]>)
 }
-
-const enteringAnimation = new Keyframe({
-  0: {
-    opacity: 0,
-    transform: [{
-      translateY: -10,
-    }],
-  },
-  0.5: {
-    opacity: 0.5,
-    transform: [{
-      translateY: 5,
-    }],
-    easing: Easing.in(Easing.quad),
-  },
-  1: {
-    opacity: 1,
-    transform: [{
-      translateY: 0,
-    }],
-  },
-}).duration(10000)
-
-const exitingAnimation = new Keyframe({
-  0: {
-    opacity: 1,
-    transform: [{
-      translateY: 0,
-    }],
-  },
-  0.5: {
-    opacity: 0.5,
-    transform: [{
-      translateY: 5,
-    }],
-    easing: Easing.out(Easing.quad),
-  },
-  1: {
-    opacity: 0,
-    transform: [{
-      translateY: -10,
-    }],
-  },
-}).duration(10000)
-
-const expandedSectionsAtom = atomWithStorage<string[]>('expanded-sections', [])
-const toggleExpandedSectionAtom = atom(null, async (get, set, update: string) => {
-  const expandedSections = get(expandedSectionsAtom)
-  if (expandedSections.includes(update)) {
-    set(expandedSectionsAtom, expandedSections.filter(i => i !== update))
-  }
-  else {
-    set(expandedSectionsAtom, [...expandedSections, update])
-  }
-})
 
 function capitalizeFirstLetter(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
@@ -323,12 +283,12 @@ function isSingleCategory(feeds: Feed[]) {
 
 export function FeedList({ view }: { view: TabViewIndex }) {
   const headerHeight = useHeaderHeight()
-  const ref = useRef<Animated.FlatList<unknown>>(null)
+  const ref = useRef<ScrollView>(null)
   useScrollToTop(
     useRef({
       scrollToTop: () => {
-        ref.current?.scrollToOffset({
-          offset: Platform.select({ ios: -headerHeight, android: 0 }) ?? 0,
+        ref.current?.scrollTo({
+          y: Platform.select({ ios: -headerHeight, android: 0 }) ?? 0,
           animated: true,
         })
         syncFeeds()
@@ -339,70 +299,66 @@ export function FeedList({ view }: { view: TabViewIndex }) {
 
   const { data: feeds } = useFeedList(view)
   const feedsGrouped = useMemo(
-    () => groupBy(feeds ?? [], getFeedCategory),
+    () =>
+      Array.from(Object.entries(groupBy(feeds ?? [], getFeedCategory)))
+        .map(([category, feeds]) => {
+          feeds.sort((a, b) => b.unread - a.unread)
+          return [category, feeds] as const
+        })
+        .sort(([, a], [, b]) => {
+          const unreadA = a.reduce((acc, sub) => acc + sub.unread, 0)
+          const unreadB = b.reduce((acc, sub) => acc + sub.unread, 0)
+          return unreadB - unreadA
+        }),
     [feeds],
   )
 
-  const data = useMemo(
-    () => Array.from(
-      Object.entries(feedsGrouped),
-      ([title, data]) => isSingleCategory(data)
-        ? [data]
-        : [
-            title,
-            data.sort((a, b) => b.unread - a.unread),
-          ],
-    )
-      .sort((a, b) => {
-        const unreadA = Array.isArray(a[0]) ? a[0].reduce((acc, sub) => acc + sub.unread, 0) : Array.isArray(a[1]) ? a[1].reduce((acc, sub) => acc + sub.unread, 0) : 0
-        const unreadB = Array.isArray(b[0]) ? b[0].reduce((acc, sub) => acc + sub.unread, 0) : Array.isArray(b[1]) ? b[1].reduce((acc, sub) => acc + sub.unread, 0) : 0
-        return unreadB - unreadA
-      })
-      .flat(),
-    [feedsGrouped],
-  )
-
-  const expandedSections = useAtomValue(expandedSectionsAtom)
-
   return (
-    <Animated.FlatList
-      scrollToOverflowEnabled
-      contentInsetAdjustmentBehavior="automatic"
+    <ScrollView
       ref={ref}
-      style={{ width: '100%' }}
-      data={data}
-      extraData={expandedSections}
-      renderItem={({ item }) => {
-        if (typeof item === 'string') {
-          return item === ''
-            ? null
-            : (
-                <FeedFolder
-                  category={item}
-                  feedIdList={feedsGrouped[item]?.map(i => i.id) ?? []}
-                  unread={feedsGrouped[item]?.reduce((acc, sub) => acc + sub.unread, 0) ?? 0}
-                />
-              )
-        }
-        if (!item[0]) {
-          return null
-        }
-        const category = getFeedCategory(item[0])
-        const shouldShow = expandedSections.includes(category) || isSingleCategory(item)
-        if (!shouldShow) {
-          return null
-        }
-        return (
-          <LayoutAnimationConfig skipEntering={!item[0].category}>
-            <Animated.View
-              entering={enteringAnimation}
-              exiting={exitingAnimation}
-            >
-              {item.map(i => (<FeedItem key={i.id} feed={i} />))}
-            </Animated.View>
-          </LayoutAnimationConfig>
-        )
-      }}
-    />
+      contentInsetAdjustmentBehavior="automatic"
+      scrollToOverflowEnabled
+    >
+      <StarredEntryList view={view} />
+      {
+        feedsGrouped.length > 0
+          ? feedsGrouped.map(([category, feeds]) => {
+            if (isSingleCategory(feeds)) {
+              return <FeedItem key={feeds[0]!.id} feed={feeds[0]!} />
+            }
+            return (
+              <FeedFolder
+                key={category}
+                category={category}
+                feedIdList={feeds.map(i => i.id)}
+                feedList={feeds}
+                unread={feeds.reduce((acc, sub) => acc + sub.unread, 0)}
+              />
+            )
+          })
+          : <ListEmpty />
+      }
+    </ScrollView>
+  )
+}
+
+function StarredEntryList({ view }: { view: TabViewIndex }) {
+  const { title } = useTabInfo()
+  const { theme } = useStyles()
+  const router = useRouter()
+  return (
+    <>
+      <Pressable
+        onPress={() => {
+          router.push(`/feed/group?collected=true&view=${view}&title=Starred&backTitle=${encodeURIComponent(title ?? '')}` as any)
+        }}
+      >
+        <Row gap={10} h={45} align="center" px={18}>
+          <IconStarCuteFi color={theme.colors.orange5} />
+          <Text>Starred</Text>
+        </Row>
+      </Pressable>
+      <Divider type="horizontal" />
+    </>
   )
 }

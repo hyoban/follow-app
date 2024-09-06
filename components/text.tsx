@@ -9,7 +9,7 @@ type VariantProps = {
   size?: number | undefined
   contrast?: 'high' | 'low'
   weight?: TextStyle['fontWeight']
-  color?: Color
+  color?: Color | string
 }
 
 export type TextProps = NativeTextProps & VariantProps
@@ -37,21 +37,20 @@ export function Text({
 const styleSheet = createStyleSheet(theme => ({
   text(variant?: VariantProps) {
     const {
-      size = 17,
+      size = 18,
       contrast = 'high',
       weight = 'regular',
       color = 'gray',
     } = variant ?? {}
+    const themeColorKey = color === 'accentContrast'
+      ? 'accentContrast'
+      : contrast === 'high'
+        ? `${color}12` as ThemeColorKey
+        : `${color}11` as ThemeColorKey
 
     return {
       fontFamily: getFontFamily(weight, 'normal'),
-      color: theme.colors[
-        color === 'accentContrast'
-          ? 'accentContrast'
-          : contrast === 'high'
-            ? `${color}12` as ThemeColorKey
-            : `${color}11` as ThemeColorKey
-      ],
+      color: theme.colors[themeColorKey] ?? color,
       fontSize: size,
       fontWeight: weight,
       lineHeight: size * 1.5,

@@ -1,8 +1,10 @@
+import type { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { formatDate } from 'date-fns'
 import { Video } from 'expo-av'
 import * as Clipboard from 'expo-clipboard'
 import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-router'
 import * as Sharing from 'expo-sharing'
+import type { InferResponseType } from 'hono/client'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
@@ -10,32 +12,29 @@ import ContextMenu from 'react-native-context-menu-view'
 import PagerView from 'react-native-pager-view'
 import Animated, { FadeIn, runOnJS, SlideInDown, SlideOutDown, useAnimatedScrollHandler, useSharedValue } from 'react-native-reanimated'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { Toast } from 'react-native-toast-notifications'
 import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unistyles'
 import useSWR from 'swr'
 
 import { apiClient } from '~/api/client'
-import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
-import { Column, Container, Iconify, Row, Text } from '~/components'
+import { flagEntryCollectionStatus, flagEntryReadStatus, loadEntryContent } from '~/api/entry'
+import { Column, Container, Divider, IconButton, Iconify, Row, Text } from '~/components'
 import HtmlRender from '~/components/dom/html-render'
+import { IconStarCuteFi, IconStarCuteRe } from '~/components/icons'
 import { Image } from '~/components/image'
+import { TipPowerBottomSheet } from '~/components/tip-power-bottom-sheet'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
-import type { Entry, Feed, User } from '~/db/schema'
+import type { Entry, Feed } from '~/db/schema'
 import { useEntryList } from '~/hooks/use-entry-list'
-import { useTabInfo } from '~/hooks/use-tab-info'
-import { openExternalUrl } from '~/lib/utils'
-import { showFooterAtom } from '~/store/entry-list'
+import { toast } from '~/lib/toast'
+import { openExternalUrl, readability } from '~/lib/utils'
+import { enableReadabilityMapAtom, showFooterAtom, toggleEnableReadabilityMapAtom } from '~/store/entry'
+import { isNotTabletLandscape, isTabletLandscape } from '~/theme/breakpoints'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
 
-interface EntryReadHistories {
-  users: Record<string, Omit<User, 'emailVerified'>>
-  entryReadHistories: {
-    entryId: string
-    userIds: string[]
-    readCount: number
-  } | null
-}
+type EntryReadHistories = InferResponseType<typeof apiClient.entries.$get>['data']
+type ValueOf<T> = T[keyof T]
+type UserInReadHistories = ValueOf<Exclude<EntryReadHistories, undefined>['users']>
 
 interface EntryFooterNavBarProps {
   entry?: Entry & { feed: Feed }
@@ -66,14 +65,9 @@ const stylesheet = createStyleSheet((theme, runtime) => ({
     overflow: 'hidden',
     transform: [{ translateX: -10 * index }],
   }),
-  toolbarButton: ({ pressed }: { pressed: boolean }) => ({
-    padding: theme.spacing[1],
-    borderRadius: 6,
-    backgroundColor: pressed ? theme.colors.gray3 : 'transparent',
-  }),
 }))
 
-function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> }) {
+function EntryReadUsers({ users }: { users?: UserInReadHistories[] }) {
   const { styles } = useStyles(stylesheet)
   const readUserAvatars = users?.map(i => i?.image).filter(i => i !== null) ?? []
 
@@ -107,46 +101,85 @@ function EntryReadUsers({ users }: { users?: Array<Omit<User, 'emailVerified'>> 
   )
 }
 
-function EntryToolsbar({ entry }: { entry: Entry & { feed: Feed } }) {
-  const { styles } = useStyles(stylesheet)
+function EntryToolbar({ entry }: { entry: Entry & { feed: Feed } }) {
+  const { theme } = useStyles(stylesheet)
+  const enableReadabilityMap = useAtomValue(enableReadabilityMapAtom)
+  const enableReadability = useMemo(() => enableReadabilityMap[entry.feedId], [enableReadabilityMap, entry.feedId])
+  const toggleEnableReadability = useSetAtom(toggleEnableReadabilityMapAtom)
+  const bottomSheetModalRef = useRef<BottomSheetModal>(null)
   if (!entry.url) {
     return null
   }
   return (
-    <Row gap={8} align="center">
-      <Pressable
-        style={styles.toolbarButton}
-        onPress={() => {
-          Clipboard.setStringAsync(entry.url!)
-            .then(() => {
-              Toast.show('Copied to clipboard', { type: 'success' })
+    <>
+      <Row gap={14} align="center">
+        <IconButton
+          onPress={() => {
+            toggleEnableReadability(entry.feedId)
+          }}
+        >
+          {enableReadability ? (
+            <Iconify icon="mgc:sparkles-2-filled" />
+          ) : (
+            <Iconify icon="mgc:sparkles-2-cute-re" />
+          )}
+        </IconButton>
+      </Row>
+      <Divider type="vertical" mx={8} />
+      <Row gap={14} align="center">
+        <IconButton
+          onPress={() => {
+            flagEntryCollectionStatus({
+              entryId: entry.id,
+              collected: !entry.collections,
             })
-            .catch(console.error)
-        }}
-      >
-        <Iconify icon="mgc:link-cute-re" />
-      </Pressable>
-      <Pressable
-        style={styles.toolbarButton}
-        onPress={() => {
-          openExternalUrl(entry.url, { inApp: entry.feed.view !== 1 })
-            .catch(console.error)
-        }}
-      >
-        <Iconify icon="mgc:world-2-cute-re" />
-      </Pressable>
-      <Pressable
-        style={styles.toolbarButton}
-        onPress={async () => {
-          if (await Sharing.isAvailableAsync()) {
-            await Sharing.shareAsync(entry.url!)
               .catch(console.error)
-          }
-        }}
-      >
-        <Iconify icon="mgc:share-3-cute-re" />
-      </Pressable>
-    </Row>
+          }}
+        >
+          {entry.collections ? <IconStarCuteFi color={theme.colors.orange5} /> : <IconStarCuteRe />}
+        </IconButton>
+        <IconButton
+          onPress={() => {
+            bottomSheetModalRef.current?.present()
+          }}
+        >
+          <Iconify icon="mgc:power-outline" />
+          <TipPowerBottomSheet
+            entry={entry}
+            bottomSheetModalRef={bottomSheetModalRef}
+          />
+        </IconButton>
+        <IconButton
+          onPress={() => {
+            Clipboard.setStringAsync(entry.url!)
+              .then(() => {
+                toast('Copied to clipboard', { type: 'success' })
+              })
+              .catch(console.error)
+          }}
+        >
+          <Iconify icon="mgc:link-cute-re" />
+        </IconButton>
+        <IconButton
+          onPress={() => {
+            openExternalUrl(entry.url, { inApp: entry.feed.view !== 1 })
+              .catch(console.error)
+          }}
+        >
+          <Iconify icon="mgc:world-2-cute-re" />
+        </IconButton>
+        <IconButton
+          onPress={async () => {
+            if (await Sharing.isAvailableAsync()) {
+              await Sharing.shareAsync(entry.url!)
+                .catch(console.error)
+            }
+          }}
+        >
+          <Iconify icon="mgc:share-3-cute-re" />
+        </IconButton>
+      </Row>
+    </>
   )
 }
 
@@ -196,7 +229,7 @@ function EntryFooterNavBar({ readHistories, entry }: EntryFooterNavBarProps) {
           justify="flex-end"
           flex={1}
         >
-          <EntryToolsbar entry={entry} />
+          <EntryToolbar entry={entry} />
         </Row>
       </Row>
     </Animated.View>
@@ -204,14 +237,13 @@ function EntryFooterNavBar({ readHistories, entry }: EntryFooterNavBarProps) {
 }
 
 export default function Page() {
-  const { entryId, feedId } = useLocalSearchParams<{ entryId: string, feedId: string }>()
-  const feedIdList = useMemo(() => feedId.split(','), [feedId])
-  const { data: entryList } = useEntryList(feedIdList)
+  const { entryId, feedId } = useLocalSearchParams<{ entryId: string, feedId?: string }>()
+  const feedIdList = useMemo(() => feedId?.split(',') ?? [], [feedId])
+  const { data: entryList } = useEntryList({ feedIdList, entryIdList: [entryId] })
   const { theme } = useStyles()
   const initialPage = entryList?.findIndex(i => i.id === entryId)
   const currentEntry = entryList?.find(i => i.id === entryId)
 
-  const entryIdListToMarkAsRead = useRef<string[]>([])
   const navigation = useNavigation()
   const router = useRouter()
 
@@ -219,7 +251,7 @@ export default function Page() {
 
   const { data: readHistories } = useSWR(
     ['entry-read-histories', entryId],
-    () => apiClient.entries['read-histories'][entryId]?.$get?.().then(res => res.data as EntryReadHistories),
+    async ([_, id]) => (await (await apiClient.entries.$get({ query: { id } })).json()).data,
   )
 
   useEffect(
@@ -227,8 +259,6 @@ export default function Page() {
       'beforeRemove',
       () => {
         setShowFooter(true)
-        flagEntryReadStatus({ entryId: entryIdListToMarkAsRead.current })
-          .catch(console.error)
       },
     ),
     [navigation, setShowFooter],
@@ -253,7 +283,7 @@ export default function Page() {
           pagingEnabled
           data={entryList ?? []}
           initialNumToRender={1}
-          initialScrollIndex={initialPage ?? 0}
+          initialScrollIndex={(initialPage !== -1 && initialPage !== 0) ? initialPage : undefined}
           windowSize={3}
           showsHorizontalScrollIndicator={false}
           keyExtractor={item => item.id}
@@ -271,7 +301,8 @@ export default function Page() {
                     .catch(console.error)
                 }
                 if (!entry.read) {
-                  entryIdListToMarkAsRead.current.push(entry.id)
+                  flagEntryReadStatus({ entryId: entry.id })
+                    .catch(console.error)
                 }
               }
             }
@@ -288,17 +319,110 @@ export default function Page() {
   )
 }
 
-function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, readHistories?: EntryReadHistories }) {
+const mediaPagerViewStyleSheet = createStyleSheet((theme, runtime) => ({
+  container: {
+    width: {
+      xs: '100%',
+      tablet: '100%',
+      tabletLandscape: runtime.screen.width / 3,
+    },
+    maxHeight: {
+      xs: runtime.screen.height / 3,
+      tablet: runtime.screen.height / 3,
+      tabletLandscape: undefined,
+    },
+    alignSelf: {
+      xs: 'center',
+      tablet: 'center',
+      tabletLandscape: undefined,
+    },
+    height: {
+      xs: runtime.screen.height / 3,
+      tablet: runtime.screen.height / 3,
+      tabletLandscape: '100%',
+    },
+    alignItems: {
+      tabletLandscape: 'center',
+    },
+    justifyContent: {
+      tabletLandscape: 'center',
+    },
+  },
+}))
+
+function MediaPagerView({ entry }: { entry: Entry & { feed: Feed } }) {
+  const mediaList = entry.media ?? []
+  const { styles, breakpoint } = useStyles(mediaPagerViewStyleSheet)
+
+  if (mediaList.length === 0 || entry.feed.view === 5) {
+    return null
+  }
+
+  return (
+    <PagerView
+      style={[
+        styles.container,
+        isNotTabletLandscape(breakpoint) && mediaList.map(media => media.height).filter(i => i != null).length > 0
+        && { height: Math.max(...mediaList.map(media => media.height).filter(i => i != null)) },
+      ]}
+    >
+      {mediaList.map(media => (
+        media.type === 'photo'
+          ? (
+              <Image
+                key={media.url}
+                source={media.url}
+                style={{
+                  aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
+                }}
+                proxy={{
+                  width: 700,
+                  height: 0,
+                }}
+                contentFit="contain"
+              />
+            )
+          : (
+              <Video
+                key={media.url}
+                source={{ uri: media.url }}
+                style={{
+                  aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
+                }}
+                useNativeControls
+              />
+            )
+      ))}
+    </PagerView>
+  )
+}
+
+function MainContentScrollView({
+  entry,
+  readHistories,
+  children,
+}: {
+  entry: Entry & { feed: Feed }
+  readHistories?: EntryReadHistories
+  children?: React.ReactNode
+}) {
+  const { theme } = useStyles()
   const { data: summary } = useSWR(
     ['entry-summary', entry.id],
-    () => apiClient.ai.summary.$get({ query: { id: entry.id } }),
+    async () => (await apiClient.ai.summary.$get({ query: { id: entry.id } })).json(),
     {
       dedupingInterval: 1000 * 60 * 10,
     },
   )
 
-  const mediaList = entry.media ?? []
-  const { view } = useTabInfo()
+  const enableReadabilityMap = useAtomValue(enableReadabilityMapAtom)
+  const enableReadability = useMemo(() => enableReadabilityMap[entry.feedId], [enableReadabilityMap, entry.feedId])
+
+  const { data: readabilityData } = useSWR(
+    (enableReadability && entry.url) ? ['readability', entry.url] : null,
+    () => readability(entry.url!),
+  )
+
   const [showFooter, setShowFooter] = useAtom(showFooterAtom)
   const lastOffsetY = useSharedValue(0)
 
@@ -328,46 +452,12 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
       scrollEventThrottle={8}
       showsVerticalScrollIndicator={false}
       onScroll={scrollHandler}
+      contentContainerStyle={{
+        paddingBottom: 60,
+      }}
     >
+      {children}
       <Column gap={8}>
-        {(mediaList.length > 0 && view !== 5) && (
-          <PagerView
-            style={{
-              width: '100%',
-              aspectRatio: Math.max(...mediaList.map(media => (media.width && media.height) ? media.width / media.height : 1), 1),
-            }}
-          >
-            {mediaList.map(media => (
-              media.type === 'photo'
-                ? (
-                    <Image
-                      key={media.url}
-                      source={media.url}
-                      style={{
-                        width: '100%',
-                        aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
-                      }}
-                      proxy={{
-                        width: 700,
-                        height: 0,
-                      }}
-                      contentFit="contain"
-                    />
-                  )
-                : (
-                    <Video
-                      key={media.url}
-                      source={{ uri: media.url }}
-                      style={{
-                        width: '100%',
-                        aspectRatio: (media.width && media.height) ? media.width / media.height : 1,
-                      }}
-                      useNativeControls
-                    />
-                  )
-            ))}
-          </PagerView>
-        )}
         <ContextMenu
           actions={
             entry.url
@@ -384,7 +474,7 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
               case 'Copy Link': {
                 Clipboard.setStringAsync(entry.url!)
                   .then(() => {
-                    Toast.show('Copied to clipboard', { type: 'success' })
+                    toast('Copied to clipboard', { type: 'success' })
                   })
                   .catch(console.error)
 
@@ -432,19 +522,19 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
           <Text>
             {formatDate(entry.publishedAt, 'yyyy-MM-dd HH:mm')}
           </Text>
-          <Iconify icon="mingcute:eye-2-line" />
+          <Iconify icon="mgc:eye-2-cute-re" />
           <Text>
             {readHistories?.entryReadHistories?.readCount ?? 0}
           </Text>
         </Row>
         {summary?.data && (
           <Column
-            bg="subtle"
+            bg={theme.colors.gray2}
             p={15}
             gap={15}
           >
             <Row align="center" gap={10}>
-              <Iconify icon="mingcute:magic-2-fill" />
+              <Iconify icon="mgc:magic-2-cute-re" />
               <Text>AI summary</Text>
             </Row>
             <Text>
@@ -485,8 +575,34 @@ function EntryDetail({ entry, readHistories }: { entry: Entry & { feed: Feed }, 
             }
           },
         }}
-        content={entry.content ?? ''}
+        content={readabilityData?.content ?? entry?.content ?? ''}
       />
+      {/* <FeedContent html={readabilityData?.content ?? entry?.content ?? ''} /> */}
     </Animated.ScrollView>
+  )
+}
+
+function EntryDetail({
+  entry,
+  readHistories,
+}: {
+  entry: Entry & { feed: Feed }
+  readHistories?: EntryReadHistories
+}) {
+  const { breakpoint } = useStyles()
+
+  if (isTabletLandscape(breakpoint)) {
+    return (
+      <Row minH="100%">
+        <MediaPagerView entry={entry} />
+        <MainContentScrollView entry={entry} readHistories={readHistories} />
+      </Row>
+    )
+  }
+
+  return (
+    <MainContentScrollView entry={entry} readHistories={readHistories}>
+      <MediaPagerView entry={entry} />
+    </MainContentScrollView>
   )
 }
