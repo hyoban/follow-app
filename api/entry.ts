@@ -22,6 +22,7 @@ export async function getEntries(
     ...entry.entries,
     feedId: entry.feeds.id,
     read: entry.read ?? false,
+    collections: entry.collections?.createdAt ?? null,
   })) ?? []
 }
 
@@ -43,7 +44,7 @@ export async function createOrUpdateEntriesInDB(
 
       let isSame = true
       for (const key of Object.keys(entryInDB)) {
-        if (key !== 'read') {
+        if (!['read', 'collections'].includes(key)) {
           continue
         }
 

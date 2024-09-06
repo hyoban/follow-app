@@ -31,6 +31,7 @@ import type { TabViewIndex } from '~/store/layout'
 import { markAsReadOnScrollAtom } from '~/store/settings'
 import { isTabletLandscape } from '~/theme/breakpoints'
 
+import { IconStarCuteFi } from './icons'
 import { ListEmpty } from './list-empty'
 import { RefreshIndicator } from './refresh-indicator'
 import { SiteImage } from './site-image'
@@ -186,7 +187,7 @@ function EntryItem({ entry }: EntryItemProps) {
   const { view, title } = useTabInfo()
   const options = useMemo(() => getEntryItemPropsByView(view), [view])
   const { feedIdList } = useContext(FeedIdList)
-  const { styles } = useStyles(entryItemStyleSheet)
+  const { styles, theme } = useStyles(entryItemStyleSheet)
   const swipeableRow = useRef<SwipeableMethods>(null)
   const toggleReadStatus = useCallback(() => {
     flagEntryReadStatus({ entryId: entry.id, read: !entry.read })
@@ -259,6 +260,7 @@ function EntryItem({ entry }: EntryItemProps) {
                     >
                       {entry.title}
                     </Text>
+                    {entry.collections && <IconStarCuteFi width={20} height={20} color={theme.colors.orange5} />}
                   </Row>
                   {!options?.hideDescription && (
                     <Text
