@@ -412,9 +412,11 @@ const FeedIdList = createContext<{ feedIdList: string[] }>({ feedIdList: [] })
 export function EntryList({
   feedIdList,
   view,
+  collectedOnly,
 }: {
   feedIdList: string[]
   view?: TabViewIndex
+  collectedOnly?: boolean
 }) {
   const feedIdListRef = useRef(feedIdList)
   useEffect(() => {
@@ -423,7 +425,7 @@ export function EntryList({
 
   const headerHeight = useHeaderHeight()
   const [limit, setLimit] = useState(FETCH_PAGE_SIZE)
-  const { data: dataInDb } = useEntryList(feedIdList)
+  const { data: dataInDb } = useEntryList({ feedIdList, collectedOnly, view })
   const data = useMemo(() => dataInDb?.slice(0, limit), [dataInDb, limit])
 
   const renderItem = useCallback(
@@ -463,6 +465,8 @@ export function EntryList({
         feedIdList: feedIdListRef.current,
         start: lastItemPublishedAt.current,
         end: data?.at(-1)?.publishedAt,
+        collectedOnly,
+        view,
       },
     )
       .then((publishedAt) => {
@@ -483,7 +487,7 @@ export function EntryList({
       })
     if (updateLimit === 'increase')
       setLimit(limit => limit + FETCH_PAGE_SIZE)
-  }, [data, isFocused])
+  }, [collectedOnly, data, isFocused, view])
   const refresh = useCallback((props: { updateLimit: 'increase' | 'reset' }) => {
     setCanLoadMore(false)
     resetCursor()

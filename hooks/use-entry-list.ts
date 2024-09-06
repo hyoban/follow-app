@@ -4,6 +4,7 @@ import { unstable_serialize } from 'swr'
 
 import { db } from '~/db'
 import { addUnreadEntryListAtom, setUnreadEntryListAtom, showUnreadOnlyAtom, unreadEntryMapAtom } from '~/store/entry'
+import type { TabViewIndex } from '~/store/layout'
 
 import { useQuerySubscription } from './use-query-subscription'
 
@@ -11,15 +12,29 @@ function isArrayEmpty(arr?: any[]) {
   return !arr || arr.length === 0
 }
 
-export function useEntryList(
-  feedIdList?: string[],
-  entryIdList?: string[],
-) {
+export function useEntryList({
+  feedIdList,
+  entryIdList,
+  collectedOnly,
+  view,
+}: {
+  feedIdList?: string[]
+  entryIdList?: string[]
+  collectedOnly?: boolean
+  view?: TabViewIndex
+}) {
   const showUnreadOnly = useAtomValue(showUnreadOnlyAtom)
+
   const sub = useQuerySubscription(
     db.query.entries.findMany({
       where(fields, { inArray, or }) {
-        return or(inArray(fields.feedId, feedIdList ?? []), inArray(fields.id, entryIdList ?? []))
+        if (isArrayEmpty(feedIdList) && isArrayEmpty(entryIdList))
+          return
+
+        return or(
+          inArray(fields.feedId, feedIdList ?? []),
+          inArray(fields.id, entryIdList ?? []),
+        )
       },
       orderBy(fields, { desc }) {
         return [desc(fields.publishedAt)]
@@ -63,6 +78,13 @@ export function useEntryList(
       )
     }
   }, [feedIdList, setUnreadItems, sub.data, unreadItems])
+
+  if (collectedOnly) {
+    return {
+      ...sub,
+      data: sub.data?.filter(i => i.collections && i.feed.view === view),
+    }
+  }
 
   return {
     ...sub,

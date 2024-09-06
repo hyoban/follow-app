@@ -78,32 +78,54 @@ export async function checkNotExistEntries({
   feedIdList,
   start,
   end,
+  collectedOnly,
+  view,
 }: {
   feedIdList: string[]
   start?: string
   end?: string
+  collectedOnly?: boolean
+  view?: TabViewIndex
 }) {
   const store = getDefaultStore()
   store.set(isUpdatingEntryAtom, true)
 
   try {
     const readOnly = store.get(showUnreadOnlyAtom)
-    console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly)
-    let entriesFromApi = await getEntries({
-      feedIdList,
-      publishedAfter: start,
-      read: readOnly ? false : undefined,
-      limit: FETCH_PAGE_SIZE,
-    })
+    console.info('checkNotExistEntries', feedIdList.length, start, end, readOnly, collectedOnly)
+    let entriesFromApi = collectedOnly
+      ? await getEntries({
+        collected: true,
+        view,
+
+        publishedAfter: start,
+        limit: FETCH_PAGE_SIZE,
+      })
+      : await getEntries({
+        feedIdList,
+        read: readOnly ? false : undefined,
+
+        publishedAfter: start,
+        limit: FETCH_PAGE_SIZE,
+      })
     if (end && entriesFromApi.at(-1)?.publishedAt) {
       while (isBefore(subMinutes(end, 1), entriesFromApi.at(-1)!.publishedAt)) {
         console.info('fetch next page', entriesFromApi.at(-1)!.publishedAt)
-        const newEntries = await getEntries({
-          feedIdList,
-          publishedAfter: entriesFromApi.at(-1)!.publishedAt,
-          read: readOnly ? false : undefined,
-          limit: FETCH_PAGE_SIZE,
-        })
+        const newEntries = collectedOnly
+          ? await getEntries({
+            collected: true,
+            view,
+
+            publishedAfter: entriesFromApi.at(-1)!.publishedAt,
+            limit: FETCH_PAGE_SIZE,
+          })
+          : await getEntries({
+            feedIdList,
+            read: readOnly ? false : undefined,
+
+            publishedAfter: entriesFromApi.at(-1)!.publishedAt,
+            limit: FETCH_PAGE_SIZE,
+          })
         if (newEntries.length === 0) {
           break
         }

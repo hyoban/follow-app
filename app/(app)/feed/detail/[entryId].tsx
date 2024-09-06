@@ -239,7 +239,7 @@ function EntryFooterNavBar({ readHistories, entry }: EntryFooterNavBarProps) {
 export default function Page() {
   const { entryId, feedId } = useLocalSearchParams<{ entryId: string, feedId?: string }>()
   const feedIdList = useMemo(() => feedId?.split(',') ?? [], [feedId])
-  const { data: entryList } = useEntryList(feedIdList, [entryId])
+  const { data: entryList } = useEntryList({ feedIdList, entryIdList: [entryId] })
   const { theme } = useStyles()
   const initialPage = entryList?.findIndex(i => i.id === entryId)
   const currentEntry = entryList?.find(i => i.id === entryId)

@@ -1,13 +1,11 @@
 import { Stack, useLocalSearchParams } from 'expo-router'
 import { Platform } from 'react-native'
 
-import { Container, Row } from '~/components'
+import { Container } from '~/components'
 import { EntryList } from '~/components/entry-list'
-import { MarkAsRead } from '~/components/mark-as-read'
-import { UnreadFilter } from '~/components/unread-filter'
+import type { TabViewIndex } from '~/store/layout'
 
 type PageLocalSearchParams = {
-  feedId: string[]
   title: string
   view: string
   backTitle: string
@@ -16,9 +14,9 @@ type PageLocalSearchParams = {
 
 export default function Page() {
   const {
-    feedId: feedIdList,
     title: headerTitle,
     backTitle: headerBackTitle,
+    view,
     collected,
   } = useLocalSearchParams<PageLocalSearchParams>()
 
@@ -33,16 +31,14 @@ export default function Page() {
             ios: true,
             default: false,
           }),
-          headerRight: () => (
-            <Row gap={14}>
-              <UnreadFilter />
-              <MarkAsRead feedId={feedIdList} closeAfter />
-            </Row>
-          ),
         }}
       />
       <Container>
-        <EntryList feedIdList={feedIdList ?? []} collectedOnly={collected === 'true'} />
+        <EntryList
+          feedIdList={[]}
+          collectedOnly={collected === 'true'}
+          view={Number(view) as TabViewIndex}
+        />
       </Container>
     </>
   )

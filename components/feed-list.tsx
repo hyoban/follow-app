@@ -22,6 +22,7 @@ import type { TabViewIndex } from '~/store/layout'
 import { atomWithStorage } from '~/store/storage'
 import { isTablet } from '~/theme/breakpoints'
 
+import { IconStarCuteFi } from './icons'
 import { ListEmpty } from './list-empty'
 
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable)
@@ -318,6 +319,7 @@ export function FeedList({ view }: { view: TabViewIndex }) {
       contentInsetAdjustmentBehavior="automatic"
       scrollToOverflowEnabled
     >
+      <StarredEntryList view={view} />
       {
         feedsGrouped.length > 0
           ? feedsGrouped.map(([category, feeds]) => {
@@ -337,5 +339,26 @@ export function FeedList({ view }: { view: TabViewIndex }) {
           : <ListEmpty />
       }
     </ScrollView>
+  )
+}
+
+function StarredEntryList({ view }: { view: TabViewIndex }) {
+  const { title } = useTabInfo()
+  const { theme } = useStyles()
+  const router = useRouter()
+  return (
+    <>
+      <Pressable
+        onPress={() => {
+          router.push(`/feed/group?collected=true&view=${view}&title=Starred&backTitle=${encodeURIComponent(title ?? '')}` as any)
+        }}
+      >
+        <Row gap={10} h={45} align="center" px={18}>
+          <IconStarCuteFi color={theme.colors.orange5} />
+          <Text>Starred</Text>
+        </Row>
+      </Pressable>
+      <Divider type="horizontal" />
+    </>
   )
 }
