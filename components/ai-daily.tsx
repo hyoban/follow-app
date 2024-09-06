@@ -197,11 +197,11 @@ export function AIDaily({ view }: { view?: TabViewIndex }) {
   )
 }
 
-const styleSheet = createStyleSheet(theme => ({
+const styleSheet = createStyleSheet((theme, runtime) => ({
   modal: {
     backgroundColor: theme.colors.gray2,
-    minWidth: 300,
-    minHeight: 400,
+    width: runtime.screen.width / 2,
+    height: runtime.screen.height / 2,
     borderRadius: 10,
     overflow: 'hidden',
   },
