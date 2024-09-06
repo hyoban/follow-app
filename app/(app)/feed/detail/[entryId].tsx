@@ -6,7 +6,7 @@ import { Stack, useLocalSearchParams, useNavigation, useRouter } from 'expo-rout
 import * as Sharing from 'expo-sharing'
 import type { InferResponseType } from 'hono/client'
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { FlatList, Pressable, View } from 'react-native'
 import ContextMenu from 'react-native-context-menu-view'
 import PagerView from 'react-native-pager-view'
@@ -18,7 +18,7 @@ import useSWR from 'swr'
 import { apiClient } from '~/api/client'
 import { flagEntryCollectionStatus, flagEntryReadStatus, loadEntryContent } from '~/api/entry'
 import { Column, Container, Divider, IconButton, Iconify, Row, Text } from '~/components'
-import { FeedContent } from '~/components/feed-content'
+import HtmlRender from '~/components/dom/html-render'
 import { IconStarCuteFi, IconStarCuteRe } from '~/components/icons'
 import { Image } from '~/components/image'
 import { TipPowerBottomSheet } from '~/components/tip-power-bottom-sheet'
@@ -444,6 +444,9 @@ function MainContentScrollView({
       lastOffsetY.value = currentOffsetY
     },
   })
+
+  const [height, setHeight] = useState(UnistylesRuntime.screen.height)
+
   return (
     <Animated.ScrollView
       scrollEventThrottle={8}
@@ -540,7 +543,41 @@ function MainContentScrollView({
           </Column>
         )}
       </Column>
-      <FeedContent html={readabilityData?.content ?? entry?.content ?? ''} />
+      <HtmlRender
+        onLayout={async (size) => {
+          if (size[1] !== height) {
+            setHeight(size[1])
+          }
+        }}
+        dom={{
+          scrollEnabled: false,
+          style: { height, width: UnistylesRuntime.screen.width },
+          injectedJavaScript: `
+            // prevent links from opening in the webview
+            document.addEventListener('click', function(e) {
+              if (e.target.tagName === 'A') {
+                e.preventDefault()
+                window.ReactNativeWebView.postMessage(JSON.stringify({ external_url_open: e.target.href }))
+              }
+            })
+          `,
+          onMessage: (e) => {
+            let message: any = e.nativeEvent.data
+            try {
+              message = JSON.parse(message)
+            }
+            catch {
+              return
+            }
+            if ('object' == typeof message && message.external_url_open) {
+              openExternalUrl(message.external_url_open)
+                .catch(console.error)
+            }
+          },
+        }}
+        content={readabilityData?.content ?? entry?.content ?? ''}
+      />
+      {/* <FeedContent html={readabilityData?.content ?? entry?.content ?? ''} /> */}
     </Animated.ScrollView>
   )
 }
