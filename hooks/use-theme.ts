@@ -68,7 +68,7 @@ export function useNavigationTheme(): NavigationTheme {
         background: theme.colors.gray1,
         border: theme.colors.gray6,
         card: theme.colors.gray2,
-        notification: theme.colors.accent9,
+        notification: theme.colors.red9,
         primary: theme.colors.accent9,
         text: theme.colors.gray12,
       },
@@ -80,5 +80,6 @@ export function useNavigationTheme(): NavigationTheme {
     theme.colors.gray12,
     theme.colors.gray2,
     theme.colors.gray6,
+    theme.colors.red9,
   ])
 }
