@@ -17,6 +17,7 @@ function obtainAuthToken() {
       const { hostname, queryParams } = Linking.parse(url)
       if (hostname === 'auth' && queryParams !== null && typeof queryParams.token === 'string') {
         WebBrowser.dismissBrowser()
+          .catch(console.error)
         InAppBrowser.close()
         const { token } = queryParams
         resolve(token)
