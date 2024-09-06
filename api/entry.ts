@@ -212,6 +212,26 @@ export async function flagEntryReadStatus({
   )
 }
 
+export async function flagEntryCollectionStatus({
+  entryId,
+  collected,
+}: {
+  entryId: string
+  collected: boolean
+}) {
+  await db.update(entries)
+    .set({
+      collections: collected ? (new Date()).toISOString() : null,
+    })
+    .where(eq(entries.id, entryId))
+  if (collected) {
+    await apiClient.collections.$post({ json: { entryId } })
+  }
+  else {
+    await apiClient.collections.$delete({ json: { entryId } })
+  }
+}
+
 export async function loadEntryContent(
   entryId: string,
 ) {

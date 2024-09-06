@@ -16,9 +16,10 @@ import { createStyleSheet, UnistylesRuntime, useStyles } from 'react-native-unis
 import useSWR from 'swr'
 
 import { apiClient } from '~/api/client'
-import { flagEntryReadStatus, loadEntryContent } from '~/api/entry'
-import { Column, Container, Iconify, Row, Text } from '~/components'
+import { flagEntryCollectionStatus, flagEntryReadStatus, loadEntryContent } from '~/api/entry'
+import { Column, Container, Divider, IconButton, Iconify, Row, Text } from '~/components'
 import { FeedContent } from '~/components/feed-content'
+import { IconStarCuteFi, IconStarCuteRe } from '~/components/icons'
 import { Image } from '~/components/image'
 import { TipPowerBottomSheet } from '~/components/tip-power-bottom-sheet'
 import { READ_USER_AVATAR_COUNT } from '~/consts/limit'
@@ -64,11 +65,6 @@ const stylesheet = createStyleSheet((theme, runtime) => ({
     overflow: 'hidden',
     transform: [{ translateX: -10 * index }],
   }),
-  toolbarButton: ({ pressed }: { pressed: boolean }) => ({
-    padding: theme.spacing[1],
-    borderRadius: 6,
-    backgroundColor: pressed ? theme.colors.gray3 : 'transparent',
-  }),
 }))
 
 function EntryReadUsers({ users }: { users?: UserInReadHistories[] }) {
@@ -106,7 +102,7 @@ function EntryReadUsers({ users }: { users?: UserInReadHistories[] }) {
 }
 
 function EntryToolbar({ entry }: { entry: Entry & { feed: Feed } }) {
-  const { styles } = useStyles(stylesheet)
+  const { theme } = useStyles(stylesheet)
   const enableReadabilityMap = useAtomValue(enableReadabilityMapAtom)
   const enableReadability = useMemo(() => enableReadabilityMap[entry.feedId], [enableReadabilityMap, entry.feedId])
   const toggleEnableReadability = useSetAtom(toggleEnableReadabilityMapAtom)
@@ -115,64 +111,75 @@ function EntryToolbar({ entry }: { entry: Entry & { feed: Feed } }) {
     return null
   }
   return (
-    <Row gap={8} align="center">
-      <Pressable
-        style={styles.toolbarButton}
-        onPress={() => {
-          bottomSheetModalRef.current?.present()
-        }}
-      >
-        <Iconify icon="mgc:power-outline" />
-        <TipPowerBottomSheet
-          entry={entry}
-          bottomSheetModalRef={bottomSheetModalRef}
-        />
-      </Pressable>
-      <Pressable
-        style={styles.toolbarButton}
-        onPress={() => {
-          Clipboard.setStringAsync(entry.url!)
-            .then(() => {
-              toast('Copied to clipboard', { type: 'success' })
+    <>
+      <Row gap={14} align="center">
+        <IconButton
+          onPress={() => {
+            toggleEnableReadability(entry.feedId)
+          }}
+        >
+          {enableReadability ? (
+            <Iconify icon="mgc:sparkles-2-filled" />
+          ) : (
+            <Iconify icon="mgc:sparkles-2-cute-re" />
+          )}
+        </IconButton>
+      </Row>
+      <Divider type="vertical" mx={8} />
+      <Row gap={14} align="center">
+        <IconButton
+          onPress={() => {
+            flagEntryCollectionStatus({
+              entryId: entry.id,
+              collected: !entry.collections,
             })
-            .catch(console.error)
-        }}
-      >
-        <Iconify icon="mgc:link-cute-re" />
-      </Pressable>
-      <Pressable
-        style={styles.toolbarButton}
-        onPress={() => {
-          openExternalUrl(entry.url, { inApp: entry.feed.view !== 1 })
-            .catch(console.error)
-        }}
-      >
-        <Iconify icon="mgc:world-2-cute-re" />
-      </Pressable>
-      <Pressable
-        style={styles.toolbarButton}
-        onPress={async () => {
-          if (await Sharing.isAvailableAsync()) {
-            await Sharing.shareAsync(entry.url!)
               .catch(console.error)
-          }
-        }}
-      >
-        <Iconify icon="mgc:share-3-cute-re" />
-      </Pressable>
-      <Pressable
-        style={styles.toolbarButton}
-        onPress={() => {
-          toggleEnableReadability(entry.feedId)
-        }}
-      >
-        {enableReadability ? (
-          <Iconify icon="mgc:sparkles-2-filled" />
-        ) : (
-          <Iconify icon="mgc:sparkles-2-cute-re" />
-        )}
-      </Pressable>
-    </Row>
+          }}
+        >
+          {entry.collections ? <IconStarCuteFi color={theme.colors.orange5} /> : <IconStarCuteRe />}
+        </IconButton>
+        <IconButton
+          onPress={() => {
+            bottomSheetModalRef.current?.present()
+          }}
+        >
+          <Iconify icon="mgc:power-outline" />
+          <TipPowerBottomSheet
+            entry={entry}
+            bottomSheetModalRef={bottomSheetModalRef}
+          />
+        </IconButton>
+        <IconButton
+          onPress={() => {
+            Clipboard.setStringAsync(entry.url!)
+              .then(() => {
+                toast('Copied to clipboard', { type: 'success' })
+              })
+              .catch(console.error)
+          }}
+        >
+          <Iconify icon="mgc:link-cute-re" />
+        </IconButton>
+        <IconButton
+          onPress={() => {
+            openExternalUrl(entry.url, { inApp: entry.feed.view !== 1 })
+              .catch(console.error)
+          }}
+        >
+          <Iconify icon="mgc:world-2-cute-re" />
+        </IconButton>
+        <IconButton
+          onPress={async () => {
+            if (await Sharing.isAvailableAsync()) {
+              await Sharing.shareAsync(entry.url!)
+                .catch(console.error)
+            }
+          }}
+        >
+          <Iconify icon="mgc:share-3-cute-re" />
+        </IconButton>
+      </Row>
+    </>
   )
 }
 
