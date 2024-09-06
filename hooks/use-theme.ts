@@ -47,7 +47,21 @@ export function useTheme() {
   }, [selectedAccentColor])
 
   const { theme } = useStyles()
-  const navigationTheme = useMemo<NavigationTheme>(() => (
+
+  // handle Android navigation bar
+  useEffect(() => {
+    if (Platform.OS === 'android') {
+      void NavigationBar.setPositionAsync('absolute')
+      void NavigationBar.setBackgroundColorAsync(theme.colors.gray2)
+      void NavigationBar.setButtonStyleAsync(UnistylesRuntime.colorScheme === 'light' ? 'dark' : 'light')
+    }
+  }, [theme.colors.gray2])
+}
+
+export function useNavigationTheme(): NavigationTheme {
+  const systemTheme = useColorScheme()
+  const { theme } = useStyles()
+  return useMemo<NavigationTheme>(() => (
     {
       dark: systemTheme === 'dark',
       colors: {
@@ -67,15 +81,4 @@ export function useTheme() {
     theme.colors.gray2,
     theme.colors.gray6,
   ])
-
-  // handle Android navigation bar
-  useEffect(() => {
-    if (Platform.OS === 'android') {
-      void NavigationBar.setPositionAsync('absolute')
-      void NavigationBar.setBackgroundColorAsync(theme.colors.gray2)
-      void NavigationBar.setButtonStyleAsync(UnistylesRuntime.colorScheme === 'light' ? 'dark' : 'light')
-    }
-  }, [theme.colors.gray2])
-
-  return useMemo(() => ({ navigationTheme }), [navigationTheme])
 }

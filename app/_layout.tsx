@@ -21,7 +21,7 @@ import { Text } from '~/components'
 import { AIDailyModal } from '~/components/ai-daily'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
-import { useTheme } from '~/hooks/use-theme'
+import { useNavigationTheme, useTheme } from '~/hooks/use-theme'
 
 export const unstable_settings = {
   // Ensure that reloading on `/settings` keeps a back button present.
@@ -41,7 +41,8 @@ const stack = createModalStack({
 })
 
 export default function Root() {
-  const { navigationTheme } = useTheme()
+  useTheme()
+  const navigationTheme = useNavigationTheme()
 
   const { success, error } = useMigrations(db, migrations)
 
