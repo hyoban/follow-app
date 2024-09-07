@@ -127,8 +127,8 @@ export function AIDailyModal({ modal }: { modal: { closeModal: () => void, param
 
   const [index, setIndex] = useState(0)
   const routes = useMemo(() => [
-    { key: 'yesterday', title: yesterdayTitle },
     { key: 'today', title: todayTitle },
+    { key: 'yesterday', title: yesterdayTitle },
   ], [todayTitle, yesterdayTitle])
 
   return (
