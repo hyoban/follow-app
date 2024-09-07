@@ -13,8 +13,8 @@ import type { AppStateStatus } from 'react-native'
 import { AppState } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { createModalStack, ModalProvider } from 'react-native-modalfy'
+import { Toaster } from 'react-native-reanimated-toasts'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { ToastProvider } from 'react-native-toast-notifications'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
@@ -114,18 +114,17 @@ export default function Root() {
       }}
     >
       <PortalProvider>
-        <ToastProvider offsetTop={100} offsetBottom={100}>
-          <ThemeProvider value={navigationTheme}>
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <BottomSheetModalProvider>
-                <ModalProvider stack={stack}>
-                  <Slot />
-                </ModalProvider>
-              </BottomSheetModalProvider>
-            </GestureHandlerRootView>
-            {__DEV__ && <DrizzleStudio />}
-          </ThemeProvider>
-        </ToastProvider>
+        <ThemeProvider value={navigationTheme}>
+          <GestureHandlerRootView style={{ flex: 1 }}>
+            <BottomSheetModalProvider>
+              <ModalProvider stack={stack}>
+                <Slot />
+                <Toaster />
+              </ModalProvider>
+            </BottomSheetModalProvider>
+          </GestureHandlerRootView>
+          {__DEV__ && <DrizzleStudio />}
+        </ThemeProvider>
       </PortalProvider>
     </SWRConfig>
   )
