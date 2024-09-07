@@ -198,7 +198,7 @@ function EntryItem({ entry }: EntryItemProps) {
     <>
       <ReanimatedSwipeable
         ref={swipeableRow}
-        dragOffsetFromLeftEdge={20}
+        dragOffsetFromLeftEdge={40}
         renderLeftActions={(prog, drag) => (
           <LeftAction
             swipeableRef={swipeableRow}
