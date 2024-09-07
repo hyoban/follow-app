@@ -30,7 +30,8 @@ function FollowButton({ item }: { item: DiscoverList[number] }) {
         isLoading={isFollowing}
         onPress={() => {
           setIsFollowing(true)
-          apiClient.subscriptions.$post({ json: { url: item.feed.url, view } })
+          apiClient.subscriptions
+            .$post({ json: { url: item.feed.url, view } })
             .then(() => createFeed(item.feed, { view, category: '', isPrivate: false }))
             .then(() => { router.back() })
             .catch(console.error)

@@ -3,10 +3,11 @@ import { Platform } from 'react-native'
 const fontFaceList = [
   'SNPro-Regular.otf',
   'SNPro-RegularItalic.otf',
-].map(font => Platform.select({
-  ios: font,
-  android: `file:///android_asset/fonts/${font}`,
-}))
+]
+  .map(font => Platform.select({
+    ios: font,
+    android: `file:///android_asset/fonts/${font}`,
+  }))
   .map(font => `url(${font}) format('opentype')`)
   .join(', ')
 
