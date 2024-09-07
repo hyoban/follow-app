@@ -94,7 +94,7 @@ function AIDailyContent({ view, date }: { view: TabViewIndex, date: DayOf }) {
   )
   const router = useRouter()
   return (
-    <ScrollView style={styles.content}>
+    <ScrollView contentContainerStyle={styles.content}>
       {isLoading ? (
         <View
           style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
