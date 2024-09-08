@@ -124,7 +124,7 @@ export default function Root() {
             <BottomSheetModalProvider>
               <ModalProvider stack={stack}>
                 <Slot />
-                <Toaster position="bottom-center" offset={70} duration={1000} />
+                <Toaster position="bottom-center" offset={75} duration={1000} />
               </ModalProvider>
             </BottomSheetModalProvider>
           </GestureHandlerRootView>
