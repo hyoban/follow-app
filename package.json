@@ -40,7 +40,7 @@
     "expo-drizzle-studio-plugin": "^0.0.2",
     "expo-font": "13.0.0-canary-20240904-69100c1",
     "expo-image": "2.0.0-canary-20240904-69100c1",
-    "expo-linking": "7.0.0-canary-20240904-69100c1",
+    "expo-linking": "6.3.1",
     "expo-navigation-bar": "3.0.8-canary-20240904-69100c1",
     "expo-notifications": "1.0.0-canary-20240904-69100c1",
     "expo-router": "4.0.0-canary-20240904-69100c1",
