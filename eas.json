@@ -12,7 +12,7 @@
       "distribution": "internal",
       "env": {
         "EXPO_PUBLIC_FOLLOW_API_URL": "https://api.follow.is",
-        "EXPO_PUBLIC_FOLLOW_LOGIN_URL": "https://web.follow.is/login",
+        "EXPO_PUBLIC_FOLLOW_LOGIN_URL": "https://app.follow.is/login",
         "EXPO_PUBLIC_IMGPROXY_URL": "https://thumbor.follow.is"
       }
     },
@@ -20,7 +20,7 @@
       "autoIncrement": true,
       "env": {
         "EXPO_PUBLIC_FOLLOW_API_URL": "https://api.follow.is",
-        "EXPO_PUBLIC_FOLLOW_LOGIN_URL": "https://web.follow.is/login",
+        "EXPO_PUBLIC_FOLLOW_LOGIN_URL": "https://app.follow.is/login",
         "EXPO_PUBLIC_IMGPROXY_URL": "https://thumbor.follow.is"
       }
     }
