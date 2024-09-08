@@ -121,7 +121,8 @@
     "install": {
       "exclude": [
         "typescript",
-        "react-native-gesture-handler"
+        "react-native-gesture-handler",
+        "expo-linking"
       ]
     }
   },
