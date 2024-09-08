@@ -14,11 +14,11 @@ import { AppState, LogBox } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { createModalStack, ModalProvider } from 'react-native-modalfy'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Toaster } from 'sonner-native'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
 import { AIDailyModal } from '~/components/ai-daily'
+import { Toaster } from '~/components/toaster'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
 import { useNavigationTheme, useTheme } from '~/hooks/use-theme'
@@ -124,7 +124,7 @@ export default function Root() {
             <BottomSheetModalProvider>
               <ModalProvider stack={stack}>
                 <Slot />
-                <Toaster position="bottom-center" offset={75} duration={1000} />
+                <Toaster />
               </ModalProvider>
             </BottomSheetModalProvider>
           </GestureHandlerRootView>
