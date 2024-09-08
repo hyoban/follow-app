@@ -10,11 +10,11 @@ import { Slot } from 'expo-router'
 import * as SplashScreen from 'expo-splash-screen'
 import { useEffect } from 'react'
 import type { AppStateStatus } from 'react-native'
-import { AppState } from 'react-native'
+import { AppState, LogBox } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { createModalStack, ModalProvider } from 'react-native-modalfy'
-import { Toaster } from 'react-native-reanimated-toasts'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { Toaster } from 'sonner-native'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
@@ -22,6 +22,11 @@ import { AIDailyModal } from '~/components/ai-daily'
 import { db, expoDb } from '~/db'
 import migrations from '~/drizzle/migrations'
 import { useNavigationTheme, useTheme } from '~/hooks/use-theme'
+
+// TODO: Remove this once toast doesn't throw a warning.
+LogBox.ignoreLogs([
+  /^\[react-native-gesture-handler\]/,
+])
 
 export const unstable_settings = {
   // Ensure that reloading on `/settings` keeps a back button present.
@@ -119,7 +124,7 @@ export default function Root() {
             <BottomSheetModalProvider>
               <ModalProvider stack={stack}>
                 <Slot />
-                <Toaster position="bottom-center" offset={50} duration={1000} />
+                <Toaster position="bottom-center" offset={70} duration={1000} />
               </ModalProvider>
             </BottomSheetModalProvider>
           </GestureHandlerRootView>

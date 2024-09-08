@@ -13,9 +13,9 @@ import type { SwipeableMethods } from 'react-native-gesture-handler/ReanimatedSw
 import ReanimatedSwipeable from 'react-native-gesture-handler/ReanimatedSwipeable'
 import type { SharedValue } from 'react-native-reanimated'
 import Reanimated, { useAnimatedStyle } from 'react-native-reanimated'
-import { toast } from 'react-native-reanimated-toasts'
 import TrackPlayer, { usePlaybackState } from 'react-native-track-player'
 import { createStyleSheet, useStyles } from 'react-native-unistyles'
+import { toast } from 'sonner-native'
 import { unstable_serialize } from 'swr'
 
 import { checkNotExistEntries, flagEntryReadStatus } from '~/api/entry'
