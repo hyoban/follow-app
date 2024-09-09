@@ -79,7 +79,7 @@
     "rehype-parse": "^9.0.0",
     "rehype-stringify": "^10.0.0",
     "shaka-player": "^4.11.0",
-    "sonner-native": "npm:@hyoban/sonner-native@0.6.0",
+    "sonner-native": "^0.8.0",
     "swr": "^2.2.5",
     "tldts": "^6.1.43",
     "unified": "^11.0.5",
