@@ -9,13 +9,42 @@ on:
     branches:
       - main
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
-  lint:
-    runs-on: ubuntu-latest
+  test:
+    name: Test
+    strategy:
+      matrix:
+        node: [lts/*]
+        os: [ubuntu-latest]
+      fail-fast: false
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 10
+
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
 
-      - run: bun install
-      - run: bun run lint
-      - run: bun run typecheck
+      - name: Set node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3
+
+      - name: Setup
+        run: npm i -g @antfu/ni
+
+      - name: Install
+        run: nci
+
+      - name: Lint
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: nr lint
+
+      - name: Type check
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: nr typecheck
