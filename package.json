@@ -2,6 +2,7 @@
   "name": "follow-app",
   "version": "1.0.0",
   "private": true,
+  "packageManager": "pnpm@9.10.0+sha512.73a29afa36a0d092ece5271de5177ecbf8318d454ecd701343131b8ebc0c1a91c487da46ab77c8e596d6acf1461e3594ced4becedf8921b074fbd8653ed7051c",
   "main": "expo-router/entry",
   "scripts": {
     "android": "expo run:android --device",
@@ -31,25 +32,25 @@
     "date-fns": "^3.6.0",
     "dnum": "^2.13.1",
     "drizzle-orm": "^0.33.0",
-    "expo": "~52.0.0-canary-20240904-69100c1",
-    "expo-av": "15.0.0-canary-20240904-69100c1",
-    "expo-background-fetch": "13.0.0-canary-20240904-69100c1",
-    "expo-clipboard": "7.0.0-canary-20240904-69100c1",
-    "expo-constants": "17.0.0-canary-20240904-69100c1",
-    "expo-dev-client": "5.0.0-canary-20240814-ce0f7d5",
+    "expo": "~52.0.0-canary-20240912-1059f85",
+    "expo-av": "15.0.0-canary-20240912-1059f85",
+    "expo-background-fetch": "13.0.0-canary-20240912-1059f85",
+    "expo-clipboard": "7.0.0-canary-20240912-1059f85",
+    "expo-constants": "17.0.0-canary-20240912-1059f85",
+    "expo-dev-client": "5.0.0-canary-20240912-1059f85",
     "expo-drizzle-studio-plugin": "^0.0.2",
-    "expo-font": "13.0.0-canary-20240904-69100c1",
-    "expo-image": "2.0.0-canary-20240904-69100c1",
+    "expo-font": "13.0.0-canary-20240912-1059f85",
+    "expo-image": "2.0.0-canary-20240912-1059f85",
     "expo-linking": "6.3.1",
-    "expo-navigation-bar": "3.0.8-canary-20240904-69100c1",
-    "expo-notifications": "1.0.0-canary-20240904-69100c1",
-    "expo-router": "4.0.0-canary-20240904-69100c1",
-    "expo-sharing": "13.0.0-canary-20240904-69100c1",
-    "expo-sqlite": "15.0.0-canary-20240904-69100c1",
-    "expo-status-bar": "1.12.2-canary-20240904-69100c1",
-    "expo-system-ui": "4.0.0-canary-20240904-69100c1",
-    "expo-task-manager": "12.0.0-canary-20240904-69100c1",
-    "expo-web-browser": "14.0.0-canary-20240904-69100c1",
+    "expo-navigation-bar": "3.0.8-canary-20240912-1059f85",
+    "expo-notifications": "1.0.0-canary-20240912-1059f85",
+    "expo-router": "4.0.0-canary-20240912-1059f85",
+    "expo-sharing": "13.0.0-canary-20240912-1059f85",
+    "expo-sqlite": "15.0.0-canary-20240912-1059f85",
+    "expo-status-bar": "1.12.2-canary-20240912-1059f85",
+    "expo-system-ui": "4.0.0-canary-20240912-1059f85",
+    "expo-task-manager": "12.0.0-canary-20240912-1059f85",
+    "expo-web-browser": "14.0.0-canary-20240912-1059f85",
     "hast-util-to-jsx-runtime": "^2.3.0",
     "html-react-parser": "^5.1.15",
     "jotai": "^2.9.3",
@@ -79,7 +80,7 @@
     "rehype-parse": "^9.0.0",
     "rehype-stringify": "^10.0.0",
     "shaka-player": "^4.11.0",
-    "sonner-native": "^0.8.0",
+    "sonner-native": "^0.12.1",
     "swr": "^2.2.5",
     "tldts": "^6.1.43",
     "unified": "^11.0.5",
@@ -100,7 +101,7 @@
     "babel-plugin-inline-import": "^3.0.0",
     "drizzle-kit": "^0.24.2",
     "eslint": "^9.10.0",
-    "eslint-config-hyoban": "^3.1.5",
+    "eslint-config-hyoban": "^3.1.6",
     "hono": "^4.5.11",
     "lint-staged": "^15.2.10",
     "postcss": "^8.4.45",
@@ -108,8 +109,13 @@
     "tailwindcss": "^3.4.10",
     "typescript": "5.5.4"
   },
-  "overrides": {
-    "vfile": "5.3.7"
+  "pnpm": {
+    "patchedDependencies": {
+      "devlop@1.1.0": "patches/devlop@1.1.0.patch"
+    },
+    "overrides": {
+      "vfile": "5.3.7"
+    }
   },
   "simple-git-hooks": {
     "pre-commit": "npx lint-staged"
@@ -123,12 +129,8 @@
         "typescript",
         "react-native-gesture-handler",
         "expo-linking",
-        "react-native-screens",
-        "expo-dev-client"
+        "react-native-screens"
       ]
     }
-  },
-  "patchedDependencies": {
-    "devlop@1.1.0": "patches/devlop@1.1.0.patch"
   }
 }
