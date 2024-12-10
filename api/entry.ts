@@ -218,18 +218,18 @@ export async function flagEntryReadStatus({
       entryIdList.length > 0
         ? read
           ? apiClient.reads.$post({
-            json: {
-              entryIds: entryIdList,
-            },
-          })
+              json: {
+                entryIds: entryIdList,
+              },
+            })
           : entryIdList.map(entryId => apiClient.reads.$delete({
-            json: {
-              entryId,
-            },
-          }))
+              json: {
+                entryId,
+              },
+            }))
         : apiClient.reads.all.$post({
-          json: view !== undefined ? { view } : { feedIdList },
-        }),
+            json: view !== undefined ? { view } : { feedIdList },
+          }),
     ].flat(),
   )
 }

@@ -25,9 +25,9 @@ function prepareSvgIcon({ iconData, size }: RuntimeProps): SVGIcon {
 export function renderWebIcon(svg: SVGIcon, props: RuntimeProps) {
   const svgAsHtml = props.color
     ? svg.body.replace(
-      /<svg([^>]*)>/,
+        /<svg([^>]*)>/,
         `<svg$1 style="color: ${String(props.color)};">`,
-    )
+      )
     : svg.body
 
   return <>{parse(svgAsHtml)}</>

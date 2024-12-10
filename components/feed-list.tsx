@@ -323,19 +323,19 @@ export function FeedList({ view }: { view: TabViewIndex }) {
       {
         feedsGrouped.length > 0
           ? feedsGrouped.map(([category, feeds]) => {
-            if (isSingleCategory(feeds)) {
-              return <FeedItem key={feeds[0]!.id} feed={feeds[0]!} />
-            }
-            return (
-              <FeedFolder
-                key={category}
-                category={category}
-                feedIdList={feeds.map(i => i.id)}
-                feedList={feeds}
-                unread={feeds.reduce((acc, sub) => acc + sub.unread, 0)}
-              />
-            )
-          })
+              if (isSingleCategory(feeds)) {
+                return <FeedItem key={feeds[0]!.id} feed={feeds[0]!} />
+              }
+              return (
+                <FeedFolder
+                  key={category}
+                  category={category}
+                  feedIdList={feeds.map(i => i.id)}
+                  feedList={feeds}
+                  unread={feeds.reduce((acc, sub) => acc + sub.unread, 0)}
+                />
+              )
+            })
           : <ListEmpty />
       }
     </ScrollView>
