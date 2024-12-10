@@ -15,12 +15,12 @@ function obtainAuthToken() {
   return new Promise<string>((resolve) => {
     const subscription = Linking.addEventListener('url', ({ url }) => {
       const { hostname, queryParams } = Linking.parse(url)
-      if (hostname === 'auth' && queryParams !== null && typeof queryParams.token === 'string') {
+      if (hostname === 'auth' && queryParams !== null && typeof queryParams.ck === 'string') {
         WebBrowser.dismissBrowser()
           .catch(console.error)
         InAppBrowser.close()
-        const { token } = queryParams
-        resolve(token)
+        const { ck } = queryParams
+        resolve(ck)
         subscription.remove()
       }
     })
@@ -42,10 +42,14 @@ export default function Auth() {
   const router = useRouter()
   const searchParams = useLocalSearchParams()
   const { isLoading } = useSWR<void, Error, ['sign-in', string | string[] | null]>(
-    ['sign-in', searchParams?.token ?? null],
-    ([_, token]) => {
-      if (!token || Array.isArray(token))
+    ['sign-in', searchParams?.ck ?? null],
+    ([_, ck]) => {
+      if (!ck || Array.isArray(ck))
         throw new Error('has not token')
+
+      const cookie = atob(ck)
+      const token = cookie.split('=')[1]!
+
       return new Promise((resolve, reject) => {
         getSession(token)
           .then((session) => {

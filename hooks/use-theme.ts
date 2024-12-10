@@ -1,4 +1,5 @@
 import type { Theme as NavigationTheme } from '@react-navigation/native'
+import { DefaultTheme as DefaultNavigationTheme } from '@react-navigation/native'
 import * as NavigationBar from 'expo-navigation-bar'
 import { useAtomValue } from 'jotai'
 import { useEffect, useMemo } from 'react'
@@ -63,6 +64,7 @@ export function useNavigationTheme(): NavigationTheme {
   const { theme } = useStyles()
   return useMemo<NavigationTheme>(() => (
     {
+      fonts: DefaultNavigationTheme.fonts,
       dark: systemTheme === 'dark',
       colors: {
         background: theme.colors.gray1,
