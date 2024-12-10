@@ -53,33 +53,34 @@ export async function getSession(authToken: string): Promise<GetSessionReturn> {
 }
 
 export async function saveSessionToUserTable(
-  session: GetSessionReturn,
+  token: string,
+  result: GetSessionReturn,
 ) {
   const userInDb = await db.query.users.findFirst()
   if (userInDb) {
     await db.update(users)
       .set({
-        email: session.user.email,
-        name: session.user.name,
-        handle: session.user.handle,
-        image: session.user.image,
-        createdAt: session.user.createdAt,
-        expires: session.session.expiresAt,
-        sessionToken: session.session.token,
+        email: result.user.email,
+        name: result.user.name,
+        handle: result.user.handle,
+        image: result.user.image,
+        createdAt: result.user.createdAt,
+        expires: result.session.expiresAt,
+        sessionToken: token,
       })
-      .where(eq(users.id, session.user.id))
+      .where(eq(users.id, result.user.id))
     return
   }
 
   await db.insert(users)
     .values({
-      id: session.user.id,
-      email: session.user.email,
-      name: session.user.name,
-      handle: session.user.handle,
-      image: session.user.image,
-      createdAt: session.user.createdAt,
-      expires: session.session.expiresAt,
-      sessionToken: session.session.token,
+      id: result.user.id,
+      email: result.user.email,
+      name: result.user.name,
+      handle: result.user.handle,
+      image: result.user.image,
+      createdAt: result.user.createdAt,
+      expires: result.session.expiresAt,
+      sessionToken: token,
     })
 }

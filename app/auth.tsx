@@ -53,7 +53,7 @@ export default function Auth() {
       return new Promise((resolve, reject) => {
         getSession(token)
           .then((session) => {
-            saveSessionToUserTable(session)
+            saveSessionToUserTable(token, session)
               .then(() => {
                 resolve()
               })

@@ -16,7 +16,7 @@ export const apiClient = hc<AppType>(process.env.EXPO_PUBLIC_FOLLOW_API_URL, {
     }
 
     const header = new Headers(options.headers)
-    header.set('cookie', `better-auth.session_token=${user.sessionToken};`)
+    header.set('cookie', `better-auth.session_token=${user.sessionToken}`)
     options.headers = header
     options.credentials = 'omit'
 
