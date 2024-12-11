@@ -14,6 +14,7 @@ import { AppState, LogBox } from 'react-native'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { createModalStack, ModalProvider } from 'react-native-modalfy'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { UnistylesProvider } from 'react-native-unistyles'
 import { SWRConfig } from 'swr'
 
 import { Text } from '~/components'
@@ -118,19 +119,21 @@ export default function Root() {
         },
       }}
     >
-      <PortalProvider>
-        <ThemeProvider value={navigationTheme}>
-          <GestureHandlerRootView style={{ flex: 1 }}>
-            <BottomSheetModalProvider>
-              <ModalProvider stack={stack}>
-                <Slot />
-                <Toaster />
-              </ModalProvider>
-            </BottomSheetModalProvider>
-          </GestureHandlerRootView>
-          {__DEV__ && <DrizzleStudio />}
-        </ThemeProvider>
-      </PortalProvider>
+      <UnistylesProvider>
+        <PortalProvider>
+          <ThemeProvider value={navigationTheme}>
+            <GestureHandlerRootView style={{ flex: 1 }}>
+              <BottomSheetModalProvider>
+                <ModalProvider stack={stack}>
+                  <Slot />
+                  <Toaster />
+                </ModalProvider>
+              </BottomSheetModalProvider>
+            </GestureHandlerRootView>
+            {__DEV__ && <DrizzleStudio />}
+          </ThemeProvider>
+        </PortalProvider>
+      </UnistylesProvider>
     </SWRConfig>
   )
 }
