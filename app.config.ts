@@ -45,6 +45,15 @@ export default function app({ config }: ConfigContext): ExpoConfig {
         },
       ],
       'react-native-background-fetch',
+      'react-native-bottom-tabs',
+      [
+        'expo-build-properties',
+        {
+          ios: {
+            useFrameworks: 'static',
+          },
+        },
+      ],
     ],
     experiments: {
       typedRoutes: true,

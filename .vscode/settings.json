@@ -1,8 +1,24 @@
 {
+  // You shouldn't use formatter with this ESLint config
   "[javascript][javascriptreact][typescript][typescriptreact][json][jsonc]": {
     "editor.formatOnSave": false,
     "editor.codeActionsOnSave": {
       "source.fixAll.eslint": "explicit"
     }
-  }
+  },
+
+  // If you do not want to auto fix some rules on save
+  // You can put this in your user settings or workspace settings
+  "eslint.codeActionsOnSave.rules": [
+    "!prefer-const",
+    "!unused-imports/no-unused-imports",
+    "!@stylistic/jsx-self-closing-comp",
+    "!tailwindcss/classnames-order",
+    "*"
+  ],
+
+  // You can also silent all auto fixable rules
+  "eslint.rules.customizations": [
+    { "rule": "*", "fixable": true, "severity": "off" }
+  ]
 }

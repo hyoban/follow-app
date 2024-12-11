@@ -16,6 +16,7 @@ export type TabView = {
   path: Route
   title: string
   icon: (color: string) => React.ReactNode
+  iconRequire: () => any
   color: string
 }
 
@@ -26,6 +27,7 @@ export const tabViewList: TabView[] = [
     path: '/',
     title: 'Articles',
     icon: (color: string) => <IconPaperCuteFi color={color} />,
+    iconRequire: () => require('~/icons/mgc/paper_cute_fi.svg'),
     color: 'orange',
   },
   {
@@ -34,6 +36,7 @@ export const tabViewList: TabView[] = [
     path: '/social',
     title: 'Social Media',
     icon: (color: string) => <IconTwitterCuteFi color={color} />,
+    iconRequire: () => require('~/icons/mgc/twitter_cute_fi.svg'),
     color: 'sky',
   },
   {
@@ -42,6 +45,7 @@ export const tabViewList: TabView[] = [
     path: '/picture',
     title: 'Pictures',
     icon: (color: string) => <IconPicCuteFi color={color} />,
+    iconRequire: () => require('~/icons/mgc/pic_cute_fi.svg'),
     color: 'green',
   },
   {
@@ -50,6 +54,7 @@ export const tabViewList: TabView[] = [
     path: '/video',
     title: 'Videos',
     icon: (color: string) => <IconVideoCuteFi color={color} />,
+    iconRequire: () => require('~/icons/mgc/video_cute_fi.svg'),
     color: 'red',
   },
   {
@@ -58,6 +63,7 @@ export const tabViewList: TabView[] = [
     path: '/audio',
     title: 'Audios',
     icon: (color: string) => <IconMicCuteFi color={color} />,
+    iconRequire: () => require('~/icons/mgc/mic_cute_fi.svg'),
     color: 'purple',
   },
   {
@@ -66,6 +72,7 @@ export const tabViewList: TabView[] = [
     path: '/notification',
     title: 'Notifications',
     icon: (color: string) => <IconAnnouncementCuteFi color={color} />,
+    iconRequire: () => require('~/icons/mgc/announcement_cute_fi.svg'),
     color: 'yellow',
   },
 ]
