@@ -29,11 +29,16 @@ export default function TabLayout() {
         <Tabs.Screen
           key={view.name}
           name={view.name}
-          options={{
-            title: view.title,
-            tabBarIcon: view.iconRequire,
-            tabBarBadge: `${countList[view.view] > 0 ? countList[view.view] : ''}`,
+          options={({ navigation }) => {
+            const currentIndex = navigation.getState().index as number
+            return {
+              title: view.title,
+              tabBarIcon: view.iconRequire,
+              tabBarBadge: `${countList[view.view] > 0 ? countList[view.view] : ''}`,
+              tabBarItemHidden: (currentIndex < 2 && view.view === 5) || (currentIndex >= 2 && view.view === 0),
+            }
           }}
+          initialParams={{ view: view.view, title: view.title }}
         />
       ))}
     </Tabs>
