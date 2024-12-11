@@ -29,6 +29,13 @@
       "when": 1725593417155,
       "tag": "0003_neat_tattoo",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1733881729494,
+      "tag": "0004_regular_blade",
+      "breakpoints": true
     }
   ]
 }

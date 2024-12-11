@@ -24,7 +24,7 @@ export const feeds = sqliteTable('feeds', {
   image: text('image'),
 
   // date
-  checkedAt: text('checked_at').notNull(),
+  // checkedAt: text('checked_at').notNull(),
   lastModifiedHeader: text('last_modified_header'),
   etagHeader: text('etag_header'),
   ttl: integer('ttl'),

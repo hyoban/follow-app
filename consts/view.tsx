@@ -1,4 +1,4 @@
-import type { Routes } from 'expo-router'
+import type { Route } from 'expo-router'
 
 import {
   IconAnnouncementCuteFi,
@@ -13,7 +13,7 @@ import type { TabViewIndex } from '~/store/layout'
 export type TabView = {
   view: TabViewIndex
   name: string
-  path: Routes
+  path: Route
   title: string
   icon: (color: string) => React.ReactNode
   color: string

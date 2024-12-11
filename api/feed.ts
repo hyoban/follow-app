@@ -36,11 +36,13 @@ export async function getFeeds(): Promise<Feed[]> {
   const subscriptions = await (await apiClient.subscriptions.$get({ query: {} })).json()
   const reads = await (await apiClient.reads.$get({ query: {} })).json()
 
-  return subscriptions.data.map(subscription => ({
-    ...subscription,
-    ...subscription.feeds,
-    unread: reads.data[subscription.feedId] ?? 0,
-  }))
+  return subscriptions.data
+    .map(subscription => ({
+      ...subscription,
+      ...subscription.feeds,
+      unread: reads.data[subscription.feedId] ?? 0,
+    }))
+    .filter(feed => !!feed.id)
 }
 
 const appStateAtom = atom('active')

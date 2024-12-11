@@ -5,6 +5,7 @@ import m0000 from './0000_clammy_silver_sable.sql';
 import m0001 from './0001_striped_skrulls.sql';
 import m0002 from './0002_workable_ben_parker.sql';
 import m0003 from './0003_neat_tattoo.sql';
+import m0004 from './0004_regular_blade.sql';
 
   export default {
     journal,
@@ -12,7 +13,8 @@ import m0003 from './0003_neat_tattoo.sql';
       m0000,
 m0001,
 m0002,
-m0003
+m0003,
+m0004
     }
   }
   

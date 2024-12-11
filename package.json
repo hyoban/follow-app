@@ -100,6 +100,8 @@
     "@types/react": "~18.3.14",
     "autoprefixer": "^10.4.20",
     "babel-plugin-inline-import": "^3.0.0",
+    "better-auth": "^1.0.15",
+    "better-call": "0.3.3-beta.4",
     "drizzle-kit": "^0.30.0",
     "eslint": "^9.16.0",
     "eslint-config-hyoban": "^3.1.15",

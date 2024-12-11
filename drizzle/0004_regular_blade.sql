@@ -1,0 +1,1 @@
+ALTER TABLE `feeds` DROP COLUMN `checked_at`;
