@@ -18,7 +18,7 @@ export function useTheme() {
   useEffect(() => {
     if (userTheme === 'system') {
       Appearance.setColorScheme(null)
-      UnistylesRuntime.setTheme(systemTheme === 'dark' ? 'dark' : 'light')
+      UnistylesRuntime.setTheme(UnistylesRuntime.colorScheme === 'unspecified' ? 'light' : UnistylesRuntime.colorScheme)
       return
     }
     Appearance.setColorScheme(userTheme)
